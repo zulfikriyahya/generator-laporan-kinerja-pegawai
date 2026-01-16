@@ -4,57 +4,116 @@ import InputGroup from "../InputGroup.astro";
 
 <div class="space-y-4">
 	<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
-		Identitas Instansi
+		Header Kop Surat
 	</h3>
 	<InputGroup
-		label="Nama Instansi (Header 1)"
-		name="instansi"
-		model="form.instansiNama"
-		placeholder="PEMERINTAH PROVINSI..."
+		label="Baris 1 (Induk)"
+		name="baris1"
+		model="form.institusiBarisSatuNama"
+		placeholder="KEMENTERIAN AGAMA RI"
 	/>
 	<InputGroup
-		label="Alamat / Sub-Header"
+		label="Baris 2 (Wilayah)"
+		name="baris2"
+		model="form.institusiBarisDuaNama"
+		placeholder="KANTOR KABUPATEN..."
+	/>
+	<InputGroup
+		label="Nama Satuan Kerja"
+		name="instansi"
+		model="form.instansiNama"
+		placeholder="MADRASAH / SEKOLAH..."
+	/>
+	<InputGroup
+		label="Alamat Lengkap"
 		name="alamat"
 		model="form.instansiAlamat"
-		placeholder="Alamat lengkap..."
+		placeholder="Jl. Raya..."
 	/>
-	<div class="flex flex-col gap-2 group">
-		<label class="text-xs font-bold text-slate-400 uppercase tracking-wider"
-			>Logo Instansi</label
-		>
-		<div class="flex items-center gap-4">
-			<div
-				class="w-16 h-16 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden relative"
+	<InputGroup
+		label="Kontak / Website"
+		name="website"
+		model="form.instansiWebsite"
+		placeholder="Website / Email / Telp"
+	/>
+	<InputGroup
+		label="Titimangsa (Tempat, Tanggal)"
+		name="titimangsa"
+		model="form.titimangsa"
+		placeholder="Pandeglang, 31 Januari 2025"
+	/>
+
+	<!-- UPLOAD LOGO SECTION -->
+	<div class="grid grid-cols-2 gap-4 mt-4 border-t border-white/10 pt-4">
+		<!-- LOGO KIRI (Institusi) -->
+		<div class="flex flex-col gap-2 group">
+			<label class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+				>Logo Kiri (Induk)</label
 			>
-				<template x-if="form.logoBase64">
-					<img :src="form.logoBase64" class="w-full h-full object-contain" />
-				</template>
-				<template x-if="!form.logoBase64">
-					<span class="text-xs text-slate-500">No Logo</span>
-				</template>
-				<button
-					x-show="form.logoBase64"
-					@click="form.logoBase64 = ''"
-					class="absolute inset-0 bg-black/60 flex items-center justify-center text-red-400 opacity-0 hover:opacity-100 transition"
+			<div class="flex flex-col gap-2">
+				<div
+					class="w-16 h-16 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden relative"
 				>
-					✕
-				</button>
-			</div>
-			<div class="flex-1">
+					<template x-if="form.logoInstitusiBase64">
+						<img
+							:src="form.logoInstitusiBase64"
+							class="w-full h-full object-contain"
+						/>
+					</template>
+					<template x-if="!form.logoInstitusiBase64">
+						<span class="text-[10px] text-slate-500 text-center px-1"
+							>No Logo</span
+						>
+					</template>
+					<button
+						x-show="form.logoInstitusiBase64"
+						@click="form.logoInstitusiBase64 = ''"
+						class="absolute inset-0 bg-black/60 flex items-center justify-center text-red-400 opacity-0 hover:opacity-100 transition"
+						>✕</button
+					>
+				</div>
 				<input
 					type="file"
 					accept="image/*"
-					@change="handleLogoUpload"
-					class="block w-full text-sm text-slate-400
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-xs file:font-semibold
-            file:bg-blue-500/10 file:text-blue-400
-            hover:file:bg-blue-500/20 cursor-pointer"
+					@change="handleLogoUpload($event, 'logoInstitusiBase64')"
+					class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20"
 				/>
-				<p class="text-[10px] text-slate-500 mt-1">
-					Maks 100KB (PNG/JPG). Disimpan lokal.
-				</p>
+			</div>
+		</div>
+
+		<!-- LOGO KANAN (Instansi) -->
+		<div class="flex flex-col gap-2 group">
+			<label class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+				>Logo Kanan (Satker)</label
+			>
+			<div class="flex flex-col gap-2">
+				<div
+					class="w-16 h-16 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden relative"
+				>
+					<template x-if="form.logoInstansiBase64">
+						<img
+							:src="form.logoInstansiBase64"
+							class="w-full h-full object-contain"
+						/>
+					</template>
+					<template x-if="!form.logoInstansiBase64">
+						<span class="text-[10px] text-slate-500 text-center px-1"
+							>No Logo</span
+						>
+					</template>
+					<button
+						x-show="form.logoInstansiBase64"
+						@click="form.logoInstansiBase64 = ''"
+						class="absolute inset-0 bg-black/60 flex items-center justify-center text-red-400 opacity-0 hover:opacity-100 transition"
+						>✕</button
+					>
+				</div>
+				<input
+					type="file"
+					accept="image/*"
+					@change="handleLogoUpload($event, 'logoInstansiBase64')"
+					class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20"
+				/>
 			</div>
 		</div>
 	</div>

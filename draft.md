@@ -18,6 +18,7 @@
 │   │   ├── InputGroup.astro
 │   │   ├── TextAreaGroup.astro
 │   │   └── ui
+│   │       ├── Skeleton.astro
 │   │       └── ToastContainer.astro
 │   ├── layouts
 │   │   └── Layout.astro
@@ -33,9 +34,9 @@
 │   └── utils
 │       └── markdown.ts
 └── tsconfig.json
-```
 
-12 directories, 20 files
+12 directories, 21 files
+```
 
 # File Contents
 
@@ -67,7 +68,7 @@ const { title } = Astro.props;
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 	</head>
@@ -109,6 +110,7 @@ import DOMPurify from "dompurify";
 export const parseMarkdown = async (text: string): Promise<string> => {
 	if (!text) return "";
 
+	// Pastikan gfm (Github Flavored Markdown) true agar Tabel dirender
 	marked.use({
 		breaks: true,
 		gfm: true,
@@ -164,6 +166,109 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
 	}
 }
+
+/* UTILITIES KHUSUS LAPORAN */
+@layer utilities {
+	.prose-report {
+		font-family: "Lexend", Inter, sans-serif;
+		color: #000000 !important;
+		line-height: 1.5;
+	}
+
+	.prose-report table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 1rem 0;
+		font-size: 0.85rem;
+		border: 1px solid #000000;
+	}
+
+	.prose-report th {
+		border: 1px solid #000000;
+		background-color: #f3f4f6;
+		color: #000000;
+		padding: 6px;
+		font-weight: bold;
+		text-align: center;
+		text-transform: uppercase;
+		font-size: 0.75rem;
+		font-family: Lexend, sans-serif;
+	}
+
+	.prose-report td {
+		border: 1px solid #000000;
+		color: #000000;
+		padding: 6px;
+		vertical-align: top;
+		text-align: left;
+	}
+
+	.prose-report h1,
+	.prose-report h2,
+	.prose-report h3 {
+		color: #000000 !important;
+		font-family: Lexend, Inter, sans-serif;
+		margin-top: 1.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.prose-report p,
+	.prose-report li {
+		margin-bottom: 0.5rem;
+		text-align: justify;
+	}
+
+	.prose-report ul,
+	.prose-report ol {
+		padding-left: 1.5rem;
+		margin-bottom: 1rem;
+	}
+}
+
+/* MEDIA PRINT (Ctrl+P) */
+@media print {
+	body {
+		background: none !important;
+		color: black !important;
+	}
+
+	/* Sembunyikan UI Web */
+	header,
+	aside,
+	.glass-panel > div:first-child,
+	.btn-primary,
+	button,
+	.toast-container,
+	.no-print,
+	nav,
+	footer,
+	::-webkit-scrollbar {
+		display: none !important;
+	}
+
+	/* Reset Layout */
+	main {
+		display: block !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		max-width: 100% !important;
+	}
+	.glass-panel {
+		background: none !important;
+		border: none !important;
+		box-shadow: none !important;
+		overflow: visible !important;
+	}
+	div {
+		overflow: visible !important;
+	}
+
+	#report-preview {
+		box-shadow: none !important;
+		margin: 0 !important;
+		width: 100% !important;
+	}
+}
 ```
 
 ---
@@ -174,63 +279,93 @@ export const parseMarkdown = async (text: string): Promise<string> => {
 import { persistentMap } from "@nanostores/persistent";
 
 export type ReportData = {
+	// Instansi
+	institusiBarisSatuNama: string;
+	institusiBarisDuaNama: string;
 	instansiNama: string;
 	instansiAlamat: string;
-	logoBase64: string;
+	instansiWebsite: string;
+	logoInstitusiBase64: string;
+	logoInstansiBase64: string;
+	titimangsa: string;
+
+	// Pribadi
 	nama: string;
 	nip: string;
 	gender: string;
 	email: string;
 	telepon: string;
-	jenisPegawai: string;
+
+	// Kepegawaian
+	jenisPegawai: "Guru" | "Staf";
 	unitKerja: string;
 	statusKepegawaian: string;
 	golongan: string;
 	jabatan: string;
 	tglMulai: string;
+
+	// Pendidikan (Khusus Guru)
 	jenjang: string;
 	mapel: string;
 	kelas: string;
 	jamMengajar: string;
 	kurikulum: string;
 	jmlSiswa: string;
+
+	// Tugas
 	tugasPokok: string;
 	tugasTambahan: string;
 	tugasKhusus: string;
 	ekskul: string;
+
+	// Periode
 	bulan: string;
 	tahun: string;
 	hariKerja: string;
 	jenisLaporan: string;
+
+	// Config AI
 	modelAI: string;
 	detailLevel: string;
 	bahasa: string;
 	tone: string;
+	customInstruction: string;
+
+	// System
 	generatedContent: string;
 	lastUpdated: string;
 };
+
 export type HistoryItem = {
 	id: string;
 	date: string;
 	title: string;
 	data: ReportData;
 };
+
 const defaultState: ReportData = {
-	instansiNama: "DINAS PENDIDIKAN PROVINSI DKI JAKARTA",
-	instansiAlamat: "SMA NEGERI 1 CONTOH - Jl. Pendidikan No. 1, Jakarta",
-	logoBase64: "",
+	institusiBarisSatuNama: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
+	institusiBarisDuaNama: "KANTOR KEMENTERIAN AGAMA KABUPATEN PANDEGLANG",
+	instansiNama: "MADRASAH TSANAWIYAH NEGERI 1 PANDEGLANG",
+	instansiAlamat:
+		"Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
+	instansiWebsite:
+		"Website: https://mtsn1pandeglang.sch.id | Email: adm@mtsn1pandeglang.sch.id",
+	logoInstitusiBase64: "",
+	logoInstansiBase64: "",
+	titimangsa: "Pandeglang, 31 Januari 2026",
 	nama: "",
 	nip: "",
-	gender: "L",
+	gender: "",
 	email: "",
 	telepon: "",
-	jenisPegawai: "Guru",
+	jenisPegawai: "",
 	unitKerja: "",
-	statusKepegawaian: "PNS",
+	statusKepegawaian: "",
 	golongan: "",
 	jabatan: "",
-	tglMulai: "",
-	jenjang: "SMA",
+	tglMulai: new Date().toISOString().split("T")[0],
+	jenjang: "",
 	mapel: "",
 	kelas: "",
 	jamMengajar: "24",
@@ -240,35 +375,42 @@ const defaultState: ReportData = {
 	tugasTambahan: "",
 	tugasKhusus: "",
 	ekskul: "",
-	bulan: new Date().getMonth().toString(),
+	bulan: (new Date().getMonth() + 1).toString(),
 	tahun: new Date().getFullYear().toString(),
-	hariKerja: "Senin-Jumat",
+	hariKerja: "Senin - Jumat",
 	jenisLaporan: "Bulanan",
-	modelAI: "gemini-3-flash-preview",
+	modelAI: "gemini-2.5-flash",
 	detailLevel: "Standar",
 	bahasa: "Indonesia",
 	tone: "Formal",
+	customInstruction: "",
 	generatedContent: "",
 	lastUpdated: new Date().toISOString(),
 };
+
 export const reportStore = persistentMap<ReportData>(
-	"laporan-live:",
+	"laporan-live-v1:",
 	defaultState
 );
+
 export const historyStore = persistentMap<{ items: HistoryItem[] }>(
-	"laporan-history:",
-	{
-		items: [],
-	}
+	"laporan-history-v1:",
+	{ items: [] }
 );
+
 export const resetStore = () => {
 	reportStore.set(defaultState);
 };
+
 export const saveToHistory = (): boolean => {
 	const currentData = reportStore.get();
 	if (!currentData.generatedContent) return false;
+
+	const uniqueId =
+		Date.now().toString() + "-" + Math.random().toString(36).substr(2, 5);
+
 	const newItem: HistoryItem = {
-		id: Date.now().toString(),
+		id: uniqueId,
 		date: new Date().toLocaleDateString("id-ID", {
 			day: "numeric",
 			month: "short",
@@ -283,6 +425,7 @@ export const saveToHistory = (): boolean => {
 	historyStore.setKey("items", newHistory);
 	return true;
 };
+
 export const loadFromHistory = (id: string): boolean => {
 	const item = historyStore.get().items.find((i) => i.id === id);
 	if (item) {
@@ -291,6 +434,7 @@ export const loadFromHistory = (id: string): boolean => {
 	}
 	return false;
 };
+
 export const deleteHistory = (id: string) => {
 	const current = historyStore.get().items;
 	historyStore.setKey(
@@ -375,7 +519,7 @@ const { label, name, model, options } = Astro.props;
 
 ```astro
 ---
-import InputGroup from "../components/InputGroup.astro";
+import InputGroup from "../InputGroup.astro";
 ---
 
 <div class="space-y-4">
@@ -435,7 +579,6 @@ import InputGroup from "../components/InputGroup.astro";
 		</div>
 	</div>
 </div>
-<script></script>
 
 ```
 
@@ -504,8 +647,9 @@ interface Props {
 	name: string;
 	model: string;
 	rows?: string;
+	placeholder?: string;
 }
-const { label, name, model, rows = "4" } = Astro.props;
+const { label, name, model, rows = "4", placeholder } = Astro.props;
 ---
 
 <div class="flex flex-col gap-2 group">
@@ -520,7 +664,8 @@ const { label, name, model, rows = "4" } = Astro.props;
 		name={name}
 		x-model={model}
 		rows={rows}
-		class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all resize-none custom-scrollbar"
+		placeholder={placeholder}
+		class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all resize-none custom-scrollbar placeholder:text-slate-600"
 	></textarea>
 </div>
 
@@ -609,6 +754,34 @@ const { label, name, model, rows = "4" } = Astro.props;
 
 ---
 
+## ./src/components/ui/Skeleton.astro
+
+```astro
+<div class="animate-pulse w-full max-w-3xl mx-auto p-4 space-y-4">
+	<div class="flex gap-4 items-center border-b border-gray-200 pb-4">
+		<div class="w-16 h-16 bg-slate-200 rounded-lg"></div>
+		<div class="flex-1 space-y-2">
+			<div class="h-4 bg-slate-200 rounded w-3/4 mx-auto"></div>
+			<div class="h-3 bg-slate-200 rounded w-1/2 mx-auto"></div>
+		</div>
+	</div>
+	<div class="h-6 bg-slate-200 rounded w-1/3 mx-auto my-6"></div>
+	<div class="space-y-2">
+		<div class="h-3 bg-slate-200 rounded w-full"></div>
+		<div class="h-3 bg-slate-200 rounded w-full"></div>
+		<div class="h-3 bg-slate-200 rounded w-5/6"></div>
+	</div>
+	<div class="border border-slate-200 rounded mt-6 p-2">
+		<div class="h-8 bg-slate-100 mb-2 rounded"></div>
+		<div class="h-4 bg-slate-50 mb-1 rounded"></div>
+		<div class="h-4 bg-slate-50 mb-1 rounded"></div>
+	</div>
+</div>
+
+```
+
+---
+
 ## ./src/components/ui/ToastContainer.astro
 
 ```astro
@@ -670,58 +843,123 @@ const { label, name, model, rows = "4" } = Astro.props;
 ## ./src/services/aiService.ts
 
 ```typescript
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+	GoogleGenerativeAI,
+	HarmCategory,
+	HarmBlockThreshold,
+} from "@google/generative-ai";
 import { reportStore } from "../stores/reportStore";
 
 const API_KEY = import.meta.env.PUBLIC_GEMINI_API_KEY;
 
 export const generateLaporan = async () => {
-	if (!API_KEY) throw new Error("API Key Missing");
+	if (!API_KEY) throw new Error("API Key Missing. Cek .env file.");
 
 	const data = reportStore.get();
 	const genAI = new GoogleGenerativeAI(API_KEY);
-	const model = genAI.getGenerativeModel({ model: data.modelAI });
-	let konteksGuru = "";
+
+	const model = genAI.getGenerativeModel({
+		model: data.modelAI,
+		safetySettings: [
+			{
+				category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+				threshold: HarmBlockThreshold.BLOCK_NONE,
+			},
+			{
+				category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+				threshold: HarmBlockThreshold.BLOCK_NONE,
+			},
+			{
+				category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+				threshold: HarmBlockThreshold.BLOCK_NONE,
+			},
+			{
+				category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+				threshold: HarmBlockThreshold.BLOCK_NONE,
+			},
+		],
+	});
+
+	let konteksSpesifik = "";
 	if (data.jenisPegawai === "Guru") {
-		konteksGuru = `
-      Detail Mengajar:
+		konteksSpesifik = `
+      PERAN: GURU
+      - Jenjang: ${data.jenjang}
       - Mapel: ${data.mapel}
-      - Kelas: ${data.kelas}
-      - Jam/Minggu: ${data.jamMengajar}
+      - Kelas Ajar: ${data.kelas}
+      - Jumlah Siswa: ${data.jmlSiswa || "Sesuai Dapodik"}
+      - Jam Mengajar: ${data.jamMengajar} Jam/Minggu
       - Kurikulum: ${data.kurikulum}
+      - Ekstrakurikuler: ${data.ekskul || "-"}
+    `;
+	} else {
+		konteksSpesifik = `
+      PERAN: STAF / TENAGA KEPENDIDIKAN
+      - Unit Kerja: ${data.unitKerja}
+      - Tugas Spesifik: Administrasi dan Pelayanan
     `;
 	}
 
 	const prompt = `
-    Buat Laporan Kinerja ${data.jenisLaporan} untuk pegawai berikut:
+    Bertindaklah sebagai mesin generator konten laporan otomatis.
+    Tugasmu adalah mengisi **BAGIAN ISI (BODY)** laporan saja.
     
-    DATA DIRI:
-    Nama: ${data.nama}, NIP: ${data.nip}, Jabatan: ${data.jabatan}
-    Status: ${data.statusKepegawaian}, Unit: ${data.unitKerja}
-    
-    ${konteksGuru}
+    DATA PEGAWAI:
+    - Nama: ${data.nama}
+    - Jabatan: ${data.jabatan}
+    - Unit Kerja: ${data.unitKerja}
+    - Periode: Bulan ${data.bulan} Tahun ${data.tahun}
+
+    ${konteksSpesifik}
 
     AKTIVITAS:
-    - Tugas Pokok: ${data.tugasPokok}
-    - Tugas Tambahan: ${data.tugasTambahan}
-    - Proyek Khusus: ${data.tugasKhusus}
+    1. TUGAS POKOK: ${data.tugasPokok}
+    2. TUGAS TAMBAHAN: ${data.tugasTambahan}
+    3. TUGAS KHUSUS: ${data.tugasKhusus || "Tidak ada"}
     
-    PERIODE: Bulan ${data.bulan} Tahun ${data.tahun}
+    INSTRUKSI KHUSUS USER: "${data.customInstruction || "-"}"
+
+    ATURAN OUTPUT (STRICT RULES):
+    1. **JANGAN** membuat Kop Surat atau Judul Laporan (misal: "LAPORAN KINERJA..."). Judul sudah ada di sistem.
+    2. **JANGAN** ada kata pembuka seperti "Berikut adalah draf..." atau "Tentu, ini laporannya...".
+    3. **JANGAN** menulis identitas pegawai lagi di awal.
+    4. **LANGSUNG** mulai output dengan Heading Bab 1.
+    5. Gunakan Format Markdown.
+
+    STRUKTUR KONTEN YANG HARUS DIBUAT:
     
-    INSTRUKSI OUTPUT:
-    - Bahasa: ${data.bahasa}
-    - Gaya Bahasa: ${data.tone}
-    - Detail: ${data.detailLevel}
-    - Format: Markdown (Gunakan tabel untuk rincian kegiatan).
-    - Struktur: Header (Kop), Pendahuluan, Rincian Kegiatan (Tabel), Kendala & Solusi, Penutup.
+    ### I. PENDAHULUAN
+    (Tuliskan latar belakang pelaksanaan tugas, dasar hukum singkat, dan tujuan kinerja pada bulan ini).
+
+    ### II. PELAKSANAAN TUGAS DAN CAPAIAN KINERJA
+    (WAJIB: Gunakan Tabel Markdown).
+    Kolom Tabel: | No | Tanggal | Uraian Kegiatan | Output/Hasil | Keterangan |
+    
+    *Isi tabel dengan menjabarkan "${
+			data.tugasPokok
+		}" menjadi kegiatan harian/mingguan yang logis dan variatif. Masukkan juga "${
+		data.tugasTambahan
+	}" dan "${data.tugasKhusus}".*
+
+    ### III. KENDALA DAN SOLUSI
+    (Uraikan hambatan teknis/non-teknis yang dihadapi bulan ini serta tindak lanjutnya).
+
+    ### IV. PENUTUP
+    (Kalimat penutup singkat).
+    
+    Gunakan bahasa ${data.bahasa} dengan gaya ${data.tone}.
   `;
 
 	try {
 		const result = await model.generateContent(prompt);
 		const text = result.response.text();
-		reportStore.setKey("generatedContent", text);
+
+		let cleanText = text.replace(/^Berikut adalah.*:/i, "").trim();
+		cleanText = cleanText.replace(/^Tentu.*:/i, "").trim();
+
+		reportStore.setKey("generatedContent", cleanText);
 		reportStore.setKey("lastUpdated", new Date().toISOString());
-		return text;
+		return cleanText;
 	} catch (error) {
 		console.error("AI Error:", error);
 		throw error;
@@ -742,127 +980,174 @@ import TextAreaGroup from "../components/TextAreaGroup.astro";
 import TabNavigation from "../components/forms/TabNavigation.astro";
 import ToastContainer from "../components/ui/ToastContainer.astro";
 import HistoryPanel from "../components/HistoryPanel.astro";
-import { Bot, FileText, Printer, Copy, Save, RefreshCw } from "@lucide/astro";
+import Skeleton from "../components/ui/Skeleton.astro";
 import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
+import {
+	Bot,
+	FileText,
+	Printer,
+	Copy,
+	Save,
+	RefreshCw,
+	FileDown,
+	RotateCcw,
+	Upload,
+	Download,
+} from "@lucide/astro";
 ---
 
 <Layout title="Generator Laporan Kinerja AI">
 	<ToastContainer />
+
 	<main
-		class="container mx-auto px-4 py-6 max-w-[1600px] min-h-screen flex flex-col"
+		class="container mx-auto px-4 py-4 max-w-[1600px] min-h-screen flex flex-col"
 		x-data="appFinal"
+		@keydown.window.prevent.ctrl.s="saveHistory()"
+		@keydown.window.prevent.ctrl.g="generate()"
 	>
 		<header
-			class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-6"
+			class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-4 no-print"
 		>
 			<div>
-				<h1 class="text-2xl font-bold text-white tracking-tight">
-					Generator Laporan Kinerja
+				<h1
+					class="text-2xl font-bold text-white tracking-tight flex items-center gap-2"
+				>
+					<Bot class="text-blue-500" /> Generator Laporan Kinerja
 				</h1>
-				<p class="text-slate-400 text-sm mt-1">
-					Sistem Otomasi Pelaporan Pegawai Berbasis AI
+				<p class="text-slate-400 text-xs mt-1">
+					Sistem Otomasi Pelaporan Pegawai Berbasis AI • <span
+						class="text-slate-500">v3.0 Final</span
+					>
 				</p>
 			</div>
 			<div class="flex items-center gap-3">
 				<div
-					class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono"
+					class="hidden md:flex flex-col items-end text-[10px] text-slate-500 font-mono"
 				>
-					Status: Ready
+					<span>Ctrl+G: Generate</span>
+					<span>Ctrl+S: Save Draft</span>
 				</div>
 			</div>
 		</header>
+
 		<div
-			class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-[calc(100vh-160px)] min-h-[600px]"
+			class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-[calc(100vh-140px)] min-h-[600px]"
 		>
 			<div
-				class="lg:col-span-4 xl:col-span-3 flex flex-col h-full bg-slate-900/50 rounded-xl border border-white/5 overflow-hidden"
+				class="lg:col-span-4 xl:col-span-3 flex flex-col h-full bg-slate-900/50 rounded-xl border border-white/5 overflow-hidden shadow-2xl glass-panel"
 			>
-				<div class="p-4 border-b border-white/5">
+				<div class="p-3 border-b border-white/5 bg-slate-950/30">
 					<TabNavigation />
 				</div>
-				<div class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+
+				<div
+					class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar scroll-smooth"
+				>
 					<div
 						x-show="activeTab === 'instansi'"
 						class="space-y-4 animate-fade-in"
 					>
 						<KopSuratConfig />
 					</div>
+
 					<div
 						x-show="activeTab === 'pribadi'"
 						class="space-y-4 animate-fade-in"
 					>
-						<div class="space-y-4">
-							<h3
-								class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
-							>
-								Data Diri
-							</h3>
-							<InputGroup
-								label="Nama Lengkap & Gelar"
-								name="nama"
-								model="form.nama"
-								placeholder="Contoh: Yahya Zulfikri"
-							/>
+						<h3
+							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
+						>
+							Kategori Data Pribadi
+						</h3>
+						<InputGroup
+							label="Nama Lengkap & Gelar"
+							name="nama"
+							model="form.nama"
+							placeholder="Contoh: Yahya Zulfikri, S.Kom"
+						/>
+						<div class="grid grid-cols-2 gap-3">
 							<InputGroup label="NIP / NUPTK" name="nip" model="form.nip" />
-							<div class="grid grid-cols-2 gap-3">
-								<SelectGroup
-									label="Gender"
-									name="gender"
-									model="form.gender"
-									options={[
-										{ val: "L", label: "Laki-laki" },
-										{ val: "P", label: "Perempuan" },
-									]}
-								/>
-								<InputGroup label="Email" name="email" model="form.email" />
-							</div>
+							<SelectGroup
+								label="Gender"
+								name="gender"
+								model="form.gender"
+								options={[
+									{ val: "L", label: "Laki-laki" },
+									{ val: "P", label: "Perempuan" },
+								]}
+							/>
+						</div>
+						<div class="grid grid-cols-2 gap-3">
+							<InputGroup
+								label="Email (Opsional)"
+								name="email"
+								model="form.email"
+								type="email"
+								placeholder="email@contoh.com"
+							/>
+							<InputGroup
+								label="No. Telepon"
+								name="hp"
+								model="form.telepon"
+								type="text"
+								placeholder="0812..."
+							/>
 						</div>
 					</div>
+
 					<div
 						x-show="activeTab === 'pegawai'"
 						class="space-y-4 animate-fade-in"
 					>
-						<div class="space-y-4">
-							<h3
-								class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
-							>
-								Status Kerja
-							</h3>
-							<div class="grid grid-cols-2 gap-3">
-								<SelectGroup
-									label="Jenis Pegawai"
-									name="jenis"
-									model="form.jenisPegawai"
-									options={[
-										{ val: "Guru", label: "Guru" },
-										{ val: "Staf", label: "Staf Admin" },
-									]}
-								/>
-								<SelectGroup
-									label="Status"
-									name="status"
-									model="form.statusKepegawaian"
-									options={[
-										{ val: "PNS", label: "PNS" },
-										{ val: "PPPK", label: "PPPK" },
-										{ val: "Honorer", label: "Honorer" },
-									]}
-								/>
-							</div>
-							<InputGroup
-								label="Unit Kerja / Sekolah"
-								name="unit"
-								model="form.unitKerja"
+						<h3
+							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
+						>
+							Kategori Kepegawaian
+						</h3>
+						<div class="grid grid-cols-2 gap-3">
+							<SelectGroup
+								label="Jenis Pegawai"
+								name="jenis"
+								model="form.jenisPegawai"
+								options={[
+									{ val: "Guru", label: "Guru" },
+									{ val: "Staf", label: "Staf Admin" },
+								]}
 							/>
-							<InputGroup label="Jabatan" name="jabatan" model="form.jabatan" />
+							<SelectGroup
+								label="Status"
+								name="status"
+								model="form.statusKepegawaian"
+								options={[
+									{ val: "PNS", label: "PNS" },
+									{ val: "PPPK", label: "PPPK" },
+									{ val: "Honorer", label: "Honorer" },
+									{ val: "GTT/PTT", label: "GTT/PTT" },
+								]}
+							/>
+						</div>
+						<InputGroup
+							label="Unit Kerja / Sekolah"
+							name="unit"
+							model="form.unitKerja"
+						/>
+						<InputGroup label="Jabatan" name="jabatan" model="form.jabatan" />
+						<div class="grid grid-cols-2 gap-3">
 							<InputGroup
 								label="Golongan"
 								name="gol"
 								model="form.golongan"
 								placeholder="III/a (Opsional)"
 							/>
+							<InputGroup
+								label="Tgl Mulai"
+								name="tgl"
+								model="form.tglMulai"
+								type="date"
+							/>
 						</div>
 					</div>
+
 					<div
 						x-show="activeTab === 'dikjar'"
 						class="space-y-4 animate-fade-in"
@@ -870,9 +1155,9 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 						<template x-if="form.jenisPegawai === 'Guru'">
 							<div class="space-y-4">
 								<h3
-									class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
+									class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
 								>
-									Detail Mengajar
+									Kategori Pendidikan
 								</h3>
 								<div class="grid grid-cols-2 gap-3">
 									<SelectGroup
@@ -880,9 +1165,10 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 										name="jenjang"
 										model="form.jenjang"
 										options={[
-											{ val: "SD", label: "SD" },
-											{ val: "SMP", label: "SMP" },
-											{ val: "SMA", label: "SMA/SMK" },
+											{ val: "SD", label: "SD/MI" },
+											{ val: "SMP", label: "SMP/MTS" },
+											{ val: "SMA", label: "SMA/MA" },
+											{ val: "SMK", label: "SMK" },
 										]}
 									/>
 									<InputGroup
@@ -903,133 +1189,239 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 									model="form.kelas"
 									placeholder="X-1, XI-2, XII-1"
 								/>
-								<SelectGroup
-									label="Kurikulum"
-									name="kurikulum"
-									model="form.kurikulum"
-									options={[
-										{ val: "Merdeka", label: "Kurikulum Merdeka" },
-										{ val: "K13", label: "K13 Revisi" },
-									]}
-								/>
+								<div class="grid grid-cols-2 gap-3">
+									<SelectGroup
+										label="Kurikulum"
+										name="kurikulum"
+										model="form.kurikulum"
+										options={[
+											{ val: "Merdeka", label: "Kur. Merdeka" },
+											{ val: "K13", label: "K13 Revisi" },
+										]}
+									/>
+									<InputGroup
+										label="Jml Siswa"
+										name="jmlSiswa"
+										model="form.jmlSiswa"
+										type="number"
+									/>
+								</div>
 							</div>
 						</template>
 						<template x-if="form.jenisPegawai !== 'Guru'">
 							<div
-								class="flex flex-col items-center justify-center py-10 text-slate-500 text-sm text-center border border-dashed border-white/10 rounded-lg"
+								class="flex flex-col items-center justify-center py-10 text-slate-500 text-sm text-center border border-dashed border-white/10 rounded-lg bg-white/5"
 							>
 								<p>Menu ini khusus untuk</p>
 								<p class="font-bold text-slate-400">Pegawai Fungsional Guru</p>
 							</div>
 						</template>
 					</div>
+
 					<div x-show="activeTab === 'tugas'" class="space-y-4 animate-fade-in">
-						<div class="space-y-4">
-							<h3
-								class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
-							>
-								Uraian Tugas
-							</h3>
-							<TextAreaGroup
-								label="Tugas Pokok"
-								name="pokok"
-								model="form.tugasPokok"
+						<h3
+							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
+						>
+							Tugas & Tanggung Jawab
+						</h3>
+						<TextAreaGroup
+							label="Tugas Pokok (Uraikan singkat)"
+							name="pokok"
+							model="form.tugasPokok"
+							rows="3"
+						/>
+						<TextAreaGroup
+							label="Tugas Tambahan"
+							name="tambahan"
+							model="form.tugasTambahan"
+							rows="3"
+						/>
+						<TextAreaGroup
+							label="Tugas Khusus / Proyek"
+							name="khusus"
+							model="form.tugasKhusus"
+							rows="2"
+						/>
+						<template x-if="form.jenisPegawai === 'Guru'">
+							<InputGroup
+								label="Ekstrakurikuler"
+								name="ekskul"
+								model="form.ekskul"
+								placeholder="Pramuka, OSIS, dll"
 							/>
-							<TextAreaGroup
-								label="Tugas Tambahan"
-								name="tambahan"
-								model="form.tugasTambahan"
-							/>
-							<TextAreaGroup
-								label="Proyek/Kendala"
-								name="khusus"
-								model="form.tugasKhusus"
-							/>
-						</div>
+						</template>
 					</div>
+
 					<div
 						x-show="activeTab === 'config'"
 						class="space-y-4 animate-fade-in"
 					>
-						<div class="space-y-4">
-							<h3
-								class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
-							>
-								Parameter Laporan
-							</h3>
-							<div class="grid grid-cols-2 gap-3">
-								<SelectGroup
-									label="Bulan"
-									name="bulan"
-									model="form.bulan"
-									options={Array.from({ length: 12 }, (_, i) => ({
-										val: String(i + 1),
-										label: new Date(0, i).toLocaleString("id-ID", {
-											month: "long",
-										}),
-									}))}
-								/>
-								<InputGroup
-									label="Tahun"
-									name="tahun"
-									model="form.tahun"
-									type="number"
-								/>
-							</div>
-							<div class="grid grid-cols-2 gap-3">
-								<SelectGroup
-									label="Model AI"
-									name="model"
-									model="form.modelAI"
-									options={[
-										{ val: "gemini-3-flash-preview", label: "Gemini Flash" },
-										{ val: "gemini-3-pro-preview", label: "Gemini Pro" },
-									]}
-								/>
-								<SelectGroup
-									label="Gaya Bahasa"
-									name="tone"
-									model="form.tone"
-									options={[
-										{ val: "Formal", label: "Formal" },
-										{ val: "Naratif", label: "Naratif" },
-									]}
-								/>
+						<h3
+							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
+						>
+							Konfigurasi Laporan
+						</h3>
+						<div class="grid grid-cols-2 gap-3">
+							<SelectGroup
+								label="Bulan"
+								name="bulan"
+								model="form.bulan"
+								options={Array.from({ length: 12 }, (_, i) => ({
+									val: String(i + 1),
+									label: new Date(0, i).toLocaleString("id-ID", {
+										month: "long",
+									}),
+								}))}
+							/>
+							<InputGroup
+								label="Tahun"
+								name="tahun"
+								model="form.tahun"
+								type="number"
+							/>
+						</div>
+						<div class="grid grid-cols-2 gap-3">
+							<SelectGroup
+								label="Periode"
+								name="jenisLap"
+								model="form.jenisLaporan"
+								options={[
+									{ val: "Bulanan", label: "Bulanan" },
+									{ val: "Triwulan", label: "Triwulan" },
+									{ val: "Tahunan", label: "Tahunan" },
+								]}
+							/>
+							<InputGroup
+								label="Hari Kerja"
+								name="hariKerja"
+								model="form.hariKerja"
+								placeholder="Senin - Jumat"
+							/>
+						</div>
+
+						<div class="h-px bg-white/10 my-2"></div>
+
+						<div class="grid grid-cols-2 gap-3">
+							<SelectGroup
+								label="Model AI"
+								name="model"
+								model="form.modelAI"
+								options={[
+									{
+										val: "gemini-1.5-flash",
+										label: "Gemini 1.5 Flash (Cepat)",
+									},
+									{
+										val: "gemini-2.0-flash",
+										label: "Gemini 2.0 Flash (Cepat)",
+									},
+									{
+										val: "gemini-2.5-flash",
+										label: "Gemini 2.5 Flash (Cepat)",
+									},
+									{
+										val: "gemini-3-flash-preview",
+										label: "Gemini 3 Flash (Cepat)",
+									},
+									{
+										val: "gemini-3-pro-preview",
+										label: "Gemini 3 Pro (Pintar)",
+									},
+								]}
+							/>
+							<SelectGroup
+								label="Detail Level"
+								name="detail"
+								model="form.detailLevel"
+								options={[
+									{ val: "Ringkas", label: "Ringkas" },
+									{ val: "Standar", label: "Standar" },
+									{ val: "Detail", label: "Sangat Detail" },
+								]}
+							/>
+						</div>
+						<TextAreaGroup
+							label="Instruksi Tambahan (Opsional)"
+							name="customAI"
+							model="form.customInstruction"
+							rows="2"
+							placeholder="Contoh: Fokus pada kegiatan MPLS..."
+						/>
+
+						<div class="mt-4 pt-4 border-t border-white/10">
+							<h4 class="text-[10px] text-slate-500 uppercase font-bold mb-2">
+								Manajemen Data
+							</h4>
+							<div class="grid grid-cols-2 gap-2">
+								<button
+									@click="exportData"
+									class="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-white/5 transition"
+								>
+									<Download class="w-3 h-3" /> Backup JSON
+								</button>
+								<label
+									class="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-white/5 transition cursor-pointer"
+								>
+									<Upload class="w-3 h-3" /> Restore JSON
+									<input
+										type="file"
+										accept=".json"
+										class="hidden"
+										@change="importData"
+									/>
+								</label>
 							</div>
 						</div>
 					</div>
 				</div>
+
 				<div
 					class="p-4 border-t border-white/10 bg-slate-900/80 backdrop-blur space-y-3 z-10"
 				>
 					<button
 						@click="generate"
 						:disabled="loading"
-						class="btn-primary w-full flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-wait"
+						class="btn-primary w-full flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-wait group relative overflow-hidden"
 					>
+						<div
+							class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+						>
+						</div>
 						<RefreshCw x-show="loading" class="w-4 h-4 animate-spin" />
 						<Bot x-show="!loading" class="w-4 h-4" />
-						<span x-text="loading ? 'Menyusun...' : 'Generate AI'"></span>
+						<span
+							x-text="loading ? 'Sedang Menyusun Laporan...' : 'GENERATE AI'"
+							class="relative font-bold tracking-wide"></span>
 					</button>
 
-					<button
-						@click="saveHistory"
-						class="w-full py-2.5 text-xs font-medium text-slate-400 hover:text-white border border-white/10 hover:bg-white/5 rounded-lg transition flex justify-center items-center gap-2"
-					>
-						<Save class="w-3 h-3" /> Simpan Draft
-					</button>
+					<div class="flex gap-2">
+						<button
+							@click="resetForm"
+							class="flex-1 py-2 text-xs text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-lg transition flex justify-center items-center gap-2"
+							title="Reset Form"
+						>
+							<RotateCcw class="w-3 h-3" /> Reset
+						</button>
+						<button
+							@click="saveHistory"
+							class="flex-[2] py-2 text-xs font-medium text-slate-300 hover:text-white border border-white/10 hover:bg-white/5 rounded-lg transition flex justify-center items-center gap-2"
+						>
+							<Save class="w-3 h-3" /> Simpan Draft
+						</button>
+					</div>
 				</div>
 			</div>
+
 			<div
 				class="lg:col-span-8 xl:col-span-7 flex flex-col h-full glass-panel overflow-hidden relative"
 			>
 				<div
-					class="bg-slate-950/40 p-3 border-b border-white/10 flex justify-between items-center backdrop-blur-sm z-20"
+					class="bg-slate-950/60 p-3 border-b border-white/10 flex justify-between items-center backdrop-blur-sm z-20 no-print"
 				>
 					<span
 						class="text-slate-300 font-medium text-sm flex items-center gap-2 px-2"
 					>
-						<FileText class="w-4 h-4 text-blue-400" /> Preview
+						<FileText class="w-4 h-4 text-blue-400" /> Preview Dokumen
 					</span>
 					<div class="flex gap-2">
 						<button
@@ -1039,122 +1431,185 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 						>
 							<Copy class="w-4 h-4" />
 						</button>
+						<div class="h-8 w-px bg-white/10 mx-1"></div>
+						<button
+							@click="exportWord"
+							class="px-3 py-1.5 bg-blue-700/50 hover:bg-blue-600/50 text-blue-100 border border-blue-500/30 rounded-lg text-xs font-medium flex gap-2 items-center transition"
+						>
+							<FileDown class="w-3.5 h-3.5" /> Word .docx
+						</button>
 						<button
 							@click="printPDF"
-							class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium flex gap-2 items-center transition shadow-lg shadow-blue-900/20"
+							class="px-3 py-1.5 bg-rose-700/50 hover:bg-rose-600/50 text-rose-100 border border-rose-500/30 rounded-lg text-xs font-medium flex gap-2 items-center transition"
 						>
-							<Printer class="w-4 h-4" /> PDF
+							<Printer class="w-3.5 h-3.5" /> PDF
 						</button>
 					</div>
 				</div>
+
 				<div
 					class="flex-1 bg-white overflow-y-auto p-8 md:p-12 relative group scroll-smooth"
 				>
 					<div
-						id="report-preview"
-						class="relative z-10 text-slate-900 min-h-[800px] flex flex-col"
+						x-show="loading"
+						class="absolute inset-0 bg-slate-900/10 backdrop-blur-sm z-50 flex items-start pt-20 justify-center"
 					>
 						<div
-							x-html="renderedHtml"
-							class="prose prose-sm md:prose-base max-w-none
-                prose-headings:font-bold prose-headings:text-slate-900
-                prose-h1:text-xl prose-h1:uppercase prose-h1:text-center prose-h1:mb-8
-                prose-h2:text-lg prose-h2:border-b prose-h2:border-slate-300 prose-h2:pb-2 prose-h2:mt-6
-                prose-p:text-justify prose-p:leading-relaxed
-                prose-table:w-full prose-table:border-collapse prose-table:text-sm prose-table:my-4
-                prose-th:border prose-th:border-slate-400 prose-th:bg-slate-100 prose-th:p-2 prose-th:text-left
-                prose-td:border prose-td:border-slate-400 prose-td:p-2 prose-td:align-top
-                prose-ul:list-disc prose-ul:pl-5"
+							class="bg-slate-800 rounded-xl shadow-2xl border border-white/10 p-2 max-w-md w-full mx-4"
 						>
-						</div>
-						<div
-							class="w-20 h-20 flex-shrink-0 flex items-center justify-center"
-						>
-							<template x-if="form.logoBase64">
-								<img
-									:src="form.logoBase64"
-									class="max-w-full max-h-full object-contain"
-								/>
-							</template>
-						</div>
-						<div class="flex-1 text-center uppercase">
-							<h2
-								class="text-xl font-bold leading-tight"
-								x-text="form.instansiNama"
-							>
-							</h2>
-							<p class="text-sm font-normal mt-1" x-text="form.instansiAlamat">
+							<Skeleton />
+							<p class="text-center text-slate-400 text-sm pb-4 animate-pulse">
+								Sedang berpikir dan mengetik...
 							</p>
 						</div>
-						<div class="w-20"></div>
 					</div>
-					<div class="text-center mb-6" x-show="renderedHtml">
-						<h1 class="text-lg font-bold underline">LAPORAN KINERJA PEGAWAI</h1>
-						<p class="text-sm">
-							Periode: <span x-text="getMonthName(form.bulan)"></span>
-							<span x-text="form.tahun"></span>
-						</p>
-					</div>
-					<div
-						x-html="renderedHtml"
-						class="prose prose-sm md:prose-base max-w-none
-                prose-headings:text-slate-900 prose-p:text-justify ..."
-					>
-					</div>
-					<div class="mt-12 pt-8 break-inside-avoid" x-show="renderedHtml">
-						<div class="flex justify-end text-right">
-							<div class="flex flex-col items-center w-64">
-								<p class="mb-4">
-									Pandeglang, <span
-										x-text="new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})"
-									></span>
-								</p>
-								<p class="font-bold mb-2">Yang Melaporkan,</p>
-								<div
-									class="w-24 h-24 bg-slate-100 mb-2 border border-slate-200"
-								>
-									<img
-										:src="qrCodeUrl"
-										class="w-full h-full"
-										x-show="qrCodeUrl"
-									/>
-								</div>
-								<p class="font-bold underline" x-text="form.nama"></p>
-								<p class="text-sm">NIP. <span x-text="form.nip"></span></p>
-							</div>
-						</div>
-						<div class="text-[10px] text-slate-400 mt-8 border-t pt-2 italic">
-							Dokumen ini digenerate secara otomatis oleh sistem AI Laporan
-							Kinerja. Scan QR Code untuk verifikasi data digital. ID: <span
-								x-text="Date.now()"></span>
-						</div>
-					</div>
+
 					<template x-if="!renderedHtml && !loading">
 						<div
-							class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-4"
+							class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-4 select-none"
 						>
-							<div class="p-4 rounded-full bg-slate-100">
-								<Bot class="w-8 h-8 text-slate-300" />
+							<div
+								class="p-6 rounded-full bg-slate-100/50 border-4 border-slate-100"
+							>
+								<Bot class="w-12 h-12 text-slate-300" />
 							</div>
-							<p class="text-sm">Isi data formulir dan klik Generate</p>
+							<div class="text-center">
+								<p class="font-bold text-slate-500 text-lg">
+									Siap Menyusun Laporan
+								</p>
+								<p class="text-sm text-slate-400 mt-1 max-w-xs mx-auto">
+									Lengkapi data di panel kiri, lalu tekan tombol Generate AI.
+								</p>
+							</div>
 						</div>
 					</template>
+
+					<div
+						id="report-preview"
+						class="relative z-10 text-black min-h-[800px] flex flex-col max-w-[210mm] mx-auto bg-white shadow-sm"
+						x-show="renderedHtml"
+						style="background-color: #ffffff; color: #000000;"
+					>
+						<div
+							class="flex items-center gap-4 border-b-4 border-double border-black pb-4 mb-6"
+						>
+							<div
+								class="w-24 h-24 flex-shrink-0 flex items-center justify-center"
+							>
+								<template x-if="form.logoBase64">
+									<img
+										:src="form.logoBase64"
+										class="max-w-full max-h-full object-contain"
+									/>
+								</template>
+							</div>
+							<div class="flex-1 text-center uppercase text-black">
+								<h2
+									class="text-xl font-bold leading-tight tracking-wide font-serif"
+									x-text="form.instansiNama"
+									style="font-family: Lexend, Inter, sans-serif;"
+								>
+								</h2>
+								<p
+									class="text-sm font-normal mt-1"
+									x-text="form.instansiAlamat"
+									style="font-family: Lexend, Inter, sans-serif;"
+								>
+								</p>
+							</div>
+							<div class="w-24"></div>
+						</div>
+
+						<div class="text-center mb-8 text-black">
+							<h1
+								class="text-lg font-bold underline uppercase tracking-wider mb-1"
+								style="font-family: Lexend, Inter, sans-serif;"
+							>
+								LAPORAN KINERJA PEGAWAI
+							</h1>
+							<p class="text-sm font-medium">
+								Nomor: <span
+									class="bg-yellow-100 px-1 italic text-slate-400 print:bg-transparent print:text-black"
+									>[Nomor Surat]</span
+								>
+							</p>
+						</div>
+
+						<div class="w-full overflow-x-auto">
+							<div
+								x-html="renderedHtml"
+								class="prose-report max-w-none text-black mb-8 min-w-[100%]"
+							>
+							</div>
+						</div>
+
+						<div class="mt-8 pt-8 break-inside-avoid text-black">
+							<div class="flex justify-end text-right">
+								<div class="flex flex-col items-center w-64 text-center">
+									<p class="mb-6 text-sm">
+										<span
+											x-text="form.unitKerja ? form.unitKerja.split(' ')[0] : 'Jakarta'"
+										></span>,
+										<span
+											x-text="new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})"
+										></span>
+									</p>
+									<p class="font-bold mb-2 text-sm">Yang Melaporkan,</p>
+
+									<div class="w-20 h-20 my-2 relative">
+										<img
+											:src="qrCodeUrl"
+											class="w-full h-full object-contain opacity-80"
+											x-show="qrCodeUrl"
+										/>
+									</div>
+
+									<p
+										class="font-bold underline text-sm uppercase"
+										x-text="form.nama"
+									>
+									</p>
+									<p class="text-sm">NIP. <span x-text="form.nip"></span></p>
+								</div>
+							</div>
+
+							<div
+								class="mt-12 pt-2 border-t border-slate-300 flex justify-between items-center text-[9px] text-slate-500 italic"
+							>
+								<span>Dokumen digital generated by AI System.</span>
+								<span
+									>ID: <span x-text="Date.now().toString().slice(-8)"
+									></span></span
+								>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="hidden xl:block xl:col-span-2 h-full">
-			<HistoryPanel />
+
+			<div class="hidden xl:block xl:col-span-2 h-full no-print">
+				<HistoryPanel />
+			</div>
 		</div>
 	</main>
 </Layout>
+
 <script>
 	import Alpine from "alpinejs";
-	import { reportStore, saveToHistory } from "../stores/reportStore";
+	import {
+		reportStore,
+		saveToHistory,
+		resetStore,
+	} from "../stores/reportStore";
 	import { addToast } from "../stores/toastStore";
 	import { generateLaporan } from "../services/aiService";
 	import { parseMarkdown } from "../utils/markdown";
+
 	import html2pdf from "html2pdf.js";
+	import { asBlob } from "html-docx-js-typescript";
+	import { saveAs } from "file-saver";
 	import QRCode from "qrcode";
+
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("appFinal", () => ({
 			loading: false,
@@ -1163,150 +1618,224 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 			qrCodeUrl: "",
 			form: reportStore.get(),
 			saveTimeout: null,
+
 			tabs: [
 				{ id: "instansi", label: "Instansi" },
-				{ id: "pribadi", label: "Data Diri" },
+				{ id: "pribadi", label: "Pribadi" },
 				{ id: "pegawai", label: "Kerja" },
 				{ id: "dikjar", label: "Dikjar" },
 				{ id: "tugas", label: "Tugas" },
 				{ id: "config", label: "Opsi" },
 			],
+
 			async init() {
 				if (this.form.generatedContent) {
 					this.renderedHtml = await parseMarkdown(this.form.generatedContent);
+					await this.generateQR();
 				}
+
 				this.$watch("form", (val) => {
 					if (this.saveTimeout) clearTimeout(this.saveTimeout);
 					this.saveTimeout = setTimeout(() => {
 						reportStore.set({ ...val });
-					}, 1000);
+					}, 500);
 				});
-				reportStore.subscribe((newState) => {
-					if (
-						newState.generatedContent !== this.form.generatedContent ||
-						newState.nama !== this.form.nama
-					) {
+
+				reportStore.subscribe(async (newState) => {
+					if (JSON.stringify(newState) !== JSON.stringify(this.form)) {
 						this.form = { ...newState };
-						this.renderedHtml = "";
-						parseMarkdown(newState.generatedContent).then(
-							(html) => (this.renderedHtml = html)
-						);
+						if (newState.generatedContent) {
+							this.renderedHtml = await parseMarkdown(
+								newState.generatedContent
+							);
+							await this.generateQR();
+						}
 					}
 				});
 			},
-			getMonthName(idx) {
-				return new Date(0, idx - 1).toLocaleString("id-ID", { month: "long" });
-			},
-			handleLogoUpload(e) {
-				const file = e.target.files[0];
-				if (!file) return;
-				if (file.size > 1000 * 1024) {
-					// Limit 1MB
-					alert("Ukuran logo terlalu besar (Maks 1MB).");
-					return;
-				}
-				const reader = new FileReader();
-				reader.onload = (event) => {
-					this.form.logoBase64 = event.target.result;
-				};
-				reader.readAsDataURL(file);
-			},
+
 			async generateQR() {
-				const data = `Dokumen Sah: ${this.form.nama}\nNIP: ${this.form.nip}\nUnit: ${this.form.unitKerja}\nPeriode: ${this.form.bulan}/${this.form.tahun}\nValidasi Sistem AI.`;
+				if (!this.form.nama) return;
+				const data = `DIGITAL SIGNATURE\nNama: ${this.form.nama}\nNIP: ${this.form.nip}\nUnit: ${this.form.unitKerja}\nPeriode: ${this.form.bulan}/${this.form.tahun}\nValid: true`;
 				try {
 					this.qrCodeUrl = await QRCode.toDataURL(data, {
-						width: 150,
-						margin: 1,
+						width: 120,
+						margin: 0,
+						color: { dark: "#000000", light: "#ffffff" },
 					});
 				} catch (err) {
 					console.error(err);
 				}
 			},
+
 			async generate() {
-				if (!this.form.nama) {
-					addToast("Nama pegawai wajib diisi!", "error");
+				if (!this.form.nama || !this.form.nip) {
+					addToast("Nama dan NIP wajib diisi!", "error");
 					this.activeTab = "pribadi";
 					return;
 				}
-				reportStore.set({ ...this.form });
+
 				this.loading = true;
 				try {
 					const rawMarkdown = await generateLaporan();
 					this.renderedHtml = await parseMarkdown(rawMarkdown);
 					await this.generateQR();
-					this.renderedHtml = await parseMarkdown(rawMarkdown);
 					this.form.generatedContent = rawMarkdown;
+					addToast("Laporan berhasil disusun!", "success");
 					saveToHistory();
-					addToast("Laporan berhasil disusun", "success");
-					this.form.generatedContent = rawMarkdown;
-					saveToHistory();
-					addToast("Laporan berhasil disusun", "success");
 				} catch (e) {
 					console.error(e);
-					addToast("Gagal: " + (e.message || "Cek API Key"), "error");
+					addToast("Gagal: " + (e.message || "Cek Koneksi"), "error");
 				} finally {
 					this.loading = false;
 				}
 			},
+
+			resetForm() {
+				if (confirm("Yakin ingin mereset formulir? Data akan hilang.")) {
+					resetStore();
+					this.renderedHtml = "";
+					this.qrCodeUrl = "";
+					addToast("Formulir direset", "info");
+				}
+			},
+
 			saveHistory() {
 				if (!this.renderedHtml) {
 					addToast("Belum ada laporan", "info");
 					return;
 				}
-				if (saveToHistory()) addToast("Draft disimpan", "success");
+				if (saveToHistory()) addToast("Draft tersimpan", "success");
 			},
+
 			async copyText() {
 				if (!this.form.generatedContent) return;
 				try {
 					await navigator.clipboard.writeText(this.form.generatedContent);
-					addToast("Teks disalin", "success");
+					addToast("Markdown berhasil disalin", "success");
 				} catch (e) {
 					addToast("Gagal menyalin", "error");
 				}
 			},
+
+			async exportWord() {
+				if (!this.renderedHtml) {
+					addToast("Laporan belum dibuat", "error");
+					return;
+				}
+
+				addToast("Menyiapkan dokumen Word...", "info");
+
+				const contentElement = document.getElementById("report-preview");
+				if (!contentElement) return;
+
+				const htmlString = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Laporan Kinerja</title>
+                        <style>
+                            body { font-family: 'Lexend', sans-serif; font-size: 11pt; line-height: 1.15; }
+                            table { width: 100%; border-collapse: collapse; margin: 10pt 0; }
+                            td, th { border: 1px solid black; padding: 5pt; vertical-align: top; }
+                            th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+                            h1, h2, h3 { color: black; font-family: Lexend, sans-serif; }
+                        </style>
+                    </head>
+                    <body>
+                        ${contentElement.innerHTML}
+                    </body>
+                    </html>
+                `;
+
+				try {
+					const blob = await asBlob(htmlString, {
+						orientation: "portrait",
+						margins: { top: 720, right: 720, bottom: 720, left: 720 },
+					});
+
+					saveAs(blob, `Laporan_${this.form.nama.replace(/\s+/g, "_")}.docx`);
+					addToast("Berhasil export ke .docx", "success");
+				} catch (error) {
+					console.error(error);
+					addToast("Gagal export Word", "error");
+				}
+			},
+
 			printPDF() {
 				if (!this.renderedHtml) return;
+
 				const element = document.getElementById("report-preview");
+				if (!element) return;
+
 				const fileName = `Laporan_${this.form.nama.replace(/\s+/g, "_")}.pdf`;
+
 				const opt = {
 					margin: [15, 15, 15, 15],
 					filename: fileName,
 					image: { type: "jpeg", quality: 0.98 },
-					html2canvas: { scale: 2, useCORS: true },
+					html2canvas: {
+						scale: 2,
+						useCORS: true,
+						logging: false,
+						backgroundColor: "#ffffff",
+					},
 					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
 					pagebreak: { mode: ["avoid-all", "css", "legacy"] },
 				};
-				addToast("Membuat PDF...", "info");
-				html2pdf().set(opt).from(element).save();
+
+				addToast("Memproses PDF (Mohon tunggu)...", "info");
+
+				html2pdf()
+					.set(opt)
+					.from(element)
+					.save()
+					.then(() => {
+						addToast("PDF berhasil diunduh", "success");
+					})
+					.catch((err) => {
+						console.error("PDF Error:", err);
+						addToast("Gagal export PDF", "error");
+					});
+			},
+
+			exportData() {
+				const data = reportStore.get();
+				const blob = new Blob([JSON.stringify(data, null, 2)], {
+					type: "application/json",
+				});
+				saveAs(
+					blob,
+					`Backup_Laporan_${data.nama || "User"}_${new Date().toISOString().slice(0, 10)}.json`
+				);
+				addToast("Backup JSON berhasil diunduh", "success");
+			},
+
+			importData(event) {
+				const file = event.target.files[0];
+				if (!file) return;
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					try {
+						const json = JSON.parse(e.target.result);
+						if (json.instansiNama !== undefined) {
+							reportStore.set(json);
+							this.form = json;
+							addToast("Data berhasil dipulihkan", "success");
+						} else {
+							throw new Error("Format JSON tidak valid");
+						}
+					} catch (err) {
+						addToast("Gagal restore: File rusak", "error");
+					}
+				};
+				reader.readAsText(file);
+				event.target.value = "";
 			},
 		}));
 	});
 </script>
-<style>
-	.custom-scrollbar::-webkit-scrollbar {
-		width: 4px;
-	}
-	.custom-scrollbar::-webkit-scrollbar-track {
-		background: rgba(255, 255, 255, 0.02);
-	}
-	.custom-scrollbar::-webkit-scrollbar-thumb {
-		background: rgba(255, 255, 255, 0.1);
-		border-radius: 10px;
-	}
-	.animate-fade-in {
-		animation: fadeIn 0.3s ease-out forwards;
-	}
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(5px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-</style>
 
 ```
 
@@ -1331,13 +1860,16 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 		"@lucide/astro": "^0.562.0",
 		"@nanostores/persistent": "^1.2.0",
 		"@tailwindcss/vite": "^4.1.18",
+		"@types/file-saver": "^2.0.7",
 		"@vite-pwa/astro": "^1.2.0",
 		"alpinejs": "^3.15.4",
 		"astro": "^5.16.9",
 		"clsx": "^2.1.1",
 		"dayjs": "^1.11.19",
 		"dompurify": "^3.3.1",
+		"file-saver": "^2.0.5",
 		"gsap": "^3.14.2",
+		"html-docx-js-typescript": "^0.1.5",
 		"html2pdf.js": "^0.14.0",
 		"jspdf": "^4.0.0",
 		"marked": "^17.0.1",
@@ -1367,8 +1899,13 @@ import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 ## ./.env
 
 ```env
-PUBLIC_GEMINI_API_KEY=AIzaSyDHlKs8T7pXJUbjezQQ5Kxqcw3-0IhzZQ8
+PUBLIC_GEMINI_API_KEY=AIzaSyDcOY5vi3_9CfT6UeXcLjjkPVhAUOZWjVE
+# PUBLIC_GEMINI_API_KEY=AIzaSyDHlKs8T7pXJUbjezQQ5Kxqcw3-0IhzZQ8
 # gemini-3-pro-preview
+# gemini-3-flash-preview
+# gemini-2.5-flash
+# gemini-2.0-flash
+# gemini-1.5-flash
 ```
 
 ---

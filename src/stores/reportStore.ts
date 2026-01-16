@@ -2,9 +2,14 @@ import { persistentMap } from "@nanostores/persistent";
 
 export type ReportData = {
 	// Instansi
+	institusiBarisSatuNama: string;
+	institusiBarisDuaNama: string;
 	instansiNama: string;
 	instansiAlamat: string;
-	logoBase64: string;
+	instansiWebsite: string;
+	logoInstitusiBase64: string;
+	logoInstansiBase64: string;
+	titimangsa: string;
 	
 	// Pribadi
 	nama: string;
@@ -46,7 +51,7 @@ export type ReportData = {
 	detailLevel: string;
 	bahasa: string;
 	tone: string;
-	customInstruction: string; // <-- New Feature
+	customInstruction: string;
 	
 	// System
 	generatedContent: string;
@@ -61,21 +66,26 @@ export type HistoryItem = {
 };
 
 const defaultState: ReportData = {
-	instansiNama: "DINAS PENDIDIKAN PROVINSI DKI JAKARTA",
-	instansiAlamat: "SMA NEGERI 1 CONTOH - Jl. Pendidikan No. 1, Jakarta",
-	logoBase64: "",
+	institusiBarisSatuNama: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
+	institusiBarisDuaNama: "KANTOR KEMENTERIAN AGAMA KABUPATEN PANDEGLANG",
+	instansiNama: "MADRASAH TSANAWIYAH NEGERI 1 PANDEGLANG",
+	instansiAlamat: "Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
+	instansiWebsite: "Website: https://mtsn1pandeglang.sch.id | Email: adm@mtsn1pandeglang.sch.id",
+	logoInstitusiBase64: "",
+	logoInstansiBase64: "",
+	titimangsa: "Pandeglang, 31 Januari 2026",
 	nama: "",
 	nip: "",
-	gender: "L",
+	gender: "",
 	email: "",
 	telepon: "",
-	jenisPegawai: "Guru",
+	jenisPegawai: "",
 	unitKerja: "",
-	statusKepegawaian: "PNS",
+	statusKepegawaian: "",
 	golongan: "",
 	jabatan: "",
 	tglMulai: new Date().toISOString().split('T')[0],
-	jenjang: "SMA",
+	jenjang: "",
 	mapel: "",
 	kelas: "",
 	jamMengajar: "24",
@@ -89,7 +99,7 @@ const defaultState: ReportData = {
 	tahun: new Date().getFullYear().toString(),
 	hariKerja: "Senin - Jumat",
 	jenisLaporan: "Bulanan",
-	modelAI: "gemini-3-flash-preview", // Updated Model
+	modelAI: "gemini-2.5-flash",
 	detailLevel: "Standar",
 	bahasa: "Indonesia",
 	tone: "Formal",
@@ -98,14 +108,13 @@ const defaultState: ReportData = {
 	lastUpdated: new Date().toISOString(),
 };
 
-// Ganti key version (v3) agar store lama yang error ter-reset otomatis
 export const reportStore = persistentMap<ReportData>(
-	"laporan-live-v3:",
+	"laporan-live-v1:",
 	defaultState
 );
 
 export const historyStore = persistentMap<{ items: HistoryItem[] }>(
-	"laporan-history-v3:", 
+	"laporan-history-v1:", 
 	{ items: [] }
 );
 
@@ -117,7 +126,6 @@ export const saveToHistory = (): boolean => {
 	const currentData = reportStore.get();
 	if (!currentData.generatedContent) return false;
 	
-	// Fix: Unique ID Generator to prevent duplicate key error
 	const uniqueId = Date.now().toString() + "-" + Math.random().toString(36).substr(2, 5);
 	
 	const newItem: HistoryItem = {
@@ -132,7 +140,7 @@ export const saveToHistory = (): boolean => {
 		data: JSON.parse(JSON.stringify(currentData)),
 	};
 	const currentHistory = historyStore.get().items || [];
-	const newHistory = [newItem, ...currentHistory].slice(0, 20); // Simpan max 20 history
+	const newHistory = [newItem, ...currentHistory].slice(0, 20);
 	historyStore.setKey("items", newHistory);
 	return true;
 };

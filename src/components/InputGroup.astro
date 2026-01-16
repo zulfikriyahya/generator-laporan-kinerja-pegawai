@@ -1,0 +1,27 @@
+---
+interface Props {
+	label: string;
+	name: string;
+	type?: "text" | "number" | "date" | "email";
+	placeholder?: string;
+	model: string;
+}
+const { label, name, type = "text", placeholder, model } = Astro.props;
+---
+
+<div class="flex flex-col gap-2 group">
+	<label
+		for={name}
+		class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors"
+	>
+		{label}
+	</label>
+	<input
+		type={type}
+		id={name}
+		name={name}
+		x-model={model}
+		placeholder={placeholder}
+		class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all placeholder:text-slate-600"
+	/>
+</div>

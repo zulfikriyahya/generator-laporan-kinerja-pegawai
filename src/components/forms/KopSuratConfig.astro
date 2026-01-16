@@ -1,0 +1,61 @@
+---
+import InputGroup from "../InputGroup.astro";
+---
+
+<div class="space-y-4">
+	<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
+		Identitas Instansi
+	</h3>
+	<InputGroup
+		label="Nama Instansi (Header 1)"
+		name="instansi"
+		model="form.instansiNama"
+		placeholder="PEMERINTAH PROVINSI..."
+	/>
+	<InputGroup
+		label="Alamat / Sub-Header"
+		name="alamat"
+		model="form.instansiAlamat"
+		placeholder="Alamat lengkap..."
+	/>
+	<div class="flex flex-col gap-2 group">
+		<label class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+			>Logo Instansi</label
+		>
+		<div class="flex items-center gap-4">
+			<div
+				class="w-16 h-16 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden relative"
+			>
+				<template x-if="form.logoBase64">
+					<img :src="form.logoBase64" class="w-full h-full object-contain" />
+				</template>
+				<template x-if="!form.logoBase64">
+					<span class="text-xs text-slate-500">No Logo</span>
+				</template>
+				<button
+					x-show="form.logoBase64"
+					@click="form.logoBase64 = ''"
+					class="absolute inset-0 bg-black/60 flex items-center justify-center text-red-400 opacity-0 hover:opacity-100 transition"
+				>
+					✕
+				</button>
+			</div>
+			<div class="flex-1">
+				<input
+					type="file"
+					accept="image/*"
+					@change="handleLogoUpload"
+					class="block w-full text-sm text-slate-400
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-full file:border-0
+            file:text-xs file:font-semibold
+            file:bg-blue-500/10 file:text-blue-400
+            hover:file:bg-blue-500/20 cursor-pointer"
+				/>
+				<p class="text-[10px] text-slate-500 mt-1">
+					Maks 100KB (PNG/JPG). Disimpan lokal.
+				</p>
+			</div>
+		</div>
+	</div>
+</div>

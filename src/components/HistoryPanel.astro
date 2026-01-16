@@ -1,0 +1,73 @@
+<div class="glass-panel p-4 h-full flex flex-col">
+	<h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+		<span class="w-1 h-5 bg-orange-500 rounded-full"></span> Riwayat Laporan
+	</h3>
+	<div class="flex-1 overflow-y-auto space-y-2 pr-2" x-data="historyApp">
+		<template x-if="items.length === 0">
+			<div class="text-center text-slate-500 text-sm py-4">
+				Belum ada riwayat tersimpan.
+			</div>
+		</template>
+		<template x-for="item in items" :key="item.id">
+			<div
+				class="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 transition group"
+			>
+				<div class="flex justify-between items-start mb-1">
+					<span class="text-xs text-orange-400" x-text="item.date"></span>
+					<button
+						@click="remove(item.id)"
+						class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
+						>✕</button
+					>
+				</div>
+				<div
+					class="text-sm font-medium text-slate-200 truncate"
+					x-text="item.title"
+				>
+				</div>
+				<button
+					@click="load(item.id)"
+					class="mt-2 w-full py-1.5 text-xs bg-white/5 hover:bg-blue-500/20 hover:text-blue-300 rounded border border-transparent hover:border-blue-500/30 transition"
+				>
+					Load Data
+				</button>
+			</div>
+		</template>
+	</div>
+</div>
+<script>
+	import Alpine from "alpinejs";
+	import {
+		historyStore,
+		loadFromHistory,
+		deleteHistory,
+	} from "../stores/reportStore";
+	import { addToast } from "../stores/toastStore";
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("historyApp", () => ({
+			items: [],
+			init() {
+				this.items = historyStore.get().items;
+				historyStore.subscribe((val) => {
+					this.items = val.items;
+				});
+			},
+			load(id) {
+				if (
+					confirm(
+						"Load data ini? Data yang belum disimpan di form sekarang akan tertimpa."
+					)
+				) {
+					loadFromHistory(id);
+					addToast("Data berhasil dimuat dari riwayat", "success");
+				}
+			},
+			remove(id) {
+				if (confirm("Hapus riwayat ini?")) {
+					deleteHistory(id);
+					addToast("Riwayat dihapus", "info");
+				}
+			},
+		}));
+	});
+</script>

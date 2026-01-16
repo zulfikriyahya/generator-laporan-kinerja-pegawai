@@ -1,0 +1,11 @@
+<div
+	class="flex overflow-x-auto gap-2 p-1 mb-6 bg-slate-950/50 rounded-xl border border-white/5 scrollbar-hide"
+>
+	<template x-for="tab in tabs" :key="tab.id">
+		<button
+			@click="activeTab = tab.id"
+			:class="activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'"
+			class="px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
+			x-text="tab.label"></button>
+	</template>
+</div>

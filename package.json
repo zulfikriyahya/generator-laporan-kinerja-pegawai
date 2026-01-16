@@ -1,7 +1,7 @@
 {
-  "name": "laporan-kinerja-ai",
+  "name": "generator-laporan-kinerja",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -9,6 +9,28 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.9"
+    "@astrojs/alpinejs": "^0.4.9",
+    "@google/generative-ai": "^0.24.1",
+    "@lucide/astro": "^0.562.0",
+    "@nanostores/persistent": "^1.2.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/file-saver": "^2.0.7",
+    "@vite-pwa/astro": "^1.2.0",
+    "alpinejs": "^3.15.4",
+    "astro": "^5.16.9",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.19",
+    "dompurify": "^3.3.1",
+    "file-saver": "^2.0.5",
+    "gsap": "^3.14.2",
+    "html-docx-js-typescript": "^0.1.5",
+    "html2pdf.js": "^0.14.0",
+    "jspdf": "^4.0.0",
+    "marked": "^17.0.1",
+    "nanostores": "^1.1.0",
+    "qrcode": "^1.5.4",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18",
+    "workbox-window": "^7.4.0"
   }
 }

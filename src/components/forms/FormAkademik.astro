@@ -1,0 +1,38 @@
+---
+import InputGroup from "../InputGroup.astro";
+import SelectGroup from "./SelectGroup.astro";
+---
+
+<div class="space-y-4 animate-fade-in">
+	<div
+		class="p-3 bg-blue-900/20 border border-blue-500/20 rounded text-xs text-blue-300 mb-2"
+	>
+		Khusus untuk Pegawai fungsional Guru.
+	</div>
+	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup label="Kelas Ajar" name="kls" model="form.akademik.kelas" />
+		<InputGroup label="Jml Siswa" name="siswa" model="form.akademik.jmlSiswa" />
+	</div>
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup
+			label="Jam/Minggu"
+			name="jam"
+			model="form.akademik.jamMengajar"
+		/>
+		<SelectGroup
+			label="Kurikulum"
+			name="kur"
+			model="form.akademik.kurikulum"
+			options={[
+				{ val: "Merdeka", label: "Kurikulum Merdeka" },
+				{ val: "K13", label: "K13 Revisi" },
+			]}
+		/>
+	</div>
+	<InputGroup
+		label="Tugas Ekstrakurikuler"
+		name="ekskul"
+		model="form.akademik.ekskul"
+	/>
+</div>

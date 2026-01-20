@@ -1,0 +1,144 @@
+---
+import InputGroup from "../InputGroup.astro";
+---
+
+<div class="space-y-6 animate-fade-in pb-10">
+	<!-- Header Dokumen -->
+	<div class="space-y-3">
+		<h3
+			class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1"
+		>
+			2.1 Identitas Instansi (Kop Surat)
+		</h3>
+		<InputGroup
+			label="Header 1 (Induk/Kementerian)"
+			name="h1"
+			model="form.instansi.header1"
+			placeholder="KEMENTERIAN AGAMA RI"
+		/>
+		<InputGroup
+			label="Header 2 (Wilayah/Dinas)"
+			name="h2"
+			model="form.instansi.header2"
+			placeholder="KANTOR KABUPATEN..."
+		/>
+		<InputGroup
+			label="Header 3 (Satuan Kerja)"
+			name="h3"
+			model="form.instansi.header3"
+			placeholder="MADRASAH TSANAWIYAH..."
+		/>
+		<InputGroup
+			label="Alamat Lengkap"
+			name="addr"
+			model="form.instansi.alamat"
+		/>
+		<div class="grid grid-cols-2 gap-3">
+			<InputGroup label="Telepon" name="telp" model="form.instansi.telepon" />
+			<InputGroup label="Email" name="mail" model="form.instansi.email" />
+		</div>
+		<InputGroup label="Website" name="web" model="form.instansi.website" />
+	</div>
+
+	<!-- Upload Logo (Sesuai Draft 2.1) -->
+	<div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+		<!-- Logo Kiri -->
+		<div class="bg-slate-800 p-2 rounded text-center">
+			<span class="text-[10px] text-slate-400 block mb-2">Logo Kiri</span>
+			<div
+				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
+			>
+				<template x-if="form.instansi.logoUtama">
+					<img
+						:src="form.instansi.logoUtama"
+						class="w-full h-full object-contain"
+					/>
+				</template>
+			</div>
+			<input
+				type="file"
+				accept="image/*"
+				@change="handleUpload($event, 'logoUtama')"
+				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
+			/>
+		</div>
+
+		<!-- Logo Tengah -->
+		<div class="bg-slate-800 p-2 rounded text-center">
+			<span class="text-[10px] text-slate-400 block mb-2">Logo Tengah</span>
+			<div
+				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
+			>
+				<template x-if="form.instansi.logoInstitusi">
+					<img
+						:src="form.instansi.logoInstitusi"
+						class="w-full h-full object-contain"
+					/>
+				</template>
+			</div>
+			<input
+				type="file"
+				accept="image/*"
+				@change="handleUpload($event, 'logoInstitusi')"
+				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
+			/>
+		</div>
+
+		<!-- Logo Kanan -->
+		<div class="bg-slate-800 p-2 rounded text-center">
+			<span class="text-[10px] text-slate-400 block mb-2">Logo Kanan</span>
+			<div
+				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
+			>
+				<template x-if="form.instansi.logoInstansi">
+					<img
+						:src="form.instansi.logoInstansi"
+						class="w-full h-full object-contain"
+					/>
+				</template>
+			</div>
+			<input
+				type="file"
+				accept="image/*"
+				@change="handleUpload($event, 'logoInstansi')"
+				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
+			/>
+		</div>
+	</div>
+
+	<!-- Pejabat Penandatangan -->
+	<div class="space-y-3 pt-4 border-t border-white/10">
+		<h3 class="text-xs font-bold text-blue-400 uppercase pb-1">
+			Tanda Tangan & Titimangsa
+		</h3>
+
+		<InputGroup
+			label="Tempat (Titimangsa)"
+			name="titimangsa"
+			model="form.instansi.titimangsa"
+			placeholder="Pandeglang"
+		/>
+
+		<div class="p-3 bg-white/5 rounded-lg border border-white/5">
+			<p class="text-xs font-bold text-emerald-400 mb-2">
+				Kepala Instansi (Pejabat Penilai)
+			</p>
+			<InputGroup
+				label="Nama Kepala"
+				name="k_nama"
+				model="form.instansi.kepala.nama"
+			/>
+			<div class="grid grid-cols-2 gap-2 mt-2">
+				<InputGroup label="NIP" name="k_nip" model="form.instansi.kepala.nip" />
+				<InputGroup
+					label="Pangkat"
+					name="k_pgkt"
+					model="form.instansi.kepala.pangkat"
+				/>
+			</div>
+		</div>
+
+		<!-- Opsional: Kepala TU jika diperlukan -->
+		<!-- <div class="p-3 bg-white/5 rounded-lg border border-white/5">...</div> -->
+	</div>
+</div>

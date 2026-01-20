@@ -1,513 +1,500 @@
 ---
+// ============================================================================
+// GENERATOR LAPORAN KINERJA PEGAWAI - MAIN PAGE
+// Version: 1.0.0
+// ============================================================================
+
 import Layout from "../layouts/Layout.astro";
-import InputGroup from "../components/InputGroup.astro";
+import FormInstansi from "../components/forms/FormInstansi.astro";
+import FormPegawai from "../components/forms/FormPegawai.astro";
+import FormAkademik from "../components/forms/FormAkademik.astro";
+import FormKinerja from "../components/forms/FormKinerja.astro";
 import SelectGroup from "../components/forms/SelectGroup.astro";
-import TextAreaGroup from "../components/TextAreaGroup.astro";
-import TabNavigation from "../components/forms/TabNavigation.astro";
+import InputGroup from "../components/InputGroup.astro";
 import ToastContainer from "../components/ui/ToastContainer.astro";
-import HistoryPanel from "../components/HistoryPanel.astro";
-import Skeleton from "../components/ui/Skeleton.astro";
-import KopSuratConfig from "../components/forms/KopSuratConfig.astro";
 import {
 	Bot,
-	FileText,
-	Printer,
-	Copy,
-	Save,
+	FileSpreadsheet,
 	RefreshCw,
-	FileDown,
-	RotateCcw,
-	Upload,
+	Printer,
+	Save,
+	AlertCircle,
 	Download,
+	FileText,
+	Settings,
+	History,
 } from "@lucide/astro";
 ---
 
-<Layout title="Generator Laporan Kinerja AI">
+<Layout title="Generator Laporan Kinerja Pegawai AI - v1.0.0">
 	<ToastContainer />
 
-	<main
-		class="container mx-auto px-4 py-4 max-w-[1600px] min-h-screen flex flex-col"
-		x-data="appFinal"
-		@keydown.window.prevent.ctrl.s="saveHistory()"
-		@keydown.window.prevent.ctrl.g="generate()"
-	>
+	<main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
+		<!-- TOPBAR -->
 		<header
-			class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-white/10 pb-4 no-print"
+			class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print shadow-md"
 		>
-			<div>
-				<h1
-					class="text-2xl font-bold text-white tracking-tight flex items-center gap-2"
+			<div class="flex items-center gap-3">
+				<div
+					class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shadow-lg shadow-blue-500/20"
 				>
-					<Bot class="text-blue-500" /> Generator Laporan Kinerja
-				</h1>
-				<p class="text-slate-400 text-xs mt-1">
-					Sistem Otomasi Pelaporan Pegawai Berbasis AI
-				</p>
+					<Bot class="text-white w-5 h-5" />
+				</div>
+				<div>
+					<h1 class="text-sm font-bold text-white tracking-wide">
+						E-KINERJA AI
+					</h1>
+					<p class="text-[10px] text-slate-400">Ver 1.0.0 Stable</p>
+				</div>
 			</div>
-			<div
-				class="hidden md:flex flex-col items-end text-[10px] text-slate-500 font-mono"
-			>
-				<span>Ctrl+G: Generate</span>
-				<span>Ctrl+S: Save Draft</span>
+
+			<div class="flex items-center gap-2">
+				<!-- Download Template -->
+				<button
+					@click="downloadTemplate"
+					class="px-3 py-1.5 bg-slate-800 text-slate-300 border border-slate-700 rounded-md text-xs font-medium hover:bg-slate-700 transition flex items-center gap-2"
+					title="Download Template Excel"
+				>
+					<Download class="w-3.5 h-3.5" /> Template
+				</button>
+
+				<!-- Import Excel -->
+				<label
+					class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-md text-xs font-medium cursor-pointer hover:bg-emerald-600/30 transition flex items-center gap-2"
+				>
+					<FileSpreadsheet class="w-3.5 h-3.5" /> Import
+					<input
+						type="file"
+						class="hidden"
+						accept=".xlsx,.xls"
+						@change="handleImportExcel"
+					/>
+				</label>
+
+				<div class="h-6 w-px bg-white/10 mx-2"></div>
+
+				<!-- Export Buttons -->
+				<button
+					@click="exportPDF"
+					class="px-3 py-1.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-md text-xs font-medium hover:bg-red-600/30 transition flex items-center gap-2"
+					title="Export PDF"
+				>
+					<FileText class="w-3.5 h-3.5" /> PDF
+				</button>
+
+				<button
+					@click="exportDOCX"
+					class="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-md text-xs font-medium hover:bg-blue-600/30 transition flex items-center gap-2"
+					title="Export DOCX"
+				>
+					<FileText class="w-3.5 h-3.5" /> DOCX
+				</button>
+
+				<div class="h-6 w-px bg-white/10 mx-2"></div>
+
+				<!-- Save Draft -->
+				<button
+					@click="saveDraft"
+					class="text-slate-400 hover:text-white transition"
+					title="Simpan Draft"
+				>
+					<Save class="w-5 h-5" />
+				</button>
+
+				<!-- History -->
+				<button
+					@click="toggleHistory"
+					class="text-slate-400 hover:text-white transition"
+					title="Riwayat"
+				>
+					<History class="w-5 h-5" />
+				</button>
 			</div>
 		</header>
 
-		<div
-			class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 h-[calc(100vh-140px)] min-h-[600px]"
-		>
-			<!-- INPUT PANEL -->
-			<div
-				class="lg:col-span-4 xl:col-span-3 flex flex-col h-full bg-slate-900/50 rounded-xl border border-white/5 overflow-hidden shadow-2xl glass-panel"
+		<!-- MAIN CONTENT AREA -->
+		<div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
+			<!-- LEFT SIDEBAR - FORM INPUT -->
+			<aside
+				class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shadow-[4px_0_24px_rgba(0,0,0,0.4)]"
 			>
-				<div class="p-3 border-b border-white/5 bg-slate-950/30">
-					<TabNavigation />
-				</div>
-
-				<div
-					class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar scroll-smooth"
-				>
-					<!-- Config Instansi -->
-					<div
-						x-show="activeTab === 'instansi'"
-						class="space-y-4 animate-fade-in"
-					>
-						<KopSuratConfig />
-					</div>
-
-					<!-- Config Pribadi -->
-					<div
-						x-show="activeTab === 'pribadi'"
-						class="space-y-4 animate-fade-in"
-					>
-						<h3
-							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
-						>
-							Data Pribadi
-						</h3>
+				<!-- Periode & AI Config -->
+				<div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
+					<!-- Periode Laporan -->
+					<div class="grid grid-cols-2 gap-2">
+						<SelectGroup
+							label="Bulan"
+							name="bln"
+							model="form.config.bulan"
+							options={Array.from({ length: 12 }, (_, i) => ({
+								val: String(i + 1),
+								label: new Date(0, i).toLocaleString("id-ID", {
+									month: "long",
+								}),
+							}))}
+						/>
 						<InputGroup
-							label="Nama Lengkap & Gelar"
-							name="nama"
-							model="form.nama"
-							placeholder="Contoh: Yahya Zulfikri, S.Kom"
+							label="Tahun"
+							name="thn"
+							model="form.config.tahun"
+							type="number"
 						/>
-						<div class="grid grid-cols-2 gap-3">
-							<InputGroup label="NIP / NUPTK" name="nip" model="form.nip" />
-							<SelectGroup
-								label="Gender"
-								name="gender"
-								model="form.gender"
-								options={[
-									{ val: "L", label: "Laki-laki" },
-									{ val: "P", label: "Perempuan" },
-								]}
-							/>
-						</div>
-						<InputGroup label="Unit Kerja" name="unit" model="form.unitKerja" />
-						<InputGroup label="Jabatan" name="jabatan" model="form.jabatan" />
 					</div>
 
-					<!-- Config Kepegawaian -->
-					<div
-						x-show="activeTab === 'pegawai'"
-						class="space-y-4 animate-fade-in"
-					>
-						<h3
-							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
-						>
-							Kepegawaian
-						</h3>
-						<div class="grid grid-cols-2 gap-3">
-							<SelectGroup
-								label="Jenis Pegawai"
-								name="jenis"
-								model="form.jenisPegawai"
-								options={[
-									{ val: "Guru", label: "Guru" },
-									{ val: "Staf", label: "Staf Admin" },
-								]}
-							/>
-							<SelectGroup
-								label="Status"
-								name="status"
-								model="form.statusKepegawaian"
-								options={[
-									{ val: "PNS", label: "PNS" },
-									{ val: "PPPK", label: "PPPK" },
-									{ val: "Honorer", label: "Honorer" },
-								]}
-							/>
-						</div>
-						<div class="grid grid-cols-2 gap-3">
-							<InputGroup
-								label="Golongan"
-								name="gol"
-								model="form.golongan"
-								placeholder="III/a (Opsional)"
-							/>
-							<InputGroup
-								label="Tgl Mulai Laporan"
-								name="tgl"
-								model="form.tglMulai"
-								type="date"
-							/>
-						</div>
-					</div>
-
-					<!-- Config Dikjar (Guru Only) -->
-					<div
-						x-show="activeTab === 'dikjar'"
-						class="space-y-4 animate-fade-in"
-					>
-						<template x-if="form.jenisPegawai === 'Guru'">
-							<div class="space-y-4">
-								<h3
-									class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
-								>
-									Pendidikan
-								</h3>
-								<InputGroup
-									label="Mata Pelajaran"
-									name="mapel"
-									model="form.mapel"
-								/>
-								<div class="grid grid-cols-2 gap-3">
-									<SelectGroup
-										label="Jenjang"
-										name="jenjang"
-										model="form.jenjang"
-										options={[
-											{ val: "SD", label: "SD/MI" },
-											{ val: "SMP", label: "SMP/MTS" },
-											{ val: "SMA", label: "SMA/MA" },
-										]}
-									/>
-									<InputGroup
-										label="Jam/Minggu"
-										name="jam"
-										model="form.jamMengajar"
-										type="number"
-									/>
-								</div>
-								<InputGroup
-									label="Kelas Ajar"
-									name="kelas"
-									model="form.kelas"
-									placeholder="VII-A, VII-B"
-								/>
-								<SelectGroup
-									label="Kurikulum"
-									name="kurikulum"
-									model="form.kurikulum"
-									options={[
-										{ val: "Merdeka", label: "Kur. Merdeka" },
-										{ val: "K13", label: "K13 Revisi" },
-									]}
-								/>
-							</div>
-						</template>
-						<template x-if="form.jenisPegawai !== 'Guru'">
-							<div
-								class="py-10 text-slate-500 text-sm text-center border border-dashed border-white/10 rounded-lg bg-white/5"
-							>
-								<p>Menu ini khusus untuk Guru</p>
-							</div>
-						</template>
-					</div>
-
-					<!-- Config Tugas -->
-					<div x-show="activeTab === 'tugas'" class="space-y-4 animate-fade-in">
-						<h3
-							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
-						>
-							Uraian Tugas
-						</h3>
-						<TextAreaGroup
-							label="Tugas Pokok"
-							name="pokok"
-							model="form.tugasPokok"
-							rows="3"
-						/>
-						<TextAreaGroup
-							label="Tugas Tambahan"
-							name="tambahan"
-							model="form.tugasTambahan"
-							rows="2"
-						/>
-						<template x-if="form.jenisPegawai === 'Guru'">
-							<InputGroup
-								label="Ekstrakurikuler"
-								name="ekskul"
-								model="form.ekskul"
-								placeholder="Pramuka"
-							/>
-						</template>
-					</div>
-
-					<!-- Config Opsi -->
-					<div
-						x-show="activeTab === 'config'"
-						class="space-y-4 animate-fade-in"
-					>
-						<h3
-							class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-white/5 pb-2"
-						>
-							Pengaturan AI
-						</h3>
-						<div class="grid grid-cols-2 gap-3">
-							<SelectGroup
-								label="Bulan"
-								name="bulan"
-								model="form.bulan"
-								options={Array.from({ length: 12 }, (_, i) => ({
-									val: String(i + 1),
-									label: new Date(0, i).toLocaleString("id-ID", {
-										month: "long",
-									}),
-								}))}
-							/>
-							<InputGroup
-								label="Tahun"
-								name="tahun"
-								model="form.tahun"
-								type="number"
-							/>
-						</div>
+					<!-- AI Model Selection -->
+					<div>
 						<SelectGroup
 							label="Model AI"
-							name="model"
-							model="form.modelAI"
+							name="ai"
+							model="form.config.modelAI"
 							options={[
-								{ val: "gemini-3-flash-preview", label: "Gemini 3 Flash" },
-								{ val: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+								{ val: "gemini", label: "Google Gemini (Recommended)" },
+								{ val: "claude", label: "Anthropic Claude" },
+								{ val: "gpt", label: "OpenAI GPT-4" },
+								{ val: "groq", label: "Groq (Fast)" },
 							]}
 						/>
+						<p
+							class="text-[10px] text-slate-500 mt-1"
+							x-show="!hasAPIKey(form.config.modelAI)"
+						>
+							⚠️ API Key belum diatur untuk model ini
+						</p>
+					</div>
 
-						<div class="mt-4 pt-4 border-t border-white/10">
-							<div class="grid grid-cols-2 gap-2">
-								<button
-									@click="exportData"
-									class="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-white/5 transition"
-									><Download class="w-3 h-3" /> Backup JSON</button
-								>
-								<label
-									class="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-white/5 transition cursor-pointer"
-									><Upload class="w-3 h-3" /> Restore JSON <input
-										type="file"
-										accept=".json"
-										class="hidden"
-										@change="importData"
-									/></label
-								>
-							</div>
+					<!-- Token Limit -->
+					<div>
+						<InputGroup
+							label="Token Limit"
+							name="tkn"
+							model="form.config.tokenLimit"
+							type="number"
+						/>
+					</div>
+				</div>
+
+				<!-- Form Tabs -->
+				<div class="flex border-b border-white/5 bg-slate-950/30">
+					<template x-for="tab in tabs" :key="tab.id">
+						<button
+							@click="activeTab = tab.id"
+							:class="activeTab === tab.id ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5' : 'text-slate-500 hover:text-slate-300'"
+							class="flex-1 py-3 text-xs font-medium transition text-center"
+							x-text="tab.label"
+						>
+						</button>
+					</template>
+				</div>
+
+				<!-- Form Content Area -->
+				<div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+					<div x-show="activeTab === 'instansi'" x-transition>
+						<FormInstansi />
+					</div>
+
+					<div x-show="activeTab === 'pegawai'" x-transition>
+						<FormPegawai />
+					</div>
+
+					<div x-show="activeTab === 'akademik'" x-transition>
+						<div
+							x-show="form.pegawai.jenis !== 'Guru' && form.pegawai.jenis !== 'GTT'"
+							class="text-center p-6 border border-dashed border-white/10 rounded"
+						>
+							<AlertCircle class="w-8 h-8 text-slate-600 mx-auto mb-2" />
+							<p class="text-xs text-slate-500">
+								Data akademik khusus untuk Jabatan Guru/GTT
+							</p>
+						</div>
+						<div
+							x-show="form.pegawai.jenis === 'Guru' || form.pegawai.jenis === 'GTT'"
+						>
+							<FormAkademik />
 						</div>
 					</div>
-				</div>
 
-				<div
-					class="p-4 border-t border-white/10 bg-slate-900/80 backdrop-blur space-y-3 z-10"
-				>
-					<button
-						@click="generate"
-						:disabled="loading"
-						class="btn-primary w-full flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-wait group relative overflow-hidden"
-					>
-						<RefreshCw x-show="loading" class="w-4 h-4 animate-spin" />
-						<Bot x-show="!loading" class="w-4 h-4" />
-						<span
-							x-text="loading ? 'Sedang Menyusun Laporan...' : 'GENERATE AI'"
-							class="relative font-bold tracking-wide"></span>
-					</button>
-					<div class="flex gap-2">
-						<button
-							@click="resetForm"
-							class="flex-1 py-2 text-xs text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-lg transition flex justify-center items-center gap-2"
-							><RotateCcw class="w-3 h-3" /> Reset</button
-						>
-						<button
-							@click="saveHistory"
-							class="flex-[2] py-2 text-xs font-medium text-slate-300 hover:text-white border border-white/10 hover:bg-white/5 rounded-lg transition flex justify-center items-center gap-2"
-							><Save class="w-3 h-3" /> Simpan Draft</button
-						>
+					<div x-show="activeTab === 'kinerja'" x-transition>
+						<FormKinerja />
 					</div>
-				</div>
-			</div>
 
-			<!-- PREVIEW PANEL -->
-			<div
-				class="lg:col-span-8 xl:col-span-7 flex flex-col h-full glass-panel overflow-hidden relative"
-			>
-				<div
-					class="bg-slate-950/60 p-3 border-b border-white/10 flex justify-between items-center backdrop-blur-sm z-20 no-print"
-				>
-					<span
-						class="text-slate-300 font-medium text-sm flex items-center gap-2 px-2"
-						><FileText class="w-4 h-4 text-blue-400" /> Preview Dokumen</span
-					>
-					<div class="flex gap-2">
-						<button
-							@click="copyText"
-							class="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition"
-							title="Copy Markdown"><Copy class="w-4 h-4" /></button
-						>
-						<div class="h-8 w-px bg-white/10 mx-1"></div>
-						<button
-							@click="exportWord"
-							class="px-3 py-1.5 bg-blue-700/50 hover:bg-blue-600/50 text-blue-100 border border-blue-500/30 rounded-lg text-xs font-medium flex gap-2 items-center transition"
-							><FileDown class="w-3.5 h-3.5" /> .docx</button
-						>
-						<button
-							@click="printPDF"
-							class="px-3 py-1.5 bg-rose-700/50 hover:bg-rose-600/50 text-rose-100 border border-rose-500/30 rounded-lg text-xs font-medium flex gap-2 items-center transition"
-							><Printer class="w-3.5 h-3.5" /> PDF</button
-						>
-					</div>
-				</div>
-
-				<div
-					class="flex-1 bg-white overflow-y-auto p-8 md:p-12 relative group scroll-smooth text-black"
-				>
-					<div
-						x-show="loading"
-						class="absolute inset-0 bg-slate-900/10 backdrop-blur-sm z-50 flex items-start pt-20 justify-center"
-					>
-						<div
-							class="bg-slate-800 rounded-xl shadow-2xl border border-white/10 p-2 max-w-md w-full mx-4"
-						>
-							<Skeleton />
-							<p class="text-center text-slate-400 text-sm pb-4 animate-pulse">
-								AI sedang menyusun laporan...
+					<div x-show="activeTab === 'advanced'" x-transition>
+						<div class="space-y-4">
+							<h3
+								class="text-xs font-bold text-blue-400 uppercase tracking-widest"
+							>
+								Instruksi Tambahan AI
+							</h3>
+							<textarea
+								x-model="form.config.customInstruction"
+								placeholder="Tambahkan instruksi khusus untuk AI (opsional)..."
+								rows="6"
+								class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none custom-scrollbar"
+							></textarea>
+							<p class="text-[10px] text-slate-500">
+								Contoh: "Fokuskan pada pencapaian target IKU" atau "Tambahkan
+								analisis SWOT"
 							</p>
 						</div>
 					</div>
+				</div>
 
-					<template x-if="!renderedHtml && !loading">
-						<div
-							class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-4 select-none bg-slate-900"
+				<!-- Generate Button -->
+				<div class="p-4 border-t border-white/10 bg-slate-900 z-50">
+					<button
+						@click="generateLaporan"
+						:disabled="loading || !canGenerate()"
+						class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg text-white font-bold text-sm shadow-lg hover:shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 transition-all active:scale-[0.98]"
+					>
+						<RefreshCw :class="loading && 'animate-spin'" class="w-4 h-4" />
+						<span
+							x-text="loading ? 'AI Sedang Bekerja...' : 'GENERATE LAPORAN'"
 						>
-							<div
-								class="p-6 rounded-full bg-slate-800 border-4 border-slate-700"
+						</span>
+					</button>
+
+					<!-- Validation Errors -->
+					<div
+						x-show="validationErrors.length > 0"
+						class="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400"
+					>
+						<template x-for="error in validationErrors">
+							<div x-text="'• ' + error"></div>
+						</template>
+					</div>
+				</div>
+			</aside>
+
+			<!-- RIGHT CONTENT - PREVIEW -->
+			<section
+				class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar"
+			>
+				<!-- Floating Toolbar -->
+				<div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
+					<button
+						@click="printDoc"
+						:disabled="!hasContent()"
+						class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700 transition hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+						title="Print Dokumen"
+					>
+						<Printer class="w-6 h-6" />
+					</button>
+				</div>
+
+				<!-- A4 Paper Preview -->
+				<div
+					id="document-preview"
+					class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300"
+				>
+					<!-- Loading Overlay -->
+					<div
+						x-show="loading"
+						class="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center backdrop-blur-[2px]"
+					>
+						<div
+							class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"
+						>
+						</div>
+						<p class="text-sm text-slate-600 font-medium">
+							AI sedang menyusun laporan...
+						</p>
+						<p class="text-xs text-slate-400 mt-1">
+							Menganalisis kinerja & membuat narasi profesional
+						</p>
+					</div>
+
+					<!-- KOP SURAT -->
+					<header
+						class="border-b-4 border-double border-black mb-6 pb-2 grid grid-cols-[80px_1fr_80px] gap-2 items-center"
+					>
+						<!-- Logo Kiri -->
+						<div class="h-20 flex items-center justify-center">
+							<template x-if="form.instansi.logoUtama">
+								<img
+									:src="form.instansi.logoUtama"
+									class="max-w-full max-h-full object-contain"
+									alt="Logo Utama"
+								/>
+							</template>
+						</div>
+
+						<!-- Header Text (Tengah) -->
+						<div class="text-center uppercase leading-tight">
+							<h3 class="font-bold text-lg" x-text="form.instansi.header1"></h3>
+							<h2 class="font-bold text-xl" x-text="form.instansi.header2"></h2>
+							<h1 class="font-bold text-2xl" x-text="form.instansi.header3">
+							</h1>
+							<p
+								class="text-xs normal-case mt-1 font-serif"
+								x-text="form.instansi.alamat"
 							>
-								<Bot class="w-12 h-12 text-slate-500" />
+							</p>
+							<p class="text-[10px] mt-0.5">
+								<span x-text="form.instansi.telepon"></span> |
+								<span x-text="form.instansi.email"></span> |
+								<span x-text="form.instansi.website"></span>
+							</p>
+						</div>
+
+						<!-- Logo Kanan -->
+						<div class="h-20 flex items-center justify-center">
+							<template x-if="form.instansi.logoInstansi">
+								<img
+									:src="form.instansi.logoInstansi"
+									class="max-w-full max-h-full object-contain"
+									alt="Logo Instansi"
+								/>
+							</template>
+						</div>
+					</header>
+
+					<!-- JUDUL LAPORAN -->
+					<div class="text-center mb-8">
+						<h2 class="font-bold underline uppercase text-lg">
+							LAPORAN KINERJA PEGAWAI
+						</h2>
+						<p class="text-sm font-medium mt-1">
+							Periode: <span x-text="getBulanName(form.config.bulan)"></span>
+							<span x-text="form.config.tahun"></span>
+						</p>
+					</div>
+
+					<!-- CONTENT AREA -->
+					<div
+						x-show="!hasContent()"
+						class="h-96 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg bg-slate-50"
+					>
+						<Bot class="w-12 h-12 text-slate-300 mb-2" />
+						<p class="text-sm text-slate-500 font-medium">
+							Preview dokumen kosong
+						</p>
+						<p class="text-xs text-slate-400 mt-1">
+							Isi form dan klik "Generate Laporan" untuk memulai
+						</p>
+					</div>
+
+					<article
+						class="prose-report text-justify leading-relaxed font-serif"
+						x-html="renderedHTML"
+						x-show="hasContent()"
+					>
+					</article>
+
+					<!-- TANDA TANGAN -->
+					<div
+						x-show="hasContent()"
+						class="mt-12 flex justify-end break-inside-avoid"
+					>
+						<div class="text-center w-64">
+							<p class="mb-1">
+								<span x-text="form.instansi.titimangsa"></span>, <span
+									x-text="getCurrentDate()"></span>
+							</p>
+							<p class="font-bold mb-2">Pejabat Penilai,</p>
+
+							<!-- TTD Digital Area -->
+							<div class="h-20 flex items-center justify-center my-1">
+								<template x-if="form.instansi.kepala.ttd">
+									<img
+										:src="form.instansi.kepala.ttd"
+										class="max-h-20 object-contain"
+										alt="TTD"
+									/>
+								</template>
+								<template x-if="!form.instansi.kepala.ttd">
+									<div
+										class="border-2 border-slate-200 p-1 bg-slate-50 opacity-60 rounded"
+									>
+										<div
+											class="w-16 h-16 flex flex-col items-center justify-center text-[8px] text-center text-slate-400"
+										>
+											<div class="w-8 h-8 bg-slate-300 mb-1 rounded-sm"></div>
+											DIGITAL SIGN
+										</div>
+									</div>
+								</template>
 							</div>
-							<div class="text-center">
-								<p class="font-bold text-slate-500 text-lg">
-									Siap Menyusun Laporan
-								</p>
-								<p class="text-sm text-slate-600 mt-1 max-w-xs mx-auto">
-									Isi data disamping, lalu klik Generate AI.
-								</p>
-							</div>
+
+							<p
+								class="font-bold underline uppercase text-sm"
+								x-text="form.instansi.kepala.nama"
+							>
+							</p>
+							<p class="text-sm">
+								NIP. <span x-text="form.instansi.kepala.nip"></span>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Bottom Spacer -->
+				<div class="h-20 w-full no-print"></div>
+			</section>
+		</div>
+
+		<!-- History Sidebar (Slide from right) -->
+		<div
+			x-show="showHistory"
+			@click.away="showHistory = false"
+			x-transition:enter="transition ease-out duration-300"
+			x-transition:enter-start="translate-x-full"
+			x-transition:enter-end="translate-x-0"
+			x-transition:leave="transition ease-in duration-200"
+			x-transition:leave-start="translate-x-0"
+			x-transition:leave-end="translate-x-full"
+			class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto custom-scrollbar no-print"
+		>
+			<div class="p-4">
+				<div class="flex justify-between items-center mb-4">
+					<h3 class="text-white font-bold flex items-center gap-2">
+						<History class="w-4 h-4" /> Riwayat
+					</h3>
+					<button
+						@click="showHistory = false"
+						class="text-slate-500 hover:text-white"
+					>
+						✕
+					</button>
+				</div>
+
+				<!-- History List -->
+				<div class="space-y-2">
+					<template x-if="historyItems.length === 0">
+						<div class="text-center text-slate-500 text-sm py-8">
+							Belum ada riwayat tersimpan
 						</div>
 					</template>
 
-					<div
-						id="report-preview"
-						class="relative z-10 text-black min-h-[1000px] flex flex-col max-w-[210mm] mx-auto bg-white shadow-sm print:shadow-none"
-						x-show="renderedHtml"
-					>
-						<!-- KOP SURAT LENGKAP -->
-						<table
-							class="w-full border-b-4 border-double border-black mb-6"
-							style="border-bottom: 4px double black;"
-						>
-							<tr>
-								<!-- Logo Kiri -->
-								<td class="w-24 align-middle text-center p-2 border-none">
-									<template x-if="form.logoInstitusiBase64">
-										<img
-											:src="form.logoInstitusiBase64"
-											class="w-20 h-20 object-contain mx-auto"
-										/>
-									</template>
-								</td>
-								<!-- Text Tengah -->
-								<td class="align-middle text-center p-2 border-none">
-									<h3
-										class="font-bold text-lg uppercase leading-tight"
-										x-text="form.institusiBarisSatuNama"
-										style="font-family: Arial, sans-serif;"
-									>
-									</h3>
-									<h2
-										class="font-bold text-xl uppercase leading-tight"
-										x-text="form.institusiBarisDuaNama"
-										style="font-family: Arial, sans-serif;"
-									>
-									</h2>
-									<h1
-										class="font-bold text-2xl uppercase leading-tight mt-1"
-										x-text="form.instansiNama"
-										style="font-family: Arial, sans-serif;"
-									>
-									</h1>
-									<p class="text-sm mt-1" x-text="form.instansiAlamat"></p>
-									<p class="text-xs italic" x-text="form.instansiWebsite"></p>
-								</td>
-								<!-- Logo Kanan -->
-								<td class="w-24 align-middle text-center p-2 border-none">
-									<template x-if="form.logoInstansiBase64">
-										<img
-											:src="form.logoInstansiBase64"
-											class="w-20 h-20 object-contain mx-auto"
-										/>
-									</template>
-								</td>
-							</tr>
-						</table>
-
-						<!-- JUDUL LAPORAN -->
-						<div class="text-center mb-8 text-black">
-							<h1
-								class="text-lg font-bold underline uppercase tracking-wider mb-1"
-								style="font-family: Arial, sans-serif;"
-							>
-								LAPORAN KINERJA PEGAWAI
-							</h1>
-							<p class="text-sm font-medium">
-								Periode: <span x-text="getBulanNama(form.bulan)"></span>
-								<span x-text="form.tahun"></span>
-							</p>
-						</div>
-
-						<!-- CONTENT (MARKDOWN) -->
-						<div class="w-full overflow-x-auto">
-							<div
-								x-html="renderedHtml"
-								class="prose-report max-w-none text-black mb-8 min-w-[100%]"
-							>
-							</div>
-						</div>
-
-						<!-- TTD -->
+					<template x-for="item in historyItems" :key="item.id">
 						<div
-							class="mt-8 pt-8 break-inside-avoid text-black flex justify-end"
+							class="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 transition group"
 						>
-							<div class="flex flex-col items-center w-80 text-center">
-								<p class="mb-6 text-sm">
-									<span x-text="form.titimangsa"></span>
-								</p>
-								<p class="font-bold mb-2 text-sm">Yang Melaporkan,</p>
-								<div class="w-20 h-20 my-2 relative flex justify-center">
-									<img
-										:src="qrCodeUrl"
-										class="w-full h-full object-contain opacity-80"
-										x-show="qrCodeUrl"
-									/>
-								</div>
-								<p
-									class="font-bold underline text-sm uppercase"
-									x-text="form.nama"
+							<div class="flex justify-between items-start mb-1">
+								<span
+									class="text-xs text-blue-400"
+									x-text="formatDate(item.date)"
 								>
-								</p>
-								<p class="text-sm">NIP. <span x-text="form.nip"></span></p>
+								</span>
+								<button
+									@click="deleteHistoryItem(item.id)"
+									class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
+								>
+									✕
+								</button>
 							</div>
+							<div
+								class="text-sm font-medium text-slate-200 mb-2"
+								x-text="item.title"
+							>
+							</div>
+							<button
+								@click="loadHistoryItem(item.id)"
+								class="w-full py-1.5 text-xs bg-white/5 hover:bg-blue-500/20 hover:text-blue-300 rounded border border-transparent hover:border-blue-500/30 transition"
+							>
+								Muat Data
+							</button>
 						</div>
-					</div>
+					</template>
 				</div>
-			</div>
-
-			<div class="hidden xl:block xl:col-span-2 h-full no-print">
-				<HistoryPanel />
 			</div>
 		</div>
 	</main>
@@ -517,210 +504,270 @@ import {
 	import Alpine from "alpinejs";
 	import {
 		reportStore,
+		historyStore,
 		saveToHistory,
-		resetStore,
+		loadFromHistory,
+		deleteHistory,
+		validateBeforeGenerate,
 	} from "../stores/reportStore";
-	import { addToast } from "../stores/toastStore";
-	import { generateLaporan } from "../services/aiService";
+	import { generateLaporan, checkAPIKey } from "../services/aiService";
+	import { importFromExcel, downloadTemplate } from "../services/excelService";
+	import {
+		exportToPDF,
+		exportToDOCX,
+		printDocument,
+	} from "../services/exportService";
 	import { parseMarkdown } from "../utils/markdown";
-	import html2pdf from "html2pdf.js";
-	import { asBlob } from "html-docx-js-typescript";
-	import { saveAs } from "file-saver";
-	import QRCode from "qrcode";
+	import { addToast } from "../stores/toastStore";
 
 	document.addEventListener("alpine:init", () => {
-		Alpine.data("appFinal", () => ({
-			loading: false,
-			renderedHtml: "",
-			activeTab: "pribadi",
-			qrCodeUrl: "",
-			form: reportStore.get(),
-			saveTimeout: null,
+		Alpine.data("appCore", () => ({
+			// State
 			tabs: [
-				{ id: "instansi", label: "Instansi" },
-				{ id: "pribadi", label: "Pribadi" },
-				{ id: "pegawai", label: "Kerja" },
-				{ id: "dikjar", label: "Dikjar" },
-				{ id: "tugas", label: "Tugas" },
-				{ id: "config", label: "Opsi" },
+				{ id: "instansi", label: "1. Instansi" },
+				{ id: "pegawai", label: "2. Pegawai" },
+				{ id: "akademik", label: "3. Akademik" },
+				{ id: "kinerja", label: "4. Kinerja" },
+				{ id: "advanced", label: "5. Advanced" },
 			],
+			activeTab: "pegawai",
+			form: reportStore.get(),
+			loading: false,
+			renderedHTML: "",
+			showHistory: false,
+			historyItems: [],
+			validationErrors: [],
 
+			// Initialize
 			async init() {
-				if (this.form.generatedContent) {
-					this.renderedHtml = await parseMarkdown(this.form.generatedContent);
-					await this.generateQR();
+				// Load rendered content jika sudah ada
+				if (this.form.output.content) {
+					this.renderedHTML = await parseMarkdown(this.form.output.content);
 				}
+
+				// Load history
+				this.historyItems = historyStore.get().items;
+				historyStore.subscribe((val) => {
+					this.historyItems = val.items;
+				});
+
+				// Auto-save dengan debounce
+				let timeout: ReturnType<typeof setTimeout>;
 				this.$watch("form", (val) => {
-					if (this.saveTimeout) clearTimeout(this.saveTimeout);
-					this.saveTimeout = setTimeout(() => reportStore.set({ ...val }), 500);
-				});
-				reportStore.subscribe(async (newState) => {
-					if (JSON.stringify(newState) !== JSON.stringify(this.form)) {
-						this.form = { ...newState };
-						if (newState.generatedContent) {
-							this.renderedHtml = await parseMarkdown(
-								newState.generatedContent
-							);
-							await this.generateQR();
-						}
-					}
+					clearTimeout(timeout);
+					timeout = setTimeout(() => {
+						reportStore.set(JSON.parse(JSON.stringify(val)));
+					}, 800);
 				});
 			},
 
-			// LOGIC BARU: Handle Upload untuk field dinamis (logoInstitusi / logoInstansi)
-			handleLogoUpload(event, fieldName) {
-				const file = event.target.files[0];
-				if (!file) return;
-				if (file.size > 500 * 1024) {
-					// Max 500KB
-					addToast("Ukuran file maksimal 500KB", "error");
+			// Generate Laporan
+			async generateLaporan() {
+				// Validasi
+				const validation = validateBeforeGenerate(this.form);
+				if (!validation.valid) {
+					this.validationErrors = validation.errors;
+					addToast("Data belum lengkap! Periksa form.", "error");
 					return;
 				}
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					this.form[fieldName] = e.target.result;
-				};
-				reader.readAsDataURL(file);
-			},
 
-			getBulanNama(bulan) {
-				if (!bulan) return "";
-				return new Date(0, parseInt(bulan) - 1).toLocaleString("id-ID", {
-					month: "long",
-				});
-			},
-
-			async generateQR() {
-				if (!this.form.nama) return;
-				const data = `Tanda Tangan Digital\nNama: ${this.form.nama}\nNIP: ${this.form.nip}\nUnit: ${this.form.unitKerja}\nTanggal: ${this.form.titimangsa}\nStatus: Valid`;
-				try {
-					this.qrCodeUrl = await QRCode.toDataURL(data, {
-						width: 120,
-						margin: 0,
-						color: { dark: "#000000", light: "#ffffff" },
-					});
-				} catch (err) {
-					console.error(err);
-				}
-			},
-
-			async generate() {
-				if (!this.form.nama || !this.form.nip) {
-					addToast("Nama dan NIP wajib diisi!", "error");
-					this.activeTab = "pribadi";
-					return;
-				}
+				this.validationErrors = [];
 				this.loading = true;
+
 				try {
-					const rawMarkdown = await generateLaporan();
-					this.renderedHtml = await parseMarkdown(rawMarkdown);
-					await this.generateQR();
-					this.form.generatedContent = rawMarkdown;
-					addToast("Laporan berhasil disusun!", "success");
-					saveToHistory();
-				} catch (e) {
-					console.error(e);
-					addToast("Gagal: " + (e.message || "Cek Koneksi"), "error");
+					const result = await generateLaporan();
+
+					if (result.success && result.content) {
+						this.renderedHTML = await parseMarkdown(result.content);
+						this.form = reportStore.get();
+						addToast(
+							`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`,
+							"success",
+						);
+
+						// Auto save to history
+						saveToHistory();
+					} else {
+						throw new Error(result.error || "Gagal generate laporan");
+					}
+				} catch (error: any) {
+					console.error("Generate Error:", error);
+					addToast(
+						"Error: " + (error.message || "Gagal menghubungi AI"),
+						"error",
+					);
 				} finally {
 					this.loading = false;
 				}
 			},
 
-			resetForm() {
-				if (confirm("Reset data form?")) {
-					resetStore();
-					this.renderedHtml = "";
-					this.qrCodeUrl = "";
-					addToast("Formulir direset", "info");
+			// Import Excel
+			async handleImportExcel(event: Event) {
+				const input = event.target as HTMLInputElement;
+				const file = input.files?.[0];
+				if (!file) return;
+
+				try {
+					await importFromExcel(file);
+					this.form = reportStore.get();
+					addToast("Import data berhasil!", "success");
+				} catch (error: any) {
+					addToast("Import gagal: " + error.message, "error");
+				}
+
+				// Reset input
+				input.value = "";
+			},
+
+			// Download Template
+			downloadTemplate() {
+				try {
+					downloadTemplate();
+					addToast("Template Excel berhasil diunduh", "info");
+				} catch (error: any) {
+					addToast("Gagal download template", "error");
 				}
 			},
 
-			saveHistory() {
-				if (!this.renderedHtml) {
-					addToast("Belum ada laporan", "info");
+			// Export PDF
+			async exportPDF() {
+				if (!this.hasContent()) {
+					addToast("Belum ada konten untuk diexport", "error");
 					return;
 				}
-				if (saveToHistory()) addToast("Draft tersimpan", "success");
-			},
 
-			async copyText() {
-				if (!this.form.generatedContent) return;
 				try {
-					await navigator.clipboard.writeText(this.form.generatedContent);
-					addToast("Markdown disalin", "success");
-				} catch (e) {
-					addToast("Gagal menyalin", "error");
+					const result = await exportToPDF();
+					if (result.success) {
+						addToast("PDF berhasil diexport", "success");
+					} else {
+						throw new Error(result.error);
+					}
+				} catch (error: any) {
+					addToast("Export PDF gagal: " + error.message, "error");
 				}
 			},
 
-			async exportWord() {
-				if (!this.renderedHtml) {
-					addToast("Laporan belum dibuat", "error");
+			// Export DOCX
+			async exportDOCX() {
+				if (!this.hasContent()) {
+					addToast("Belum ada konten untuk diexport", "error");
 					return;
 				}
-				addToast("Menyiapkan dokumen Word...", "info");
-				const contentElement = document.getElementById("report-preview");
-				const htmlString = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body { font-family: 'Arial', sans-serif; font-size: 11pt; } table { width: 100%; border-collapse: collapse; } td, th { border: 1px solid black; padding: 5px; } .border-none { border: none !important; }</style></head><body>${contentElement.innerHTML}</body></html>`;
+
 				try {
-					const blob = await asBlob(htmlString, {
-						orientation: "portrait",
-						margins: { top: 720, right: 720, bottom: 720, left: 720 },
-					});
-					saveAs(blob, `Laporan_${this.form.nama.replace(/\s+/g, "_")}.docx`);
-					addToast("Download berhasil", "success");
-				} catch (error) {
-					console.error(error);
-					addToast("Gagal export Word", "error");
+					const result = await exportToDOCX();
+					if (result.success) {
+						addToast("DOCX berhasil diexport", "success");
+					} else {
+						throw new Error(result.error);
+					}
+				} catch (error: any) {
+					addToast("Export DOCX gagal: " + error.message, "error");
 				}
 			},
 
-			printPDF() {
-				if (!this.renderedHtml) return;
-				const element = document.getElementById("report-preview");
-				const fileName = `Laporan_${this.form.nama.replace(/\s+/g, "_")}.pdf`;
-				const opt = {
-					margin: [10, 15, 15, 15],
-					filename: fileName,
-					image: { type: "jpeg", quality: 0.98 },
-					html2canvas: { scale: 2, useCORS: true },
-					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				};
-				addToast("Memproses PDF...", "info");
-				html2pdf()
-					.set(opt)
-					.from(element)
-					.save()
-					.then(() => addToast("PDF diunduh", "success"))
-					.catch(() => addToast("Gagal export PDF", "error"));
+			// Print
+			printDoc() {
+				if (!this.hasContent()) {
+					addToast("Belum ada konten untuk diprint", "error");
+					return;
+				}
+				printDocument();
 			},
 
-			exportData() {
-				const data = reportStore.get();
-				const blob = new Blob([JSON.stringify(data, null, 2)], {
-					type: "application/json",
-				});
-				saveAs(
-					blob,
-					`Backup_Laporan_${new Date().toISOString().slice(0, 10)}.json`
+			// Save Draft
+			saveDraft() {
+				const id = saveToHistory();
+				addToast("Draft tersimpan ke riwayat", "success");
+			},
+
+			// Toggle History
+			toggleHistory() {
+				this.showHistory = !this.showHistory;
+			},
+
+			// Load History Item
+			loadHistoryItem(id: string) {
+				if (confirm("Muat data ini? Data saat ini akan ditimpa.")) {
+					const success = loadFromHistory(id);
+					if (success) {
+						this.form = reportStore.get();
+						this.showHistory = false;
+						addToast("Data berhasil dimuat dari riwayat", "success");
+					}
+				}
+			},
+
+			// Delete History Item
+			deleteHistoryItem(id: string) {
+				if (confirm("Hapus riwayat ini?")) {
+					deleteHistory(id);
+					addToast("Riwayat dihapus", "info");
+				}
+			},
+
+			// Utilities
+			canGenerate(): boolean {
+				return (
+					!!this.form.pegawai.nama &&
+					!!this.form.config.bulan &&
+					!!this.form.config.tahun
 				);
 			},
 
-			importData(event) {
-				const file = event.target.files[0];
+			hasContent(): boolean {
+				return !!this.form.output.content;
+			},
+
+			hasAPIKey(model: string): boolean {
+				return checkAPIKey(model as any);
+			},
+
+			getBulanName(bulan: string): string {
+				const idx = parseInt(bulan);
+				if (!idx) return "";
+				return new Date(0, idx - 1).toLocaleString("id-ID", { month: "long" });
+			},
+
+			getCurrentDate(): string {
+				return new Date().toLocaleDateString("id-ID", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+				});
+			},
+
+			formatDate(isoDate: string): string {
+				return new Date(isoDate).toLocaleString("id-ID", {
+					day: "2-digit",
+					month: "short",
+					year: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				});
+			},
+
+			handleUpload(event: Event, field: string) {
+				const input = event.target as HTMLInputElement;
+				const file = input.files?.[0];
 				if (!file) return;
+
+				if (file.size > 500 * 1024) {
+					addToast("File terlalu besar (Max 500KB)", "error");
+					return;
+				}
+
 				const reader = new FileReader();
 				reader.onload = (e) => {
-					try {
-						const json = JSON.parse(e.target.result);
-						reportStore.set(json);
-						this.form = json;
-						addToast("Data dipulihkan", "success");
-					} catch (err) {
-						addToast("File corrupt", "error");
+					const path = field.split(".");
+					let target: any = this.form;
+					for (let i = 0; i < path.length - 1; i++) {
+						target = target[path[i]];
 					}
+					target[path[path.length - 1]] = e.target?.result;
 				};
-				reader.readAsText(file);
-				event.target.value = "";
+				reader.readAsDataURL(file);
 			},
 		}));
 	});

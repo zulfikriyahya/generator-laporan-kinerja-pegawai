@@ -1,0 +1,80 @@
+---
+import InputGroup from "../InputGroup.astro";
+import SelectGroup from "./SelectGroup.astro";
+---
+
+<div class="space-y-4 animate-fade-in pb-10">
+	<h3
+		class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1"
+	>
+		2.2 Data Identitas Pegawai
+	</h3>
+
+	<InputGroup
+		label="Nama Lengkap (Sesuai KTP)"
+		name="nama"
+		model="form.pegawai.nama"
+	/>
+
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup label="NIP (18 Digit)" name="nip" model="form.pegawai.nip" />
+		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
+	</div>
+
+	<div class="grid grid-cols-2 gap-3">
+		<SelectGroup
+			label="Status Kepegawaian"
+			name="stts"
+			model="form.pegawai.jenis"
+			options={[
+				{ val: "PNS", label: "PNS" },
+				{ val: "PPPK", label: "PPPK" },
+				{ val: "Honorer", label: "Honorer" },
+			]}
+		/>
+		<InputGroup
+			label="Pangkat/Golongan"
+			name="gol"
+			model="form.pegawai.golongan"
+		/>
+	</div>
+
+	<InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
+	<InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup
+			label="Tempat Lahir"
+			name="tmplahir"
+			model="form.pegawai.tempatLahir"
+		/>
+		<InputGroup
+			label="Tanggal Lahir"
+			name="tgllahir"
+			model="form.pegawai.tanggalLahir"
+			type="date"
+		/>
+	</div>
+
+	<InputGroup
+		label="Pendidikan Terakhir"
+		name="pend"
+		model="form.pegawai.pendidikan"
+		placeholder="S1 - Manajemen Pendidikan"
+	/>
+
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup
+			label="Masa Kerja (Tahun)"
+			name="mkt"
+			model="form.pegawai.masaKerjaTahun"
+			type="number"
+		/>
+		<InputGroup
+			label="Masa Kerja (Bulan)"
+			name="mkb"
+			model="form.pegawai.masaKerjaBulan"
+			type="number"
+		/>
+	</div>
+</div>

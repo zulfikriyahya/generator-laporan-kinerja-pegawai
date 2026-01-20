@@ -31,6 +31,8 @@
     "qrcode": "^1.5.4",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "workbox-window": "^7.4.0"
+    "workbox-window": "^7.4.0",
+    "xlsx": "^0.18.5",
+    "docx": "^8.5.0"
   }
 }

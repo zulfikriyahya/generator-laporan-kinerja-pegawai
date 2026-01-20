@@ -292,7 +292,6 @@
 **Multi Model AI:**
 
 1. **Google Gemini**
-
    - API Key: [Isi API key]
    - Model: [gemini-pro/gemini-pro-vision]
    - Max Token: [Isi limit]
@@ -300,7 +299,6 @@
    - Status: [Aktif/Nonaktif]
 
 2. **Anthropic Claude**
-
    - API Key: [Isi API key]
    - Model: [claude-3-opus/claude-3-sonnet]
    - Max Token: [Isi limit]
@@ -308,7 +306,6 @@
    - Status: [Aktif/Nonaktif]
 
 3. **OpenAI GPT**
-
    - API Key: [Isi API key]
    - Model: [gpt-4/gpt-3.5-turbo]
    - Max Token: [Isi limit]
@@ -346,13 +343,11 @@
 #### STEP 1: Import Data
 
 1. **Download Template Excel**
-
    - Format: .xlsx
    - Sheet: [Identitas Instansi, Pegawai, Jadwal, dll]
    - Validasi Format: [Auto check]
 
 2. **Upload File Excel**
-
    - Validasi: [Auto validasi struktur]
    - Error Handling: [Tampilkan error jika ada]
    - Preview Data: [Tampilkan preview sebelum import]
@@ -365,14 +360,12 @@
 #### STEP 2: Generate Laporan
 
 1. **Pilih Model AI**
-
    - Dropdown: [Gemini/Claude/GPT/Groq]
    - Cek Token: [Tampilkan sisa token]
    - Disable Button: [Jika token < 2000]
    - Estimasi Token: [Tampilkan estimasi penggunaan]
 
 2. **Generate Options**
-
    - **Generate All**: Semua kolom otomatis
    - **Regenerate All**: Refresh semua kolom
    - **Generate Per Kolom**: Pilih kolom spesifik
@@ -386,15 +379,12 @@
 #### STEP 3: Export & Distribusi
 
 1. **Export Format**
-
    - PDF: [Download .pdf]
    - DOCX: [Download .docx]
    - Print: [Direct print]
 
 2. **Upload Options**
-
    - **Direct Upload Bank Data**:
-
      - Auto upload ke server
      - Generate shareable link
      - Copy link untuk E-Kinerja
@@ -455,7 +445,6 @@
   - Partial Hydration
   - Component Islands
 - **React.js**: [v18.x.x]
-
   - Komponen UI interaktif
   - State management
   - Hooks
@@ -467,7 +456,6 @@
 ### 4.2 Styling
 
 - **Tailwind CSS**: [v3.x.x]
-
   - Utility-first CSS
   - Responsive design
   - Custom configuration
@@ -490,7 +478,6 @@
 #### 4.3.2 Data Management
 
 - **NanoStorage**:
-
   - LocalStorage wrapper
   - Auto serialization
   - TypeScript support
@@ -503,7 +490,6 @@
 #### 4.3.3 UI Components
 
 - **QR Code Generator**:
-
   - Generate QR untuk TTE
   - Customizable design
   - Error correction level
@@ -517,7 +503,6 @@
 #### 4.3.4 Office Documents
 
 - **SheetJS (xlsx)**:
-
   - Read Excel files
   - Write Excel files
   - Multiple sheet support
@@ -530,13 +515,11 @@
 ### 4.4 PWA Features
 
 - **Service Worker**:
-
   - Offline support
   - Cache management
   - Background sync
 
 - **Web App Manifest**:
-
   - Installable app
   - App icons
   - Splash screen

@@ -1,0 +1,45 @@
+---
+import TextAreaGroup from "../TextAreaGroup.astro";
+---
+
+<div class="space-y-4 animate-fade-in">
+	<TextAreaGroup
+		label="Tugas Pokok (Job Desc)"
+		name="tp"
+		model="form.kinerja.tugasPokok"
+		rows="3"
+	/>
+	<TextAreaGroup
+		label="Tugas Tambahan"
+		name="tt"
+		model="form.kinerja.tugasTambahan"
+		rows="2"
+	/>
+
+	<div class="pt-4 border-t border-white/5">
+		<h4 class="text-xs font-bold text-slate-500 uppercase mb-2">
+			Analisis & Target
+		</h4>
+		<TextAreaGroup
+			label="Target Capaian Tahunan (IKU)"
+			name="iku"
+			model="form.kinerja.targetTahunan"
+			rows="2"
+			placeholder="Contoh: Meningkatkan rata-rata nilai siswa..."
+		/>
+		<TextAreaGroup
+			label="Hambatan / Kendala Bulan Ini"
+			name="hambat"
+			model="form.kinerja.hambatan"
+			rows="2"
+			placeholder="Jika ada kendala, tulis disini..."
+		/>
+		<TextAreaGroup
+			label="Solusi / Tindak Lanjut"
+			name="solusi"
+			model="form.kinerja.solusi"
+			rows="2"
+			placeholder="Solusi atas kendala diatas..."
+		/>
+	</div>
+</div>

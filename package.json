@@ -25,7 +25,6 @@
     "@tailwindcss/vite": "^4.1.18",
     "@types/file-saver": "^2.0.7",
     "@vite-pwa/astro": "^1.2.0",
-    "alpinejs": "^3.15.4",
     "astro": "^5.16.9",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",

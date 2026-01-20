@@ -14,7 +14,8 @@ export const APP_INFO = {
 	description: "Tools generate laporan kinerja pegawai berbasis AI",
 	author: "Yahya Zulfikri",
 	license: "MIT",
-	repository: "https://github.com/zulfikriyahya/generator-laporan-kinerja-pegawai",
+	repository:
+		"https://github.com/zulfikriyahya/generator-laporan-kinerja-pegawai",
 };
 
 // ============================================================================
@@ -190,29 +191,38 @@ export const DATE_FORMATS = {
 
 export const MASTER_DATA = {
 	jenisPegawai: ["PNS", "PPPK", "Honorer", "GTT", "PTT", "Guru"],
-	
+
 	statusKepegawaian: ["Aktif", "Cuti", "Tugas Belajar"],
-	
+
 	jenisKelamin: [
 		{ value: "L", label: "Laki-laki" },
 		{ value: "P", label: "Perempuan" },
 	],
-	
+
 	golonganPNS: [
-		"I/a", "I/b", "I/c", "I/d",
-		"II/a", "II/b", "II/c", "II/d",
-		"III/a", "III/b", "III/c", "III/d",
-		"IV/a", "IV/b", "IV/c", "IV/d", "IV/e",
+		"I/a",
+		"I/b",
+		"I/c",
+		"I/d",
+		"II/a",
+		"II/b",
+		"II/c",
+		"II/d",
+		"III/a",
+		"III/b",
+		"III/c",
+		"III/d",
+		"IV/a",
+		"IV/b",
+		"IV/c",
+		"IV/d",
+		"IV/e",
 	],
-	
-	kurikulum: [
-		"Kurikulum 2013",
-		"Kurikulum Merdeka",
-		"KTSP",
-	],
-	
+
+	kurikulum: ["Kurikulum 2013", "Kurikulum Merdeka", "KTSP"],
+
 	semester: ["Ganjil", "Genap"],
-	
+
 	mataPelajaran: [
 		"Matematika",
 		"Bahasa Indonesia",
@@ -234,7 +244,7 @@ export const MASTER_DATA = {
 		"Fiqih",
 		"Sejarah Kebudayaan Islam",
 	],
-	
+
 	bulan: [
 		{ value: "1", label: "Januari" },
 		{ value: "2", label: "Februari" },
@@ -258,8 +268,7 @@ export const MASTER_DATA = {
 export const ERROR_MESSAGES = {
 	required: (field: string) => `${field} harus diisi`,
 	invalid: (field: string) => `${field} tidak valid`,
-	minLength: (field: string, min: number) =>
-		`${field} minimal ${min} karakter`,
+	minLength: (field: string, min: number) => `${field} minimal ${min} karakter`,
 	maxLength: (field: string, max: number) =>
 		`${field} maksimal ${max} karakter`,
 	fileSize: (max: string) => `Ukuran file maksimal ${max}`,
@@ -342,6 +351,7 @@ export const FEATURES = {
 	tte: true, // Tanda Tangan Elektronik
 	qrCode: true,
 	googleDrive: false, // Coming soon
+	nextCloud: false, // Coming soon
 	cloudBackup: false, // Coming soon
 	multiUser: false, // Coming soon
 	analytics: false, // Coming soon
@@ -392,7 +402,9 @@ export const ENV = {
 /**
  * Get API key from environment
  */
-export const getAPIKey = (model: "gemini" | "claude" | "gpt" | "groq"): string => {
+export const getAPIKey = (
+	model: "gemini" | "claude" | "gpt" | "groq",
+): string => {
 	const keys = {
 		gemini: import.meta.env.PUBLIC_GEMINI_API_KEY,
 		claude: import.meta.env.PUBLIC_CLAUDE_API_KEY,
@@ -430,7 +442,7 @@ export const getAcademicYear = (): string => {
 	const now = new Date();
 	const year = now.getFullYear();
 	const month = now.getMonth() + 1;
-	
+
 	// If before July, academic year is (year-1)/year
 	// If July or after, academic year is year/(year+1)
 	if (month < 7) {

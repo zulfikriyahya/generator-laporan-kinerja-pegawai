@@ -1,0 +1,212 @@
+---
+// src/components/ui/DocumentStats.astro
+---
+
+<div
+	x-data="documentStats"
+	x-show="hasContent"
+	class="fixed top-20 right-8 z-20 no-print"
+	x-transition:enter="transition ease-out duration-300"
+	x-transition:enter-start="opacity-0 translate-x-4"
+	x-transition:enter-end="opacity-100 translate-x-0"
+	style="display: none;"
+>
+	<div class="glass-panel px-4 py-3 min-w-[200px]">
+		<h4 class="text-xs font-bold text-slate-400 uppercase mb-3">
+			Document Stats
+		</h4>
+
+		<div class="space-y-2">
+			<!-- Words -->
+			<div class="flex justify-between items-center">
+				<span class="text-xs text-slate-300">Words</span>
+				<span
+					class="text-sm font-bold"
+					:class="{
+						'text-emerald-400': wordCount >= 1500 && wordCount <= 2500,
+						'text-yellow-400': wordCount > 2500 || wordCount < 1500,
+						'text-slate-400': wordCount === 0
+					}"
+					x-text="wordCount.toLocaleString()"
+				></span>
+			</div>
+
+			<!-- Characters -->
+			<div class="flex justify-between items-center">
+				<span class="text-xs text-slate-300">Characters</span>
+				<span class="text-sm font-medium text-slate-400" x-text="charCount.toLocaleString()">
+				</span>
+			</div>
+
+			<!-- Paragraphs -->
+			<div class="flex justify-between items-center">
+				<span class="text-xs text-slate-300">Paragraphs</span>
+				<span class="text-sm font-medium text-slate-400" x-text="paragraphCount">
+				</span>
+			</div>
+
+			<!-- Tables -->
+			<div class="flex justify-between items-center">
+				<span class="text-xs text-slate-300">Tables</span>
+				<span class="text-sm font-medium text-slate-400" x-text="tableCount">
+				</span>
+			</div>
+
+			<!-- Reading Time -->
+			<div class="flex justify-between items-center pt-2 border-t border-white/10">
+				<span class="text-xs text-slate-300">Reading Time</span>
+				<span class="text-sm font-medium text-blue-400" x-text="readingTime">
+				</span>
+			</div>
+
+			<!-- Quality Indicator -->
+			<div class="pt-2 border-t border-white/10">
+				<div class="flex justify-between items-center mb-1">
+					<span class="text-xs text-slate-300">Quality</span>
+					<span class="text-xs font-medium" :class="qualityColor" x-text="quality">
+					</span>
+				</div>
+				<div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+					<div
+						class="h-full transition-all duration-500"
+						:class="qualityBarColor"
+						:style="`width: ${qualityScore}%`"
+					></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("documentStats", () => ({
+			wordCount: 0,
+			charCount: 0,
+			paragraphCount: 0,
+			tableCount: 0,
+			readingTime: "0 min",
+			quality: "N/A",
+			qualityScore: 0,
+			qualityColor: "text-slate-400",
+			qualityBarColor: "bg-slate-600",
+			hasContent: false,
+
+			init() {
+				// Watch for content changes
+				this.$watch("$store.appCore?.form?.output?.content", (content) => {
+					if (content) {
+						this.calculateStats(content);
+						this.hasContent = true;
+					} else {
+						this.hasContent = false;
+					}
+				});
+
+				// Initial calculation
+				const content =
+					window.Alpine?.store("appCore")?.form?.output?.content;
+				if (content) {
+					this.calculateStats(content);
+					this.hasContent = true;
+				}
+			},
+
+			calculateStats(content) {
+				if (!content) return;
+
+				// Remove markdown syntax for accurate counting
+				const plainText = content
+					.replace(/```[\s\S]*?```/g, "") // Remove code blocks
+					.replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Remove links
+					.replace(/[#*_`~\[\]]/g, "") // Remove markdown chars
+					.replace(/\|/g, " "); // Remove table pipes
+
+				// Word count
+				const words = plainText
+					.trim()
+					.split(/\s+/)
+					.filter((w) => w.length > 0);
+				this.wordCount = words.length;
+
+				// Character count (without spaces)
+				this.charCount = plainText.replace(/\s/g, "").length;
+
+				// Paragraph count
+				this.paragraphCount = content
+					.split("\n\n")
+					.filter((p) => p.trim().length > 0).length;
+
+				// Table count
+				this.tableCount = (content.match(/\|.*\|/g) || []).length / 3; // Approx
+
+				// Reading time (200 words per minute average)
+				const minutes = Math.ceil(this.wordCount / 200);
+				this.readingTime =
+					minutes === 0 ? "< 1 min" : `${minutes} min`;
+
+				// Quality assessment
+				this.assessQuality();
+			},
+
+			assessQuality() {
+				let score = 0;
+				const reasons = [];
+
+				// Word count criteria (1500-2500 is ideal)
+				if (this.wordCount >= 1500 && this.wordCount <= 2500) {
+					score += 30;
+				} else if (this.wordCount > 2500) {
+					score += 20;
+					reasons.push("Too long");
+				} else if (this.wordCount < 1500) {
+					score += 10;
+					reasons.push("Too short");
+				}
+
+				// Paragraph count (good structure)
+				if (this.paragraphCount >= 10 && this.paragraphCount <= 30) {
+					score += 20;
+				} else {
+					score += 10;
+				}
+
+				// Has tables (data presentation)
+				if (this.tableCount >= 1) {
+					score += 25;
+				}
+
+				// Character variety
+				if (this.charCount > 0 && this.wordCount > 0) {
+					const avgWordLength = this.charCount / this.wordCount;
+					if (avgWordLength >= 5 && avgWordLength <= 7) {
+						score += 25;
+					} else {
+						score += 15;
+					}
+				}
+
+				this.qualityScore = Math.min(100, score);
+
+				// Determine quality level
+				if (this.qualityScore >= 80) {
+					this.quality = "Excellent";
+					this.qualityColor = "text-emerald-400";
+					this.qualityBarColor = "bg-emerald-500";
+				} else if (this.qualityScore >= 60) {
+					this.quality = "Good";
+					this.qualityColor = "text-blue-400";
+					this.qualityBarColor = "bg-blue-500";
+				} else if (this.qualityScore >= 40) {
+					this.quality = "Fair";
+					this.qualityColor = "text-yellow-400";
+					this.qualityBarColor = "bg-yellow-500";
+				} else {
+					this.quality = "Poor";
+					this.qualityColor = "text-red-400";
+					this.qualityBarColor = "bg-red-500";
+				}
+			},
+		}));
+	});
+</script>

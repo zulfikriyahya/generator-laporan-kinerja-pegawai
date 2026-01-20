@@ -1,0 +1,185 @@
+---
+// src/components/ui/ZoomControl.astro
+---
+
+<div
+	x-data="zoomControl"
+	class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 no-print"
+>
+	<div
+		class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10"
+	>
+		<!-- Zoom Out -->
+		<button
+			@click="zoomOut"
+			:disabled="zoom <= 50"
+			class="p-2 hover:bg-white/10 rounded transition disabled:opacity-30 disabled:cursor-not-allowed"
+			title="Zoom Out (Ctrl + -)"
+		>
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M20 12H4"></path>
+			</svg>
+		</button>
+
+		<!-- Zoom Percentage -->
+		<div class="flex items-center gap-2 min-w-[100px] justify-center">
+			<input
+				type="range"
+				x-model="zoom"
+				min="50"
+				max="150"
+				step="10"
+				class="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer"
+				style="accent-color: #3b82f6;"
+			/>
+			<span class="text-xs font-medium text-white w-10 text-right" x-text="zoom + '%'">
+			</span>
+		</div>
+
+		<!-- Zoom In -->
+		<button
+			@click="zoomIn"
+			:disabled="zoom >= 150"
+			class="p-2 hover:bg-white/10 rounded transition disabled:opacity-30 disabled:cursor-not-allowed"
+			title="Zoom In (Ctrl + +)"
+		>
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M12 4v16m8-8H4"></path>
+			</svg>
+		</button>
+
+		<div class="w-px h-6 bg-white/20"></div>
+
+		<!-- Reset Zoom -->
+		<button
+			@click="resetZoom"
+			class="px-3 py-1 text-xs font-medium hover:bg-white/10 rounded transition"
+			title="Reset Zoom (Ctrl + 0)"
+		>
+			Reset
+		</button>
+
+		<!-- Fit to Width -->
+		<button
+			@click="fitToWidth"
+			class="px-3 py-1 text-xs font-medium hover:bg-white/10 rounded transition"
+			title="Fit to Width"
+		>
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+				></path>
+			</svg>
+		</button>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("zoomControl", () => ({
+			zoom: 100,
+
+			init() {
+				// Apply zoom to document preview
+				this.$watch("zoom", (value) => {
+					const preview = document.getElementById("document-preview");
+					if (preview) {
+						preview.style.transform = `scale(${value / 100})`;
+						preview.style.transformOrigin = "top center";
+					}
+				});
+
+				// Keyboard shortcuts for zoom
+				document.addEventListener("keydown", (e) => {
+					if (e.ctrlKey || e.metaKey) {
+						if (e.key === "=" || e.key === "+") {
+							e.preventDefault();
+							this.zoomIn();
+						} else if (e.key === "-") {
+							e.preventDefault();
+							this.zoomOut();
+						} else if (e.key === "0") {
+							e.preventDefault();
+							this.resetZoom();
+						}
+					}
+				});
+
+				// Mouse wheel zoom (with Ctrl)
+				document.addEventListener(
+					"wheel",
+					(e) => {
+						if (e.ctrlKey || e.metaKey) {
+							e.preventDefault();
+							if (e.deltaY < 0) {
+								this.zoomIn();
+							} else {
+								this.zoomOut();
+							}
+						}
+					},
+					{ passive: false },
+				);
+			},
+
+			zoomIn() {
+				if (this.zoom < 150) {
+					this.zoom = Math.min(150, this.zoom + 10);
+				}
+			},
+
+			zoomOut() {
+				if (this.zoom > 50) {
+					this.zoom = Math.max(50, this.zoom - 10);
+				}
+			},
+
+			resetZoom() {
+				this.zoom = 100;
+			},
+
+			fitToWidth() {
+				const preview = document.getElementById("document-preview");
+				const container = preview?.parentElement;
+				if (preview && container) {
+					const containerWidth = container.clientWidth - 80; // padding
+					const previewWidth = 210 * 3.7795275591; // 210mm to px
+					const scale = (containerWidth / previewWidth) * 100;
+					this.zoom = Math.round(Math.min(150, Math.max(50, scale)));
+				}
+			},
+		}));
+	});
+</script>
+
+<style>
+	/* Custom range slider styling */
+	input[type="range"]::-webkit-slider-thumb {
+		appearance: none;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: #3b82f6;
+		cursor: pointer;
+	}
+
+	input[type="range"]::-moz-range-thumb {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: #3b82f6;
+		cursor: pointer;
+		border: none;
+	}
+</style>

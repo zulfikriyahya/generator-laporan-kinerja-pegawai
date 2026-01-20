@@ -1,0 +1,177 @@
+---
+// src/components/ui/KeyboardShortcuts.astro
+---
+
+<div x-data="keyboardShortcuts" class="hidden">
+	<!-- Shortcuts Help Modal -->
+	<div
+		x-show="showHelp"
+		@click.away="showHelp = false"
+		x-transition:enter="transition ease-out duration-200"
+		x-transition:enter-start="opacity-0"
+		x-transition:enter-end="opacity-100"
+		x-transition:leave="transition ease-in duration-150"
+		x-transition:leave-start="opacity-100"
+		x-transition:leave-end="opacity-0"
+		class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+		style="display: none;"
+	>
+		<div
+			@click.stop
+			class="glass-panel p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto"
+		>
+			<div class="flex justify-between items-center mb-4">
+				<h3 class="text-lg font-bold text-white">Keyboard Shortcuts</h3>
+				<button
+					@click="showHelp = false"
+					class="text-slate-400 hover:text-white transition"
+				>
+					✕
+				</button>
+			</div>
+
+			<div class="space-y-3 text-sm">
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Generate Laporan</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + Enter</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Save Draft</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + S</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Export PDF</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + P</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Export DOCX</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + D</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Toggle History</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + H</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Switch Tab (Next)</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + →</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Switch Tab (Prev)</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + ←</kbd
+					>
+				</div>
+				<div class="flex justify-between items-center">
+					<span class="text-slate-300">Show Shortcuts</span>
+					<kbd
+						class="px-2 py-1 bg-slate-800 rounded border border-slate-700 text-xs"
+						>Ctrl + /</kbd
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("keyboardShortcuts", () => ({
+			showHelp: false,
+
+			init() {
+				// Register keyboard shortcuts
+				document.addEventListener("keydown", (e) => {
+					// Ctrl/Cmd key combinations
+					if (e.ctrlKey || e.metaKey) {
+						switch (e.key) {
+							case "Enter":
+								e.preventDefault();
+								this.triggerGenerate();
+								break;
+							case "s":
+								e.preventDefault();
+								this.triggerSave();
+								break;
+							case "p":
+								e.preventDefault();
+								this.triggerExportPDF();
+								break;
+							case "d":
+								e.preventDefault();
+								this.triggerExportDOCX();
+								break;
+							case "h":
+								e.preventDefault();
+								this.triggerToggleHistory();
+								break;
+							case "ArrowRight":
+								e.preventDefault();
+								this.triggerNextTab();
+								break;
+							case "ArrowLeft":
+								e.preventDefault();
+								this.triggerPrevTab();
+								break;
+							case "/":
+								e.preventDefault();
+								this.showHelp = !this.showHelp;
+								break;
+						}
+					}
+
+					// Escape key
+					if (e.key === "Escape") {
+						this.showHelp = false;
+					}
+				});
+			},
+
+			triggerGenerate() {
+				window.dispatchEvent(new CustomEvent("shortcut:generate"));
+			},
+
+			triggerSave() {
+				window.dispatchEvent(new CustomEvent("shortcut:save"));
+			},
+
+			triggerExportPDF() {
+				window.dispatchEvent(new CustomEvent("shortcut:export-pdf"));
+			},
+
+			triggerExportDOCX() {
+				window.dispatchEvent(new CustomEvent("shortcut:export-docx"));
+			},
+
+			triggerToggleHistory() {
+				window.dispatchEvent(new CustomEvent("shortcut:toggle-history"));
+			},
+
+			triggerNextTab() {
+				window.dispatchEvent(new CustomEvent("shortcut:next-tab"));
+			},
+
+			triggerPrevTab() {
+				window.dispatchEvent(new CustomEvent("shortcut:prev-tab"));
+			},
+		}));
+	});
+</script>

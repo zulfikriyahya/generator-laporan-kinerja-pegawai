@@ -12,6 +12,11 @@ import FormKinerja from "../components/forms/FormKinerja.astro";
 import SelectGroup from "../components/forms/SelectGroup.astro";
 import InputGroup from "../components/InputGroup.astro";
 import ToastContainer from "../components/ui/ToastContainer.astro";
+import AutoSaveIndicator from "../components/ui/AutoSaveIndicator.astro";
+import KeyboardShortcuts from "../components/ui/KeyboardShortcuts.astro";
+import ZoomControl from "../components/ui/ZoomControl.astro";
+import ProgressBar from "../components/ui/ProgressBar.astro";
+import DocumentStats from "../components/ui/DocumentStats.astro";
 import {
 	Bot,
 	FileSpreadsheet,
@@ -28,7 +33,11 @@ import {
 
 <Layout title="Generator Laporan Kinerja Pegawai AI - v1.0.0">
 	<ToastContainer />
-
+	<AutoSaveIndicator />
+	<KeyboardShortcuts />
+	<ZoomControl />
+	<ProgressBar />
+	<DocumentStats />
 	<main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
 		<!-- TOPBAR -->
 		<header
@@ -501,23 +510,10 @@ import {
 </Layout>
 
 <script>
-	import Alpine from "@astrojs/alpinejs";
-
-	import {
-		reportStore,
-		historyStore,
-		saveToHistory,
-		loadFromHistory,
-		deleteHistory,
-		validateBeforeGenerate,
-	} from "../stores/reportStore";
+	import { reportStore, historyStore, saveToHistory, loadFromHistory, deleteHistory, validateBeforeGenerate } from "../stores/reportStore";
 	import { generateLaporan, checkAPIKey } from "../services/aiService";
 	import { importFromExcel, downloadTemplate } from "../services/excelService";
-	import {
-		exportToPDF,
-		exportToDOCX,
-		printDocument,
-	} from "../services/exportService";
+	import { exportToPDF, exportToDOCX, printDocument } from "../services/exportService";
 	import { parseMarkdown } from "../utils/markdown";
 	import { addToast } from "../stores/toastStore";
 
@@ -544,7 +540,42 @@ import {
 				// Load rendered content jika sudah ada
 				if (this.form.output.content) {
 					this.renderedHTML = await parseMarkdown(this.form.output.content);
-				}
+					this.registerShortcuts();
+					this.$watch("form", (val) => {
+					clearTimeout(timeout);
+					window.dispatchEvent(new CustomEvent("autosave:start"));
+					
+					timeout = setTimeout(() => {
+						try {
+							reportStore.set(JSON.parse(JSON.stringify(val)));
+							window.dispatchEvent(new CustomEvent("autosave:success"));
+						} catch (error) {
+							window.dispatchEvent(new CustomEvent("autosave:error"));
+						}
+					}, 800);
+				});
+			},
+
+			registerShortcuts() {
+				window.addEventListener("shortcut:generate", () => this.generateLaporan());
+				window.addEventListener("shortcut:save", () => this.saveDraft());
+				window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
+				window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
+				window.addEventListener("shortcut:toggle-history", () => this.toggleHistory());
+				
+				window.addEventListener("shortcut:next-tab", () => {
+					const currentIndex = this.tabs.findIndex(t => t.id === this.activeTab);
+					const nextIndex = (currentIndex + 1) % this.tabs.length;
+					this.activeTab = this.tabs[nextIndex].id;
+				});
+				
+				window.addEventListener("shortcut:prev-tab", () => {
+					const currentIndex = this.tabs.findIndex(t => t.id === this.activeTab);
+					const prevIndex = (currentIndex - 1 + this.tabs.length) % this.tabs.length;
+					this.activeTab = this.tabs[prevIndex].id;
+				});
+			},
+
 
 				// Load history
 				this.historyItems = historyStore.get().items;
@@ -553,7 +584,7 @@ import {
 				});
 
 				// Auto-save dengan debounce
-				let timeout: ReturnType<typeof setTimeout>;
+				let timeout;
 				this.$watch("form", (val) => {
 					clearTimeout(timeout);
 					timeout = setTimeout(() => {
@@ -564,7 +595,6 @@ import {
 
 			// Generate Laporan
 			async generateLaporan() {
-				// Validasi
 				const validation = validateBeforeGenerate(this.form);
 				if (!validation.valid) {
 					this.validationErrors = validation.errors;
@@ -575,36 +605,34 @@ import {
 				this.validationErrors = [];
 				this.loading = true;
 
+				window.dispatchEvent(new CustomEvent("generate:start"));
+
 				try {
 					const result = await generateLaporan();
 
 					if (result.success && result.content) {
 						this.renderedHTML = await parseMarkdown(result.content);
 						this.form = reportStore.get();
-						addToast(
-							`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`,
-							"success",
-						);
 
-						// Auto save to history
+						window.dispatchEvent(new CustomEvent("generate:complete"));
+
+						addToast(`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`, "success");
 						saveToHistory();
 					} else {
 						throw new Error(result.error || "Gagal generate laporan");
 					}
-				} catch (error: any) {
+				} catch (error) {
 					console.error("Generate Error:", error);
-					addToast(
-						"Error: " + (error.message || "Gagal menghubungi AI"),
-						"error",
-					);
+					window.dispatchEvent(new CustomEvent("generate:error"));
+					addToast("Error: " + (error.message || "Gagal menghubungi AI"), "error");
 				} finally {
 					this.loading = false;
 				}
 			},
 
 			// Import Excel
-			async handleImportExcel(event: Event) {
-				const input = event.target as HTMLInputElement;
+			async handleImportExcel(event) {
+				const input = event.target;
 				const file = input.files?.[0];
 				if (!file) return;
 
@@ -612,11 +640,10 @@ import {
 					await importFromExcel(file);
 					this.form = reportStore.get();
 					addToast("Import data berhasil!", "success");
-				} catch (error: any) {
+				} catch (error) {
 					addToast("Import gagal: " + error.message, "error");
 				}
 
-				// Reset input
 				input.value = "";
 			},
 
@@ -625,7 +652,7 @@ import {
 				try {
 					downloadTemplate();
 					addToast("Template Excel berhasil diunduh", "info");
-				} catch (error: any) {
+				} catch (error) {
 					addToast("Gagal download template", "error");
 				}
 			},
@@ -644,7 +671,7 @@ import {
 					} else {
 						throw new Error(result.error);
 					}
-				} catch (error: any) {
+				} catch (error) {
 					addToast("Export PDF gagal: " + error.message, "error");
 				}
 			},
@@ -663,7 +690,7 @@ import {
 					} else {
 						throw new Error(result.error);
 					}
-				} catch (error: any) {
+				} catch (error) {
 					addToast("Export DOCX gagal: " + error.message, "error");
 				}
 			},
@@ -689,7 +716,7 @@ import {
 			},
 
 			// Load History Item
-			loadHistoryItem(id: string) {
+			loadHistoryItem(id) {
 				if (confirm("Muat data ini? Data saat ini akan ditimpa.")) {
 					const success = loadFromHistory(id);
 					if (success) {
@@ -701,7 +728,7 @@ import {
 			},
 
 			// Delete History Item
-			deleteHistoryItem(id: string) {
+			deleteHistoryItem(id) {
 				if (confirm("Hapus riwayat ini?")) {
 					deleteHistory(id);
 					addToast("Riwayat dihapus", "info");
@@ -709,29 +736,25 @@ import {
 			},
 
 			// Utilities
-			canGenerate(): boolean {
-				return (
-					!!this.form.pegawai.nama &&
-					!!this.form.config.bulan &&
-					!!this.form.config.tahun
-				);
+			canGenerate() {
+				return !!this.form.pegawai.nama && !!this.form.config.bulan && !!this.form.config.tahun;
 			},
 
-			hasContent(): boolean {
+			hasContent() {
 				return !!this.form.output.content;
 			},
 
-			hasAPIKey(model: string): boolean {
-				return checkAPIKey(model as any);
+			hasAPIKey(model) {
+				return checkAPIKey(model);
 			},
 
-			getBulanName(bulan: string): string {
+			getBulanName(bulan) {
 				const idx = parseInt(bulan);
 				if (!idx) return "";
 				return new Date(0, idx - 1).toLocaleString("id-ID", { month: "long" });
 			},
 
-			getCurrentDate(): string {
+			getCurrentDate() {
 				return new Date().toLocaleDateString("id-ID", {
 					day: "numeric",
 					month: "long",
@@ -739,7 +762,7 @@ import {
 				});
 			},
 
-			formatDate(isoDate: string): string {
+			formatDate(isoDate) {
 				return new Date(isoDate).toLocaleString("id-ID", {
 					day: "2-digit",
 					month: "short",
@@ -749,8 +772,8 @@ import {
 				});
 			},
 
-			handleUpload(event: Event, field: string) {
-				const input = event.target as HTMLInputElement;
+			handleUpload(event, field) {
+				const input = event.target;
 				const file = input.files?.[0];
 				if (!file) return;
 
@@ -762,7 +785,7 @@ import {
 				const reader = new FileReader();
 				reader.onload = (e) => {
 					const path = field.split(".");
-					let target: any = this.form;
+					let target = this.form;
 					for (let i = 0; i < path.length - 1; i++) {
 						target = target[path[i]];
 					}

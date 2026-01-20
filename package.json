@@ -25,7 +25,8 @@
     "@tailwindcss/vite": "^4.1.18",
     "@types/file-saver": "^2.0.7",
     "@vite-pwa/astro": "^1.2.0",
-    "astro": "^5.16.9",
+    "alpinejs": "^3.15.4",
+    "astro": "^5.16.11",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",
     "docx": "^8.5.0",
@@ -41,18 +42,17 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "workbox-window": "^7.4.0",
-    "xlsx": "^0.18.5",
-    "alpinejs": "^3.15.4"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/dompurify": "^3.2.0",
-    "@types/qrcode": "^1.5.5",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
-    "eslint": "^9.21.0",
+    "@types/qrcode": "^1.5.6",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-astro": "^1.5.0",
     "prettier": "^3.8.0",
     "prettier-plugin-astro": "^0.14.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   }
 }

@@ -1,122 +1,128 @@
 @import "tailwindcss";
 
+:root {
+	--color-blue-600: #2563eb;
+	--color-emerald-500: #10b981;
+	--color-red-500: #ef4444;
+}
+
 @theme {
-  --font-sans: "Lexend", system-ui, sans-serif;
+	--font-sans: "Lexend", system-ui, sans-serif;
 }
 
 @layer base {
-  body {
-    @apply bg-slate-900 text-slate-100 min-h-screen;
-    background-image:
-      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
-  }
+	body {
+		@apply bg-slate-900 text-slate-100 min-h-screen;
+		background-image:
+			radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+			radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+	}
 }
 
 @layer components {
-  .glass-panel {
-    @apply bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl;
-  }
+	.glass-panel {
+		@apply bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl;
+	}
 
-  .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg 
+	.btn-primary {
+		@apply bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg 
         shadow-lg shadow-blue-900/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
+	}
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
+	.custom-scrollbar::-webkit-scrollbar {
+		width: 6px;
+	}
+	.custom-scrollbar::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.05);
+	}
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 10px;
+	}
+	.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+		background: rgba(255, 255, 255, 0.3);
+	}
 }
 
 @layer utilities {
-  .prose-report {
-    font-family: "Times New Roman", Times, serif;
-    color: #000000 !important;
-    line-height: 1.4; /* Sedikit dirapatkan agar muat banyak */
-    font-size: 12pt;
-  }
+	.prose-report {
+		font-family: "Times New Roman", Times, serif;
+		color: #000000 !important;
+		line-height: 1.4; /* Sedikit dirapatkan agar muat banyak */
+		font-size: 12pt;
+	}
 
-  .prose-report table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0.8rem 0;
-    font-size: 11pt;
-  }
+	.prose-report table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 0.8rem 0;
+		font-size: 11pt;
+	}
 
-  .prose-report th,
-  .prose-report td {
-    border: 1px solid #000000;
-    padding: 4px 6px;
-    vertical-align: top;
-  }
+	.prose-report th,
+	.prose-report td {
+		border: 1px solid #000000;
+		padding: 4px 6px;
+		vertical-align: top;
+	}
 
-  .prose-report th {
-    background-color: #e5e7eb !important;
-    font-weight: bold;
-    text-align: center;
-    print-color-adjust: exact;
-  }
+	.prose-report th {
+		background-color: #e5e7eb !important;
+		font-weight: bold;
+		text-align: center;
+		print-color-adjust: exact;
+	}
 
-  .prose-report h1,
-  .prose-report h2,
-  .prose-report h3 {
-    color: #000000 !important;
-    font-weight: bold;
-    margin-top: 1.2rem;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-  }
-  .prose-report ul,
-  .prose-report ol {
-    padding-left: 1.2rem;
-    margin-bottom: 0.8rem;
-  }
+	.prose-report h1,
+	.prose-report h2,
+	.prose-report h3 {
+		color: #000000 !important;
+		font-weight: bold;
+		margin-top: 1.2rem;
+		margin-bottom: 0.5rem;
+		text-transform: uppercase;
+	}
+	.prose-report ul,
+	.prose-report ol {
+		padding-left: 1.2rem;
+		margin-bottom: 0.8rem;
+	}
 }
 
 /* --- PRINT A4 PRECISION --- */
 @media print {
-  @page {
-    margin: 1.5cm 2cm 1.5cm 2cm; /* Top Right Bottom Left */
-    size: A4 portrait;
-  }
+	@page {
+		margin: 1.5cm 2cm 1.5cm 2cm; /* Top Right Bottom Left */
+		size: A4 portrait;
+	}
 
-  body {
-    background: white !important;
-    color: black !important;
-    visibility: hidden; /* Hide everything initially */
-  }
+	body {
+		background: white !important;
+		color: black !important;
+		visibility: hidden; /* Hide everything initially */
+	}
 
-  /* Hanya tampilkan area dokumen */
-  #document-preview {
-    visibility: visible;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    box-shadow: none !important;
-    transform: none !important; /* Reset scale transform */
-  }
+	/* Hanya tampilkan area dokumen */
+	#document-preview {
+		visibility: visible;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		box-shadow: none !important;
+		transform: none !important; /* Reset scale transform */
+	}
 
-  /* Fix image quality on print */
-  img {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+	/* Fix image quality on print */
+	img {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
 
-  /* Hilangkan UI browser (header/footer url) */
-  html {
-    height: 100%;
-  }
+	/* Hilangkan UI browser (header/footer url) */
+	html {
+		height: 100%;
+	}
 }

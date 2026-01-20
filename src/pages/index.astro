@@ -508,7 +508,6 @@ import {
 		</div>
 	</main>
 </Layout>
-
 <script>
 	import { reportStore, historyStore, saveToHistory, loadFromHistory, deleteHistory, validateBeforeGenerate } from "../stores/reportStore";
 	import { generateLaporan, checkAPIKey } from "../services/aiService";
@@ -525,7 +524,7 @@ import {
 				{ id: "pegawai", label: "2. Pegawai" },
 				{ id: "akademik", label: "3. Akademik" },
 				{ id: "kinerja", label: "4. Kinerja" },
-				{ id: "advanced", label: "5. Advanced" },
+				{ id: "advanced", label: "5. Advanced" }
 			],
 			activeTab: "pegawai",
 			form: reportStore.get(),
@@ -540,8 +539,17 @@ import {
 				// Load rendered content jika sudah ada
 				if (this.form.output.content) {
 					this.renderedHTML = await parseMarkdown(this.form.output.content);
-					this.registerShortcuts();
-					this.$watch("form", (val) => {
+				}
+
+				// Load history
+				this.historyItems = historyStore.get().items;
+				historyStore.subscribe((val) => {
+					this.historyItems = val.items;
+				});
+
+				// Auto-save dengan debounce
+				let timeout;
+				this.$watch("form", (val) => {
 					clearTimeout(timeout);
 					window.dispatchEvent(new CustomEvent("autosave:start"));
 					
@@ -554,8 +562,12 @@ import {
 						}
 					}, 800);
 				});
+
+				// Register keyboard shortcuts
+				this.registerShortcuts();
 			},
 
+			// Keyboard shortcuts
 			registerShortcuts() {
 				window.addEventListener("shortcut:generate", () => this.generateLaporan());
 				window.addEventListener("shortcut:save", () => this.saveDraft());
@@ -576,23 +588,6 @@ import {
 				});
 			},
 
-
-				// Load history
-				this.historyItems = historyStore.get().items;
-				historyStore.subscribe((val) => {
-					this.historyItems = val.items;
-				});
-
-				// Auto-save dengan debounce
-				let timeout;
-				this.$watch("form", (val) => {
-					clearTimeout(timeout);
-					timeout = setTimeout(() => {
-						reportStore.set(JSON.parse(JSON.stringify(val)));
-					}, 800);
-				});
-			},
-
 			// Generate Laporan
 			async generateLaporan() {
 				const validation = validateBeforeGenerate(this.form);
@@ -604,7 +599,6 @@ import {
 
 				this.validationErrors = [];
 				this.loading = true;
-
 				window.dispatchEvent(new CustomEvent("generate:start"));
 
 				try {
@@ -613,9 +607,7 @@ import {
 					if (result.success && result.content) {
 						this.renderedHTML = await parseMarkdown(result.content);
 						this.form = reportStore.get();
-
 						window.dispatchEvent(new CustomEvent("generate:complete"));
-
 						addToast(`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`, "success");
 						saveToHistory();
 					} else {
@@ -706,7 +698,7 @@ import {
 
 			// Save Draft
 			saveDraft() {
-				const id = saveToHistory();
+				saveToHistory();
 				addToast("Draft tersimpan ke riwayat", "success");
 			},
 
@@ -758,7 +750,7 @@ import {
 				return new Date().toLocaleDateString("id-ID", {
 					day: "numeric",
 					month: "long",
-					year: "numeric",
+					year: "numeric"
 				});
 			},
 
@@ -768,7 +760,7 @@ import {
 					month: "short",
 					year: "numeric",
 					hour: "2-digit",
-					minute: "2-digit",
+					minute: "2-digit"
 				});
 			},
 
@@ -792,7 +784,7 @@ import {
 					target[path[path.length - 1]] = e.target?.result;
 				};
 				reader.readAsDataURL(file);
-			},
+			}
 		}));
 	});
 </script>

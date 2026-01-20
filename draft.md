@@ -379,9 +379,9 @@ const defaultState: ReportData = {
 	tahun: new Date().getFullYear().toString(),
 	hariKerja: "Senin - Jumat",
 	jenisLaporan: "Bulanan",
-	modelAI: "gemini-2.5-flash",
+	modelAI: "gemini-3-flash-preview",
 	detailLevel: "Standar",
-	bahasa: "Indonesia",
+	bahasa: "Indonesia",gemini
 	tone: "Formal",
 	customInstruction: "",
 	generatedContent: "",

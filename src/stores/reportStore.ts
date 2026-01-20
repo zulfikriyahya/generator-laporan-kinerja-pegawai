@@ -10,14 +10,14 @@ export type ReportData = {
 	logoInstitusiBase64: string;
 	logoInstansiBase64: string;
 	titimangsa: string;
-	
+
 	// Pribadi
 	nama: string;
 	nip: string;
 	gender: string;
 	email: string;
 	telepon: string;
-	
+
 	// Kepegawaian
 	jenisPegawai: "Guru" | "Staf";
 	unitKerja: string;
@@ -25,7 +25,7 @@ export type ReportData = {
 	golongan: string;
 	jabatan: string;
 	tglMulai: string;
-	
+
 	// Pendidikan (Khusus Guru)
 	jenjang: string;
 	mapel: string;
@@ -33,26 +33,26 @@ export type ReportData = {
 	jamMengajar: string;
 	kurikulum: string;
 	jmlSiswa: string;
-	
+
 	// Tugas
 	tugasPokok: string;
 	tugasTambahan: string;
 	tugasKhusus: string;
 	ekskul: string;
-	
+
 	// Periode
 	bulan: string;
 	tahun: string;
 	hariKerja: string;
 	jenisLaporan: string;
-	
+
 	// Config AI
 	modelAI: string;
 	detailLevel: string;
 	bahasa: string;
 	tone: string;
 	customInstruction: string;
-	
+
 	// System
 	generatedContent: string;
 	lastUpdated: string;
@@ -69,8 +69,10 @@ const defaultState: ReportData = {
 	institusiBarisSatuNama: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
 	institusiBarisDuaNama: "KANTOR KEMENTERIAN AGAMA KABUPATEN PANDEGLANG",
 	instansiNama: "MADRASAH TSANAWIYAH NEGERI 1 PANDEGLANG",
-	instansiAlamat: "Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
-	instansiWebsite: "Website: https://mtsn1pandeglang.sch.id | Email: adm@mtsn1pandeglang.sch.id",
+	instansiAlamat:
+		"Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
+	instansiWebsite:
+		"Website: https://mtsn1pandeglang.sch.id | Email: adm@mtsn1pandeglang.sch.id",
 	logoInstitusiBase64: "",
 	logoInstansiBase64: "",
 	titimangsa: "Pandeglang, 31 Januari 2026",
@@ -84,7 +86,7 @@ const defaultState: ReportData = {
 	statusKepegawaian: "",
 	golongan: "",
 	jabatan: "",
-	tglMulai: new Date().toISOString().split('T')[0],
+	tglMulai: new Date().toISOString().split("T")[0],
 	jenjang: "",
 	mapel: "",
 	kelas: "",
@@ -99,7 +101,7 @@ const defaultState: ReportData = {
 	tahun: new Date().getFullYear().toString(),
 	hariKerja: "Senin - Jumat",
 	jenisLaporan: "Bulanan",
-	modelAI: "gemini-2.5-flash",
+	modelAI: "gemini-3-flash-preview",
 	detailLevel: "Standar",
 	bahasa: "Indonesia",
 	tone: "Formal",
@@ -114,7 +116,7 @@ export const reportStore = persistentMap<ReportData>(
 );
 
 export const historyStore = persistentMap<{ items: HistoryItem[] }>(
-	"laporan-history-v1:", 
+	"laporan-history-v1:",
 	{ items: [] }
 );
 
@@ -125,9 +127,10 @@ export const resetStore = () => {
 export const saveToHistory = (): boolean => {
 	const currentData = reportStore.get();
 	if (!currentData.generatedContent) return false;
-	
-	const uniqueId = Date.now().toString() + "-" + Math.random().toString(36).substr(2, 5);
-	
+
+	const uniqueId =
+		Date.now().toString() + "-" + Math.random().toString(36).substr(2, 5);
+
 	const newItem: HistoryItem = {
 		id: uniqueId,
 		date: new Date().toLocaleDateString("id-ID", {

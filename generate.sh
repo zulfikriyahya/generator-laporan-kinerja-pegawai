@@ -22,7 +22,7 @@ EXCLUDE_NAMES=(
   "tree.txt"
   ".gitignore"
   "TODO.md"
-  ".env-example"
+  ".env"
   "maintenance.html"
 )
 

@@ -3,7 +3,6 @@ import InputGroup from "../InputGroup.astro";
 ---
 
 <div class="space-y-6 animate-fade-in pb-10">
-	<!-- Header Dokumen -->
 	<div class="space-y-3">
 		<h3
 			class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1"
@@ -11,42 +10,52 @@ import InputGroup from "../InputGroup.astro";
 			2.1 Identitas Instansi (Kop Surat)
 		</h3>
 		<InputGroup
-			label="Header 1 (Induk/Kementerian)"
+			label="Header 1 (Kementerian)"
 			name="h1"
 			model="form.instansi.header1"
-			placeholder="KEMENTERIAN AGAMA RI"
+			placeholder="KEMENTERIAN AGAMA REPUBLIK INDONESIA"
 		/>
 		<InputGroup
-			label="Header 2 (Wilayah/Dinas)"
+			label="Header 2 (Kantor)"
 			name="h2"
 			model="form.instansi.header2"
-			placeholder="KANTOR KABUPATEN..."
+			placeholder="KANTOR KEMENTERIAN AGAMA KABUPATEN..."
 		/>
 		<InputGroup
 			label="Header 3 (Satuan Kerja)"
 			name="h3"
 			model="form.instansi.header3"
-			placeholder="MADRASAH TSANAWIYAH..."
+			placeholder="MADRASAH TSANAWIYAH NEGERI..."
 		/>
 		<InputGroup
 			label="Alamat Lengkap"
 			name="addr"
 			model="form.instansi.alamat"
+			placeholder="Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253"
 		/>
 		<div class="grid grid-cols-2 gap-3">
-			<InputGroup label="Telepon" name="telp" model="form.instansi.telepon" />
-			<InputGroup label="Email" name="mail" model="form.instansi.email" />
+			<InputGroup
+				label="Website"
+				name="web"
+				model="form.instansi.website"
+				placeholder="https://mtsn1pandeglang.sch.id"
+			/>
+			<InputGroup
+				label="Email"
+				name="mail"
+				model="form.instansi.email"
+				placeholder="adm@mtsn1pandeglang.sch.id"
+			/>
 		</div>
-		<InputGroup label="Website" name="web" model="form.instansi.website" />
 	</div>
 
-	<!-- Upload Logo (Sesuai Draft 2.1) -->
-	<div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
-		<!-- Logo Kiri -->
-		<div class="bg-slate-800 p-2 rounded text-center">
-			<span class="text-[10px] text-slate-400 block mb-2">Logo Kiri</span>
+	<!-- Upload Logo (2 Logo: Kiri dan Kanan) -->
+	<div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
+		<!-- Logo Kiri (Kementerian Agama) -->
+		<div class="bg-slate-800 p-3 rounded text-center">
+			<span class="text-xs text-slate-400 block mb-2">Logo Kiri (Kemenag)</span>
 			<div
-				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
+				class="w-20 h-20 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden bg-white/5 rounded"
 			>
 				<template x-if="form.instansi.logoUtama">
 					<img
@@ -54,41 +63,32 @@ import InputGroup from "../InputGroup.astro";
 						class="w-full h-full object-contain"
 					/>
 				</template>
-			</div>
-			<input
-				type="file"
-				accept="image/*"
-				@change="handleUpload($event, 'logoUtama')"
-				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
-			/>
-		</div>
-
-		<!-- Logo Tengah -->
-		<div class="bg-slate-800 p-2 rounded text-center">
-			<span class="text-[10px] text-slate-400 block mb-2">Logo Tengah</span>
-			<div
-				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
-			>
-				<template x-if="form.instansi.logoInstitusi">
-					<img
-						:src="form.instansi.logoInstitusi"
-						class="w-full h-full object-contain"
-					/>
+				<template x-if="!form.instansi.logoUtama">
+					<span class="text-[10px] text-slate-500">No Logo</span>
 				</template>
 			</div>
 			<input
 				type="file"
 				accept="image/*"
-				@change="handleUpload($event, 'logoInstitusi')"
-				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
+				@change="handleUpload($event, 'instansi.logoUtama')"
+				class="w-full text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white hover:file:bg-slate-600"
 			/>
+			<button
+				x-show="form.instansi.logoUtama"
+				@click="form.instansi.logoUtama = ''"
+				class="mt-2 text-[10px] text-red-400 hover:text-red-300"
+			>
+				Hapus Logo
+			</button>
 		</div>
 
-		<!-- Logo Kanan -->
-		<div class="bg-slate-800 p-2 rounded text-center">
-			<span class="text-[10px] text-slate-400 block mb-2">Logo Kanan</span>
+		<!-- Logo Kanan (Madrasah) -->
+		<div class="bg-slate-800 p-3 rounded text-center">
+			<span class="text-xs text-slate-400 block mb-2"
+				>Logo Kanan (Madrasah)</span
+			>
 			<div
-				class="w-10 h-10 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden"
+				class="w-20 h-20 mx-auto mb-2 border border-dashed border-slate-600 flex items-center justify-center overflow-hidden bg-white/5 rounded"
 			>
 				<template x-if="form.instansi.logoInstansi">
 					<img
@@ -96,13 +96,23 @@ import InputGroup from "../InputGroup.astro";
 						class="w-full h-full object-contain"
 					/>
 				</template>
+				<template x-if="!form.instansi.logoInstansi">
+					<span class="text-[10px] text-slate-500">No Logo</span>
+				</template>
 			</div>
 			<input
 				type="file"
 				accept="image/*"
-				@change="handleUpload($event, 'logoInstansi')"
-				class="w-full text-[9px] text-slate-500 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white"
+				@change="handleUpload($event, 'instansi.logoInstansi')"
+				class="w-full text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:border-0 file:rounded file:bg-slate-700 file:text-white hover:file:bg-slate-600"
 			/>
+			<button
+				x-show="form.instansi.logoInstansi"
+				@click="form.instansi.logoInstansi = ''"
+				class="mt-2 text-[10px] text-red-400 hover:text-red-300"
+			>
+				Hapus Logo
+			</button>
 		</div>
 	</div>
 
@@ -137,8 +147,5 @@ import InputGroup from "../InputGroup.astro";
 				/>
 			</div>
 		</div>
-
-		<!-- Opsional: Kepala TU jika diperlukan -->
-		<!-- <div class="p-3 bg-white/5 rounded-lg border border-white/5">...</div> -->
 	</div>
 </div>

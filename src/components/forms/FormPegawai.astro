@@ -17,20 +17,7 @@ import SelectGroup from "./SelectGroup.astro";
 	/>
 
 	<div class="grid grid-cols-2 gap-3">
-		<InputGroup
-			label="NIP"
-			name="nip"
-			model="form.pegawai.nip"
-			@blur="validateNIP"
-		/>
-		<script>
-			function validateNIP() {
-				const result = validateField("nip", form.pegawai.nip);
-				if (!result.valid) {
-					showError(result.message);
-				}
-			}
-		</script>
+		<InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
 		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
 	</div>
 
@@ -43,16 +30,42 @@ import SelectGroup from "./SelectGroup.astro";
 				{ val: "PNS", label: "PNS" },
 				{ val: "PPPK", label: "PPPK" },
 				{ val: "Honorer", label: "Honorer" },
+				{ val: "GTT", label: "GTT (Guru Tidak Tetap)" },
+				{ val: "PTT", label: "PTT (Pegawai Tidak Tetap)" },
+				{ val: "Guru", label: "Guru" },
 			]}
 		/>
 		<InputGroup
 			label="Pangkat/Golongan"
 			name="gol"
 			model="form.pegawai.golongan"
+			placeholder="III/a"
 		/>
 	</div>
 
-	<InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
+	<SelectGroup
+		label="Jabatan"
+		name="jab"
+		model="form.pegawai.jabatan"
+		options={[
+			{ val: "Guru Ahli Pertama", label: "Guru Ahli Pertama" },
+			{ val: "Guru Ahli Muda", label: "Guru Ahli Muda" },
+			{ val: "Guru Ahli Madya", label: "Guru Ahli Madya" },
+			{ val: "Guru Ahli Utama", label: "Guru Ahli Utama" },
+			{ val: "Kepala Sekolah", label: "Kepala Sekolah" },
+			{ val: "Wakil Kepala Sekolah", label: "Wakil Kepala Sekolah" },
+			{ val: "Kepala Tata Usaha", label: "Kepala Tata Usaha" },
+			{ val: "Bendahara", label: "Bendahara" },
+			{ val: "Operator", label: "Operator" },
+			{ val: "Pustakawan", label: "Pustakawan" },
+			{ val: "Laboran", label: "Laboran" },
+			{ val: "Teknisi", label: "Teknisi" },
+			{ val: "Tenaga Administrasi", label: "Tenaga Administrasi" },
+			{ val: "Penjaga Sekolah", label: "Penjaga Sekolah" },
+			{ val: "Tenaga Kebersihan", label: "Tenaga Kebersihan" },
+		]}
+	/>
+
 	<InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
 
 	<div class="grid grid-cols-2 gap-3">
@@ -69,11 +82,21 @@ import SelectGroup from "./SelectGroup.astro";
 		/>
 	</div>
 
+	<SelectGroup
+		label="Jenis Kelamin"
+		name="gender"
+		model="form.pegawai.gender"
+		options={[
+			{ val: "L", label: "Laki-laki" },
+			{ val: "P", label: "Perempuan" },
+		]}
+	/>
+
 	<InputGroup
 		label="Pendidikan Terakhir"
 		name="pend"
 		model="form.pegawai.pendidikan"
-		placeholder="S1 - Manajemen Pendidikan"
+		placeholder="S1 - Pendidikan Matematika"
 	/>
 
 	<div class="grid grid-cols-2 gap-3">

@@ -136,7 +136,7 @@ export interface HistoryStore {
 // AI SERVICE TYPES
 // ============================================================================
 
-export type AIModel = "gemini" | "claude" | "gpt" | "groq";
+export type AIModel = "gemini" | "claude" | "gpt" | "groq" | "together" | "deepseek";
 
 export interface GenerateAIResult {
 	success: boolean;

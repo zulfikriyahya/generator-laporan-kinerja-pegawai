@@ -20,30 +20,32 @@ const API_KEYS = {
 	claude: import.meta.env.PUBLIC_CLAUDE_API_KEY || "",
 	gpt: import.meta.env.PUBLIC_OPENAI_API_KEY || "",
 	groq: import.meta.env.PUBLIC_GROQ_API_KEY || "",
+	together: import.meta.env.PUBLIC_TOGETHER_API_KEY || "", // Free tier
+	deepseek: import.meta.env.PUBLIC_DEEPSEEK_API_KEY || "", // Very cheap
 };
 
 // ============================================================================
-// MODEL CONFIGURATIONS
+// MODEL CONFIGURATIONS - OPTIMIZED FOR FREE & INTENSIVE USE
 // ============================================================================
 const MODEL_CONFIGS = {
 	gemini: {
-		model: "gemini-3-flash-preview",
+		model: "gemini-2.0-flash-exp", // Free & fast
 		maxTokens: 8000,
 		temperature: 0.7,
 	},
 	claude: {
-		model: "claude-sonnet-4-20250514",
+		model: "claude-sonnet-4-20250514", // Paid but efficient
 		maxTokens: 4000,
 		temperature: 0.7,
 	},
 	gpt: {
-		model: "gpt-4-turbo-preview",
+		model: "gpt-4o-mini", // Cheaper OpenAI model
 		maxTokens: 4000,
 		temperature: 0.7,
 	},
 	groq: {
-		model: "mixtral-8x7b-32768",
-		maxTokens: 4000,
+		model: "llama-3.3-70b-versatile", // Free & very fast
+		maxTokens: 8000,
 		temperature: 0.7,
 	},
 };
@@ -83,7 +85,7 @@ const buildUserPrompt = (store: AppStore): string => {
 	).toLocaleString("id-ID", { month: "long" });
 
 	let konteksAkademik = "";
-	if (pegawai.jenis === "Guru" || pegawai.jenis === "GTT") {
+	if (pegawai.jenis === "Guru" || pegawai.jenis === "GTT" || pegawai.jabatan.toLowerCase().includes('guru')) {
 		konteksAkademik = `
 
 KONTEKS PEMBELAJARAN:
@@ -113,9 +115,9 @@ DATA PEGAWAI
 ===========================================
 PERIODE LAPORAN
 ===========================================
-- Bulan: ${namaBulan} ${config.tahun}
-- Tahun Pelajaran: ${akademik.tahunPelajaran}
-- Semester: ${akademik.semester}
+- Bulan Laporan: ${namaBulan} ${config.tahun}
+${akademik.tahunPelajaran ? `- Tahun Pelajaran: ${akademik.tahunPelajaran}` : ''}
+${akademik.semester ? `- Semester: ${akademik.semester}` : ''}
 ${konteksAkademik}
 
 ===========================================
@@ -140,7 +142,7 @@ Hambatan/Kendala Bulan Ini:
 ${kinerja.hambatan || "Tidak ada hambatan yang signifikan"}
 
 Solusi/Tindak Lanjut:
-${kinerja.solusi || "Terus meningkatkan kualitas layanan dan kinerja"}
+${kinerja.solusi || "Terus meningkatkan kualitas layanan dan optimalisasi kinerja"}
 
 ===========================================
 INSTRUKSI OUTPUT
@@ -149,6 +151,8 @@ INSTRUKSI OUTPUT
 2. JANGAN buat bagian Tanda Tangan (sudah ada di sistem)
 3. Format OUTPUT harus dalam MARKDOWN yang rapi
 4. Gunakan Bahasa Indonesia Formal sesuai kaidah penulisan dokumen pemerintah
+5. PENTING: Gunakan data Tahun Pelajaran "${akademik.tahunPelajaran}" dan Semester "${akademik.semester}" yang sudah diberikan
+6. Jangan menggunakan tahun pelajaran lain selain "${akademik.tahunPelajaran}"
 
 ===========================================
 STRUKTUR LAPORAN (WAJIB DIIKUTI)
@@ -157,7 +161,7 @@ STRUKTUR LAPORAN (WAJIB DIIKUTI)
 ## BAB I: PENDAHULUAN
 
 ### 1.1 Latar Belakang
-Jelaskan konteks tugas dan tanggung jawab pegawai dalam ${namaBulan} ${config.tahun}. Kaitkan dengan visi misi instansi ${instansi.header3}.
+Jelaskan konteks tugas dan tanggung jawab pegawai dalam ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` pada Tahun Pelajaran ${akademik.tahunPelajaran}` : ''}. Kaitkan dengan visi misi instansi ${instansi.header3}.
 
 ### 1.2 Tujuan Laporan
 Tujuan penyusunan laporan kinerja ini adalah:
@@ -166,7 +170,7 @@ Tujuan penyusunan laporan kinerja ini adalah:
 3. [Tujuan 3]
 
 ### 1.3 Ruang Lingkup
-Laporan ini mencakup pelaksanaan tugas dan kinerja selama bulan ${namaBulan} ${config.tahun}.
+Laporan ini mencakup pelaksanaan tugas dan kinerja selama bulan ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` dalam Tahun Pelajaran ${akademik.tahunPelajaran} Semester ${akademik.semester}` : ''}.
 
 ---
 
@@ -248,6 +252,9 @@ Pastikan output Anda memenuhi kriteria:
 ✓ Output terukur dan konkret
 ✓ Tidak ada placeholder atau [...]
 ✓ Total panjang dokumen 1500-2500 kata
+✓ GUNAKAN TAHUN PELAJARAN: ${akademik.tahunPelajaran} (WAJIB)
+✓ GUNAKAN SEMESTER: ${akademik.semester} (WAJIB)
+✓ Laporan ini dibuat oleh pribadi (jangan gunakan "... oleh Saudara ..")
 
 MULAI GENERATE SEKARANG!`;
 
@@ -475,6 +482,116 @@ const generateWithGroq = async (
 	}
 };
 
+const generateWithTogether = async (
+	systemPrompt: string,
+	userPrompt: string,
+): Promise<GenerateAIResult> => {
+	const apiKey = API_KEYS.together;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key Together AI tidak ditemukan. Silakan cek file .env",
+		};
+	}
+
+	try {
+		const response = await fetch(
+			"https://api.together.xyz/v1/chat/completions",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+					max_tokens: 4000,
+					temperature: 0.7,
+					messages: [
+						{ role: "system", content: systemPrompt },
+						{ role: "user", content: userPrompt },
+					],
+				}),
+			},
+		);
+
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error?.message || "Together AI API request failed");
+		}
+
+		const data = await response.json();
+		const text = data.choices[0].message.content;
+
+		return {
+			success: true,
+			content: text,
+			tokensUsed: data.usage?.total_tokens || 0,
+		};
+	} catch (error: any) {
+		console.error("Together AI Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi Together AI API",
+		};
+	}
+};
+
+const generateWithDeepSeek = async (
+	systemPrompt: string,
+	userPrompt: string,
+): Promise<GenerateAIResult> => {
+	const apiKey = API_KEYS.deepseek;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key DeepSeek tidak ditemukan. Silakan cek file .env",
+		};
+	}
+
+	try {
+		const response = await fetch(
+			"https://api.deepseek.com/v1/chat/completions",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					model: "deepseek-chat",
+					max_tokens: 4000,
+					temperature: 0.7,
+					messages: [
+						{ role: "system", content: systemPrompt },
+						{ role: "user", content: userPrompt },
+					],
+				}),
+			},
+		);
+
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error?.message || "DeepSeek API request failed");
+		}
+
+		const data = await response.json();
+		const text = data.choices[0].message.content;
+
+		return {
+			success: true,
+			content: text,
+			tokensUsed: data.usage?.total_tokens || 0,
+		};
+	} catch (error: any) {
+		console.error("DeepSeek Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi DeepSeek API",
+		};
+	}
+};
+
 // ============================================================================
 // MAIN GENERATE FUNCTION
 // ============================================================================
@@ -502,6 +619,12 @@ export const generateLaporan = async (
 			break;
 		case "groq":
 			result = await generateWithGroq(systemPrompt, userPrompt);
+			break;
+		case "together":
+			result = await generateWithTogether(systemPrompt, userPrompt);
+			break;
+		case "deepseek":
+			result = await generateWithDeepSeek(systemPrompt, userPrompt);
 			break;
 		default:
 			result = {
@@ -537,6 +660,8 @@ export const generateLaporan = async (
 	return result;
 };
 
+
+
 export const checkAPIKey = (model: AIModel): boolean => {
 	return !!API_KEYS[model];
 };
@@ -548,6 +673,8 @@ export const getAvailableModels = (): AIModel[] => {
 	if (API_KEYS.claude) available.push("claude");
 	if (API_KEYS.gpt) available.push("gpt");
 	if (API_KEYS.groq) available.push("groq");
+	if (API_KEYS.together) available.push("together");
+	if (API_KEYS.deepseek) available.push("deepseek");
 
 	return available;
 };

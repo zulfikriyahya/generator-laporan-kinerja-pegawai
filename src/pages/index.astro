@@ -18,7 +18,7 @@ import {
 	RefreshCw,
 	Printer,
 	Save,
-	AlertCircle,
+	CircleAlert,
 	Download,
 	FileText,
 	History,
@@ -140,10 +140,18 @@ import {
 							name="ai"
 							model="form.config.modelAI"
 							options={[
-								{ val: "gemini", label: "Google Gemini (Recommended)" },
-								{ val: "claude", label: "Anthropic Claude" },
-								{ val: "gpt", label: "OpenAI GPT-4" },
-								{ val: "groq", label: "Groq (Fast)" },
+								{
+									val: "gemini",
+									label: "Google Gemini 2.0 Flash (FREE & Fast)",
+								},
+								{
+									val: "groq",
+									label: "Groq Llama 3.3 70B (FREE & Ultra Fast)",
+								},
+								{ val: "together", label: "Together AI Llama 3.3 (FREE)" },
+								{ val: "deepseek", label: "DeepSeek Chat (Very Cheap)" },
+								{ val: "gpt", label: "OpenAI GPT-4o Mini (Cheap)" },
+								{ val: "claude", label: "Claude Sonnet 4 (Premium)" },
 							]}
 						/>
 						<p
@@ -187,17 +195,20 @@ import {
 
 					<div x-show="activeTab === 'akademik'" x-transition>
 						<div
-							x-show="form.pegawai.jenis !== 'Guru' && form.pegawai.jenis !== 'GTT'"
+							x-show="!isJabatanGuru()"
 							class="text-center p-6 border border-dashed border-white/10 rounded"
 						>
-							<AlertCircle class="w-8 h-8 text-slate-600 mx-auto mb-2" />
+							<CircleAlert class="w-8 h-8 text-slate-600 mx-auto mb-2" />
 							<p class="text-xs text-slate-500">
-								Data akademik khusus untuk Jabatan Guru/GTT
+								Data akademik khusus untuk Jabatan Guru (fungsional)
+							</p>
+							<p class="text-[10px] text-slate-600 mt-1">
+								Jabatan saat ini: <span
+									class="font-medium"
+									x-text="form.pegawai.jabatan"></span>
 							</p>
 						</div>
-						<div
-							x-show="form.pegawai.jenis === 'Guru' || form.pegawai.jenis === 'GTT'"
-						>
+						<div x-show="isJabatanGuru()">
 							<FormAkademik />
 						</div>
 					</div>
@@ -269,69 +280,73 @@ import {
 					id="document-preview"
 					class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300"
 				>
-					<div
-						x-show="loading"
-						class="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center backdrop-blur-[2px]"
-					>
+					<header class="mb-6 pb-2">
+						<!-- Logo dan Header -->
 						<div
-							class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"
+							class="grid grid-cols-[100px_1fr_100px] gap-4 items-center mb-2"
 						>
-						</div>
-						<p class="text-sm text-slate-600 font-medium">
-							AI sedang menyusun laporan...
-						</p>
-						<p class="text-xs text-slate-400 mt-1">
-							Menganalisis kinerja & membuat narasi profesional
-						</p>
-					</div>
+							<!-- Logo Kiri -->
+							<div class="h-20 flex items-center justify-center">
+								<template x-if="form.instansi.logoUtama">
+									<img
+										:src="form.instansi.logoUtama"
+										class="max-w-full max-h-full object-contain"
+										alt="Logo Kementerian Agama"
+									/>
+								</template>
+							</div>
 
-					<header
-						class="border-b-4 border-double border-black mb-6 pb-2 grid grid-cols-[80px_1fr_80px] gap-2 items-center"
-					>
-						<div class="h-20 flex items-center justify-center">
-							<template x-if="form.instansi.logoUtama">
-								<img
-									:src="form.instansi.logoUtama"
-									class="max-w-full max-h-full object-contain"
-									alt="Logo Utama"
-								/>
-							</template>
+							<!-- Header Text (Tengah) -->
+							<div class="text-center leading-tight">
+								<h3
+									class="font-bold text-[13px] uppercase"
+									x-text="form.instansi.header1"
+								>
+								</h3>
+								<h2
+									class="font-bold text-[13px] uppercase"
+									x-text="form.instansi.header2"
+								>
+								</h2>
+								<h1
+									class="font-bold text-[15px] uppercase"
+									x-text="form.instansi.header3"
+								>
+								</h1>
+								<p
+									class="text-[11px] normal-case mt-1"
+									x-text="form.instansi.alamat"
+								>
+								</p>
+								<p class="text-[11px] mt-0.5">
+									Website: <span x-text="form.instansi.website"></span> | Email: <span
+										x-text="form.instansi.email"></span>
+								</p>
+							</div>
+
+							<!-- Logo Kanan -->
+							<div class="h-20 flex items-center justify-center">
+								<template x-if="form.instansi.logoInstansi">
+									<img
+										:src="form.instansi.logoInstansi"
+										class="max-w-full max-h-full object-contain"
+										alt="Logo Madrasah"
+									/>
+								</template>
+							</div>
 						</div>
 
-						<div class="text-center uppercase leading-tight">
-							<h3 class="font-bold text-lg" x-text="form.instansi.header1"></h3>
-							<h2 class="font-bold text-xl" x-text="form.instansi.header2"></h2>
-							<h1 class="font-bold text-2xl" x-text="form.instansi.header3">
-							</h1>
-							<p
-								class="text-xs normal-case mt-1 font-serif"
-								x-text="form.instansi.alamat"
-							>
-							</p>
-							<p class="text-[10px] mt-0.5">
-								<span x-text="form.instansi.telepon"></span> |
-								<span x-text="form.instansi.email"></span> |
-								<span x-text="form.instansi.website"></span>
-							</p>
-						</div>
-
-						<div class="h-20 flex items-center justify-center">
-							<template x-if="form.instansi.logoInstansi">
-								<img
-									:src="form.instansi.logoInstansi"
-									class="max-w-full max-h-full object-contain"
-									alt="Logo Instansi"
-								/>
-							</template>
-						</div>
+						<!-- Garis Pembatas Double -->
+						<div class="border-t-4 border-black"></div>
+						<div class="border-t border-black mt-0.5"></div>
 					</header>
 
+					<!-- JUDUL LAPORAN -->
 					<div class="text-center mb-8">
-						<h2 class="font-bold underline uppercase text-lg">
-							LAPORAN KINERJA PEGAWAI
-						</h2>
+						<h2 class="font-bold uppercase text-lg">LAPORAN KINERJA PEGAWAI</h2>
 						<p class="text-sm font-medium mt-1">
-							Periode: <span x-text="getBulanName(form.config.bulan)"></span>
+							Periode Laporan: <span
+								x-text="getBulanName(form.config.bulan).toUpperCase()"></span>
 							<span x-text="form.config.tahun"></span>
 						</p>
 					</div>
@@ -699,6 +714,11 @@ import {
 					deleteHistory(id);
 					addToast("Riwayat dihapus", "info");
 				}
+			},
+
+			isJabatanGuru() {
+				const jabatan = this.form.pegawai.jabatan.toLowerCase();
+				return jabatan.includes("guru");
 			},
 
 			canGenerate() {

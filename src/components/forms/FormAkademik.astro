@@ -7,32 +7,93 @@ import SelectGroup from "./SelectGroup.astro";
 	<div
 		class="p-3 bg-blue-900/20 border border-blue-500/20 rounded text-xs text-blue-300 mb-2"
 	>
-		Khusus untuk Pegawai fungsional Guru.
+		ℹ️ Khusus untuk Pegawai dengan Jabatan Guru (fungsional).
 	</div>
-	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Kelas Ajar" name="kls" model="form.akademik.kelas" />
-		<InputGroup label="Jml Siswa" name="siswa" model="form.akademik.jmlSiswa" />
-	</div>
+
+	<SelectGroup
+		label="Kurikulum"
+		name="kur"
+		model="form.akademik.kurikulum"
+		options={[
+			{ val: "Kurikulum Merdeka", label: "Kurikulum Merdeka" },
+			{ val: "Kurikulum 2013", label: "Kurikulum 2013" },
+			{ val: "KTSP", label: "KTSP" },
+		]}
+	/>
+
 	<div class="grid grid-cols-2 gap-3">
 		<InputGroup
-			label="Jam/Minggu"
-			name="jam"
-			model="form.akademik.jamMengajar"
+			label="Tahun Pelajaran"
+			name="tapel"
+			model="form.akademik.tahunPelajaran"
+			placeholder="2024/2025"
 		/>
 		<SelectGroup
-			label="Kurikulum"
-			name="kur"
-			model="form.akademik.kurikulum"
+			label="Semester"
+			name="sem"
+			model="form.akademik.semester"
 			options={[
-				{ val: "Merdeka", label: "Kurikulum Merdeka" },
-				{ val: "K13", label: "K13 Revisi" },
+				{ val: "Ganjil", label: "Ganjil" },
+				{ val: "Genap", label: "Genap" },
 			]}
 		/>
 	</div>
+
+	<SelectGroup
+		label="Mata Pelajaran"
+		name="mapel"
+		model="form.akademik.mapel"
+		options={[
+			{ val: "Matematika", label: "Matematika" },
+			{ val: "Bahasa Indonesia", label: "Bahasa Indonesia" },
+			{ val: "Bahasa Inggris", label: "Bahasa Inggris" },
+			{ val: "IPA (Ilmu Pengetahuan Alam)", label: "IPA" },
+			{ val: "IPS (Ilmu Pengetahuan Sosial)", label: "IPS" },
+			{ val: "Pendidikan Agama Islam", label: "Pendidikan Agama Islam" },
+			{ val: "Pendidikan Agama Kristen", label: "Pendidikan Agama Kristen" },
+			{ val: "Pendidikan Agama Katolik", label: "Pendidikan Agama Katolik" },
+			{ val: "Pendidikan Agama Hindu", label: "Pendidikan Agama Hindu" },
+			{ val: "Pendidikan Agama Buddha", label: "Pendidikan Agama Buddha" },
+			{ val: "PJOK (Pendidikan Jasmani)", label: "PJOK" },
+			{ val: "Seni Budaya", label: "Seni Budaya" },
+			{ val: "Prakarya", label: "Prakarya" },
+			{ val: "Informatika", label: "Informatika" },
+			{ val: "Bahasa Arab", label: "Bahasa Arab" },
+			{ val: "Al-Quran Hadits", label: "Al-Quran Hadits" },
+			{ val: "Akidah Akhlak", label: "Akidah Akhlak" },
+			{ val: "Fiqih", label: "Fiqih" },
+			{ val: "Sejarah Kebudayaan Islam", label: "Sejarah Kebudayaan Islam" },
+		]}
+	/>
+
 	<InputGroup
-		label="Tugas Ekstrakurikuler"
+		label="Kelas yang Diampu"
+		name="kls"
+		model="form.akademik.kelas"
+		placeholder="VII-A, VII-B, VIII-A"
+	/>
+
+	<div class="grid grid-cols-2 gap-3">
+		<InputGroup
+			label="Jam Mengajar/Minggu"
+			name="jam"
+			model="form.akademik.jamMengajar"
+			type="number"
+			placeholder="24"
+		/>
+		<InputGroup
+			label="Jumlah Siswa"
+			name="siswa"
+			model="form.akademik.jumlahSiswa"
+			type="number"
+			placeholder="64"
+		/>
+	</div>
+
+	<InputGroup
+		label="Tugas Ekstrakurikuler (Opsional)"
 		name="ekskul"
 		model="form.akademik.ekskul"
+		placeholder="Olimpiade Matematika, Pramuka"
 	/>
 </div>

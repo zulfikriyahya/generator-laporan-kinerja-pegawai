@@ -29,7 +29,7 @@ const API_KEYS = {
 // ============================================================================
 const MODEL_CONFIGS = {
 	gemini: {
-		model: "gemini-2.0-flash-exp", // Free & fast
+		model: "gemini-3-flash-preview", // Free & fast
 		maxTokens: 8000,
 		temperature: 0.7,
 	},
@@ -85,7 +85,11 @@ const buildUserPrompt = (store: AppStore): string => {
 	).toLocaleString("id-ID", { month: "long" });
 
 	let konteksAkademik = "";
-	if (pegawai.jenis === "Guru" || pegawai.jenis === "GTT" || pegawai.jabatan.toLowerCase().includes('guru')) {
+	if (
+		pegawai.jenis === "Guru" ||
+		pegawai.jenis === "GTT" ||
+		pegawai.jabatan.toLowerCase().includes("guru")
+	) {
 		konteksAkademik = `
 
 KONTEKS PEMBELAJARAN:
@@ -116,8 +120,8 @@ DATA PEGAWAI
 PERIODE LAPORAN
 ===========================================
 - Bulan Laporan: ${namaBulan} ${config.tahun}
-${akademik.tahunPelajaran ? `- Tahun Pelajaran: ${akademik.tahunPelajaran}` : ''}
-${akademik.semester ? `- Semester: ${akademik.semester}` : ''}
+${akademik.tahunPelajaran ? `- Tahun Pelajaran: ${akademik.tahunPelajaran}` : ""}
+${akademik.semester ? `- Semester: ${akademik.semester}` : ""}
 ${konteksAkademik}
 
 ===========================================
@@ -161,7 +165,7 @@ STRUKTUR LAPORAN (WAJIB DIIKUTI)
 ## BAB I: PENDAHULUAN
 
 ### 1.1 Latar Belakang
-Jelaskan konteks tugas dan tanggung jawab pegawai dalam ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` pada Tahun Pelajaran ${akademik.tahunPelajaran}` : ''}. Kaitkan dengan visi misi instansi ${instansi.header3}.
+Jelaskan konteks tugas dan tanggung jawab pegawai dalam ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` pada Tahun Pelajaran ${akademik.tahunPelajaran}` : ""}. Kaitkan dengan visi misi instansi ${instansi.header3}.
 
 ### 1.2 Tujuan Laporan
 Tujuan penyusunan laporan kinerja ini adalah:
@@ -170,7 +174,7 @@ Tujuan penyusunan laporan kinerja ini adalah:
 3. [Tujuan 3]
 
 ### 1.3 Ruang Lingkup
-Laporan ini mencakup pelaksanaan tugas dan kinerja selama bulan ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` dalam Tahun Pelajaran ${akademik.tahunPelajaran} Semester ${akademik.semester}` : ''}.
+Laporan ini mencakup pelaksanaan tugas dan kinerja selama bulan ${namaBulan} ${config.tahun}${akademik.tahunPelajaran ? ` dalam Tahun Pelajaran ${akademik.tahunPelajaran} Semester ${akademik.semester}` : ""}.
 
 ---
 
@@ -501,7 +505,7 @@ const generateWithTogether = async (
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": `Bearer ${apiKey}`,
+					Authorization: `Bearer ${apiKey}`,
 				},
 				body: JSON.stringify({
 					model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
@@ -556,7 +560,7 @@ const generateWithDeepSeek = async (
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": `Bearer ${apiKey}`,
+					Authorization: `Bearer ${apiKey}`,
 				},
 				body: JSON.stringify({
 					model: "deepseek-chat",
@@ -659,8 +663,6 @@ export const generateLaporan = async (
 
 	return result;
 };
-
-
 
 export const checkAPIKey = (model: AIModel): boolean => {
 	return !!API_KEYS[model];

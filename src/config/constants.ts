@@ -332,13 +332,15 @@ export const ENV = {
 };
 
 export const getAPIKey = (
-	model: "gemini" | "claude" | "gpt" | "groq",
+	model: "gemini" | "claude" | "gpt" | "groq" | "together" | "deepseek",
 ): string => {
 	const keys = {
 		gemini: import.meta.env.PUBLIC_GEMINI_API_KEY,
 		claude: import.meta.env.PUBLIC_CLAUDE_API_KEY,
 		gpt: import.meta.env.PUBLIC_OPENAI_API_KEY,
 		groq: import.meta.env.PUBLIC_GROQ_API_KEY,
+		together: import.meta.env.PUBLIC_TOGETHER_API_KEY || "",
+		deepseek: import.meta.env.PUBLIC_DEEPSEEK_API_KEY || "",
 	};
 	return keys[model] || "";
 };

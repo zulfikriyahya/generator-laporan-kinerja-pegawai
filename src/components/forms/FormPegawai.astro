@@ -17,7 +17,20 @@ import SelectGroup from "./SelectGroup.astro";
 	/>
 
 	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="NIP (18 Digit)" name="nip" model="form.pegawai.nip" />
+		<InputGroup
+			label="NIP"
+			name="nip"
+			model="form.pegawai.nip"
+			@blur="validateNIP"
+		/>
+		<script>
+			function validateNIP() {
+				const result = validateField("nip", form.pegawai.nip);
+				if (!result.valid) {
+					showError(result.message);
+				}
+			}
+		</script>
 		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
 	</div>
 

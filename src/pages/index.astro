@@ -1,9 +1,4 @@
 ---
-// ============================================================================
-// GENERATOR LAPORAN KINERJA PEGAWAI - MAIN PAGE
-// Version: 1.0.0
-// ============================================================================
-
 import Layout from "../layouts/Layout.astro";
 import FormInstansi from "../components/forms/FormInstansi.astro";
 import FormPegawai from "../components/forms/FormPegawai.astro";
@@ -26,7 +21,6 @@ import {
 	AlertCircle,
 	Download,
 	FileText,
-	Settings,
 	History,
 } from "@lucide/astro";
 ---
@@ -39,7 +33,6 @@ import {
 	<ProgressBar />
 	<DocumentStats />
 	<main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
-		<!-- TOPBAR -->
 		<header
 			class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print shadow-md"
 		>
@@ -58,7 +51,6 @@ import {
 			</div>
 
 			<div class="flex items-center gap-2">
-				<!-- Download Template -->
 				<button
 					@click="downloadTemplate"
 					class="px-3 py-1.5 bg-slate-800 text-slate-300 border border-slate-700 rounded-md text-xs font-medium hover:bg-slate-700 transition flex items-center gap-2"
@@ -67,7 +59,6 @@ import {
 					<Download class="w-3.5 h-3.5" /> Template
 				</button>
 
-				<!-- Import Excel -->
 				<label
 					class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-md text-xs font-medium cursor-pointer hover:bg-emerald-600/30 transition flex items-center gap-2"
 				>
@@ -82,7 +73,6 @@ import {
 
 				<div class="h-6 w-px bg-white/10 mx-2"></div>
 
-				<!-- Export Buttons -->
 				<button
 					@click="exportPDF"
 					class="px-3 py-1.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-md text-xs font-medium hover:bg-red-600/30 transition flex items-center gap-2"
@@ -101,7 +91,6 @@ import {
 
 				<div class="h-6 w-px bg-white/10 mx-2"></div>
 
-				<!-- Save Draft -->
 				<button
 					@click="saveDraft"
 					class="text-slate-400 hover:text-white transition"
@@ -110,7 +99,6 @@ import {
 					<Save class="w-5 h-5" />
 				</button>
 
-				<!-- History -->
 				<button
 					@click="toggleHistory"
 					class="text-slate-400 hover:text-white transition"
@@ -121,15 +109,11 @@ import {
 			</div>
 		</header>
 
-		<!-- MAIN CONTENT AREA -->
 		<div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
-			<!-- LEFT SIDEBAR - FORM INPUT -->
 			<aside
 				class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shadow-[4px_0_24px_rgba(0,0,0,0.4)]"
 			>
-				<!-- Periode & AI Config -->
 				<div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
-					<!-- Periode Laporan -->
 					<div class="grid grid-cols-2 gap-2">
 						<SelectGroup
 							label="Bulan"
@@ -150,7 +134,6 @@ import {
 						/>
 					</div>
 
-					<!-- AI Model Selection -->
 					<div>
 						<SelectGroup
 							label="Model AI"
@@ -171,7 +154,6 @@ import {
 						</p>
 					</div>
 
-					<!-- Token Limit -->
 					<div>
 						<InputGroup
 							label="Token Limit"
@@ -182,7 +164,6 @@ import {
 					</div>
 				</div>
 
-				<!-- Form Tabs -->
 				<div class="flex border-b border-white/5 bg-slate-950/30">
 					<template x-for="tab in tabs" :key="tab.id">
 						<button
@@ -195,7 +176,6 @@ import {
 					</template>
 				</div>
 
-				<!-- Form Content Area -->
 				<div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
 					<div x-show="activeTab === 'instansi'" x-transition>
 						<FormInstansi />
@@ -247,7 +227,6 @@ import {
 					</div>
 				</div>
 
-				<!-- Generate Button -->
 				<div class="p-4 border-t border-white/10 bg-slate-900 z-50">
 					<button
 						@click="generateLaporan"
@@ -261,7 +240,6 @@ import {
 						</span>
 					</button>
 
-					<!-- Validation Errors -->
 					<div
 						x-show="validationErrors.length > 0"
 						class="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400"
@@ -273,11 +251,9 @@ import {
 				</div>
 			</aside>
 
-			<!-- RIGHT CONTENT - PREVIEW -->
 			<section
 				class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar"
 			>
-				<!-- Floating Toolbar -->
 				<div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
 					<button
 						@click="printDoc"
@@ -289,12 +265,10 @@ import {
 					</button>
 				</div>
 
-				<!-- A4 Paper Preview -->
 				<div
 					id="document-preview"
 					class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300"
 				>
-					<!-- Loading Overlay -->
 					<div
 						x-show="loading"
 						class="absolute inset-0 bg-white/90 z-50 flex flex-col items-center justify-center backdrop-blur-[2px]"
@@ -311,11 +285,9 @@ import {
 						</p>
 					</div>
 
-					<!-- KOP SURAT -->
 					<header
 						class="border-b-4 border-double border-black mb-6 pb-2 grid grid-cols-[80px_1fr_80px] gap-2 items-center"
 					>
-						<!-- Logo Kiri -->
 						<div class="h-20 flex items-center justify-center">
 							<template x-if="form.instansi.logoUtama">
 								<img
@@ -326,7 +298,6 @@ import {
 							</template>
 						</div>
 
-						<!-- Header Text (Tengah) -->
 						<div class="text-center uppercase leading-tight">
 							<h3 class="font-bold text-lg" x-text="form.instansi.header1"></h3>
 							<h2 class="font-bold text-xl" x-text="form.instansi.header2"></h2>
@@ -344,7 +315,6 @@ import {
 							</p>
 						</div>
 
-						<!-- Logo Kanan -->
 						<div class="h-20 flex items-center justify-center">
 							<template x-if="form.instansi.logoInstansi">
 								<img
@@ -356,7 +326,6 @@ import {
 						</div>
 					</header>
 
-					<!-- JUDUL LAPORAN -->
 					<div class="text-center mb-8">
 						<h2 class="font-bold underline uppercase text-lg">
 							LAPORAN KINERJA PEGAWAI
@@ -367,7 +336,6 @@ import {
 						</p>
 					</div>
 
-					<!-- CONTENT AREA -->
 					<div
 						x-show="!hasContent()"
 						class="h-96 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg bg-slate-50"
@@ -388,7 +356,6 @@ import {
 					>
 					</article>
 
-					<!-- TANDA TANGAN -->
 					<div
 						x-show="hasContent()"
 						class="mt-12 flex justify-end break-inside-avoid"
@@ -400,7 +367,6 @@ import {
 							</p>
 							<p class="font-bold mb-2">Pejabat Penilai,</p>
 
-							<!-- TTD Digital Area -->
 							<div class="h-20 flex items-center justify-center my-1">
 								<template x-if="form.instansi.kepala.ttd">
 									<img
@@ -435,12 +401,10 @@ import {
 					</div>
 				</div>
 
-				<!-- Bottom Spacer -->
 				<div class="h-20 w-full no-print"></div>
 			</section>
 		</div>
 
-		<!-- History Sidebar (Slide from right) -->
 		<div
 			x-show="showHistory"
 			@click.away="showHistory = false"
@@ -465,7 +429,6 @@ import {
 					</button>
 				</div>
 
-				<!-- History List -->
 				<div class="space-y-2">
 					<template x-if="historyItems.length === 0">
 						<div class="text-center text-slate-500 text-sm py-8">
@@ -509,22 +472,32 @@ import {
 	</main>
 </Layout>
 <script>
-	import { reportStore, historyStore, saveToHistory, loadFromHistory, deleteHistory, validateBeforeGenerate } from "../stores/reportStore";
+	import {
+		reportStore,
+		historyStore,
+		saveToHistory,
+		loadFromHistory,
+		deleteHistory,
+		validateBeforeGenerate,
+	} from "../stores/reportStore";
 	import { generateLaporan, checkAPIKey } from "../services/aiService";
 	import { importFromExcel, downloadTemplate } from "../services/excelService";
-	import { exportToPDF, exportToDOCX, printDocument } from "../services/exportService";
+	import {
+		exportToPDF,
+		exportToDOCX,
+		printDocument,
+	} from "../services/exportService";
 	import { parseMarkdown } from "../utils/markdown";
 	import { addToast } from "../stores/toastStore";
 
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("appCore", () => ({
-			// State
 			tabs: [
 				{ id: "instansi", label: "1. Instansi" },
 				{ id: "pegawai", label: "2. Pegawai" },
 				{ id: "akademik", label: "3. Akademik" },
 				{ id: "kinerja", label: "4. Kinerja" },
-				{ id: "advanced", label: "5. Advanced" }
+				{ id: "advanced", label: "5. Advanced" },
 			],
 			activeTab: "pegawai",
 			form: reportStore.get(),
@@ -534,25 +507,21 @@ import {
 			historyItems: [],
 			validationErrors: [],
 
-			// Initialize
 			async init() {
-				// Load rendered content jika sudah ada
 				if (this.form.output.content) {
 					this.renderedHTML = await parseMarkdown(this.form.output.content);
 				}
 
-				// Load history
 				this.historyItems = historyStore.get().items;
 				historyStore.subscribe((val) => {
 					this.historyItems = val.items;
 				});
 
-				// Auto-save dengan debounce
 				let timeout;
 				this.$watch("form", (val) => {
 					clearTimeout(timeout);
 					window.dispatchEvent(new CustomEvent("autosave:start"));
-					
+
 					timeout = setTimeout(() => {
 						try {
 							reportStore.set(JSON.parse(JSON.stringify(val)));
@@ -563,32 +532,40 @@ import {
 					}, 800);
 				});
 
-				// Register keyboard shortcuts
 				this.registerShortcuts();
 			},
 
-			// Keyboard shortcuts
 			registerShortcuts() {
-				window.addEventListener("shortcut:generate", () => this.generateLaporan());
+				window.addEventListener("shortcut:generate", () =>
+					this.generateLaporan(),
+				);
 				window.addEventListener("shortcut:save", () => this.saveDraft());
 				window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
-				window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
-				window.addEventListener("shortcut:toggle-history", () => this.toggleHistory());
-				
+				window.addEventListener("shortcut:export-docx", () =>
+					this.exportDOCX(),
+				);
+				window.addEventListener("shortcut:toggle-history", () =>
+					this.toggleHistory(),
+				);
+
 				window.addEventListener("shortcut:next-tab", () => {
-					const currentIndex = this.tabs.findIndex(t => t.id === this.activeTab);
+					const currentIndex = this.tabs.findIndex(
+						(t) => t.id === this.activeTab,
+					);
 					const nextIndex = (currentIndex + 1) % this.tabs.length;
 					this.activeTab = this.tabs[nextIndex].id;
 				});
-				
+
 				window.addEventListener("shortcut:prev-tab", () => {
-					const currentIndex = this.tabs.findIndex(t => t.id === this.activeTab);
-					const prevIndex = (currentIndex - 1 + this.tabs.length) % this.tabs.length;
+					const currentIndex = this.tabs.findIndex(
+						(t) => t.id === this.activeTab,
+					);
+					const prevIndex =
+						(currentIndex - 1 + this.tabs.length) % this.tabs.length;
 					this.activeTab = this.tabs[prevIndex].id;
 				});
 			},
 
-			// Generate Laporan
 			async generateLaporan() {
 				const validation = validateBeforeGenerate(this.form);
 				if (!validation.valid) {
@@ -608,7 +585,10 @@ import {
 						this.renderedHTML = await parseMarkdown(result.content);
 						this.form = reportStore.get();
 						window.dispatchEvent(new CustomEvent("generate:complete"));
-						addToast(`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`, "success");
+						addToast(
+							`Laporan berhasil dibuat (${result.tokensUsed || 0} tokens)`,
+							"success",
+						);
 						saveToHistory();
 					} else {
 						throw new Error(result.error || "Gagal generate laporan");
@@ -616,13 +596,15 @@ import {
 				} catch (error) {
 					console.error("Generate Error:", error);
 					window.dispatchEvent(new CustomEvent("generate:error"));
-					addToast("Error: " + (error.message || "Gagal menghubungi AI"), "error");
+					addToast(
+						"Error: " + (error.message || "Gagal menghubungi AI"),
+						"error",
+					);
 				} finally {
 					this.loading = false;
 				}
 			},
 
-			// Import Excel
 			async handleImportExcel(event) {
 				const input = event.target;
 				const file = input.files?.[0];
@@ -639,7 +621,6 @@ import {
 				input.value = "";
 			},
 
-			// Download Template
 			downloadTemplate() {
 				try {
 					downloadTemplate();
@@ -649,7 +630,6 @@ import {
 				}
 			},
 
-			// Export PDF
 			async exportPDF() {
 				if (!this.hasContent()) {
 					addToast("Belum ada konten untuk diexport", "error");
@@ -668,7 +648,6 @@ import {
 				}
 			},
 
-			// Export DOCX
 			async exportDOCX() {
 				if (!this.hasContent()) {
 					addToast("Belum ada konten untuk diexport", "error");
@@ -687,7 +666,6 @@ import {
 				}
 			},
 
-			// Print
 			printDoc() {
 				if (!this.hasContent()) {
 					addToast("Belum ada konten untuk diprint", "error");
@@ -696,18 +674,15 @@ import {
 				printDocument();
 			},
 
-			// Save Draft
 			saveDraft() {
 				saveToHistory();
 				addToast("Draft tersimpan ke riwayat", "success");
 			},
 
-			// Toggle History
 			toggleHistory() {
 				this.showHistory = !this.showHistory;
 			},
 
-			// Load History Item
 			loadHistoryItem(id) {
 				if (confirm("Muat data ini? Data saat ini akan ditimpa.")) {
 					const success = loadFromHistory(id);
@@ -719,7 +694,6 @@ import {
 				}
 			},
 
-			// Delete History Item
 			deleteHistoryItem(id) {
 				if (confirm("Hapus riwayat ini?")) {
 					deleteHistory(id);
@@ -727,9 +701,12 @@ import {
 				}
 			},
 
-			// Utilities
 			canGenerate() {
-				return !!this.form.pegawai.nama && !!this.form.config.bulan && !!this.form.config.tahun;
+				return (
+					!!this.form.pegawai.nama &&
+					!!this.form.config.bulan &&
+					!!this.form.config.tahun
+				);
 			},
 
 			hasContent() {
@@ -750,7 +727,7 @@ import {
 				return new Date().toLocaleDateString("id-ID", {
 					day: "numeric",
 					month: "long",
-					year: "numeric"
+					year: "numeric",
 				});
 			},
 
@@ -760,7 +737,7 @@ import {
 					month: "short",
 					year: "numeric",
 					hour: "2-digit",
-					minute: "2-digit"
+					minute: "2-digit",
 				});
 			},
 
@@ -784,7 +761,7 @@ import {
 					target[path[path.length - 1]] = e.target?.result;
 				};
 				reader.readAsDataURL(file);
-			}
+			},
 		}));
 	});
 </script>

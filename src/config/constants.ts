@@ -3,10 +3,6 @@
 // Version: 1.0.0
 // ============================================================================
 
-// ============================================================================
-// APPLICATION INFO
-// ============================================================================
-
 export const APP_INFO = {
 	name: "Generator Laporan Kinerja Pegawai",
 	shortName: "E-Kinerja AI",
@@ -18,14 +14,10 @@ export const APP_INFO = {
 		"https://github.com/zulfikriyahya/generator-laporan-kinerja-pegawai",
 };
 
-// ============================================================================
-// API CONFIGURATION
-// ============================================================================
-
 export const API_CONFIG = {
 	gemini: {
 		baseURL: "https://generativelanguage.googleapis.com/v1beta",
-		model: "gemini-2.0-flash-exp",
+		model: "gemini-3-flash-preview",
 		maxTokens: 8000,
 		temperature: 0.7,
 	},
@@ -50,10 +42,6 @@ export const API_CONFIG = {
 	},
 };
 
-// ============================================================================
-// STORAGE KEYS
-// ============================================================================
-
 export const STORAGE_KEYS = {
 	appStore: "ekinerja-app-v1:",
 	history: "ekinerja-history:",
@@ -62,10 +50,6 @@ export const STORAGE_KEYS = {
 	userPreferences: "ekinerja-user-prefs",
 	tempDraft: "ekinerja-temp-draft",
 };
-
-// ============================================================================
-// VALIDATION RULES
-// ============================================================================
 
 export const VALIDATION_RULES = {
 	nip: {
@@ -95,23 +79,19 @@ export const VALIDATION_RULES = {
 	},
 };
 
-// ============================================================================
-// FILE LIMITS
-// ============================================================================
-
 export const FILE_LIMITS = {
 	image: {
-		maxSize: 500 * 1024, // 500 KB
+		maxSize: 500 * 1024,
 		allowedTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
 		allowedExtensions: [".jpg", ".jpeg", ".png", ".webp"],
 	},
 	signature: {
-		maxSize: 200 * 1024, // 200 KB
+		maxSize: 200 * 1024,
 		allowedTypes: ["image/png"],
 		allowedExtensions: [".png"],
 	},
 	excel: {
-		maxSize: 5 * 1024 * 1024, // 5 MB
+		maxSize: 5 * 1024 * 1024,
 		allowedTypes: [
 			"application/vnd.ms-excel",
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -119,75 +99,59 @@ export const FILE_LIMITS = {
 		allowedExtensions: [".xls", ".xlsx"],
 	},
 	pdf: {
-		maxSize: 10 * 1024 * 1024, // 10 MB
+		maxSize: 10 * 1024 * 1024,
 		allowedTypes: ["application/pdf"],
 		allowedExtensions: [".pdf"],
 	},
 };
 
-// ============================================================================
-// DOCUMENT SETTINGS
-// ============================================================================
-
 export const DOCUMENT_SETTINGS = {
 	a4: {
-		width: 210, // mm
-		height: 297, // mm
+		width: 210,
+		height: 297,
 		margin: {
-			top: 15, // mm
-			right: 20, // mm
-			bottom: 15, // mm
-			left: 20, // mm
+			top: 15,
+			right: 20,
+			bottom: 15,
+			left: 20,
 		},
 	},
 	font: {
 		family: "Times New Roman",
 		size: {
-			normal: 12, // pt
-			header: 14, // pt
-			title: 16, // pt
+			normal: 12,
+			header: 14,
+			title: 16,
 		},
 		lineHeight: 1.5,
 	},
 	logo: {
-		maxHeight: 80, // px
-		maxWidth: 80, // px
+		maxHeight: 80,
+		maxWidth: 80,
 	},
 };
-
-// ============================================================================
-// UI CONSTANTS
-// ============================================================================
 
 export const UI_CONSTANTS = {
 	toast: {
-		duration: 3000, // ms
+		duration: 3000,
 		position: "top-right",
 	},
-	debounceDelay: 800, // ms
-	autoSaveInterval: 30000, // ms (30 seconds)
+	debounceDelay: 800,
+	autoSaveInterval: 30000,
 	maxHistoryItems: 20,
-	previewUpdateDelay: 500, // ms
+	previewUpdateDelay: 500,
 };
-
-// ============================================================================
-// DATE FORMATS
-// ============================================================================
 
 export const DATE_FORMATS = {
 	indonesia: {
-		full: "dd MMMM yyyy", // 01 Januari 2025
-		short: "dd/MM/yyyy", // 01/01/2025
-		monthYear: "MMMM yyyy", // Januari 2025
+		full: "dd MMMM yyyy",
+		short: "dd/MM/yyyy",
+		monthYear: "MMMM yyyy",
 	},
-	iso: "yyyy-MM-dd", // 2025-01-01
-	filename: "yyyyMMdd", // 20250101
-	timestamp: "yyyy-MM-dd HH:mm:ss", // 2025-01-01 14:30:00
+	iso: "yyyy-MM-dd",
+	filename: "yyyyMMdd",
+	timestamp: "yyyy-MM-dd HH:mm:ss",
 };
-
-// ============================================================================
-// MASTER DATA
-// ============================================================================
 
 export const MASTER_DATA = {
 	jenisPegawai: ["PNS", "PPPK", "Honorer", "GTT", "PTT", "Guru"],
@@ -261,10 +225,6 @@ export const MASTER_DATA = {
 	],
 };
 
-// ============================================================================
-// ERROR MESSAGES
-// ============================================================================
-
 export const ERROR_MESSAGES = {
 	required: (field: string) => `${field} harus diisi`,
 	invalid: (field: string) => `${field} tidak valid`,
@@ -282,10 +242,6 @@ export const ERROR_MESSAGES = {
 	importFailed: "Gagal import data. Periksa format file Excel.",
 };
 
-// ============================================================================
-// SUCCESS MESSAGES
-// ============================================================================
-
 export const SUCCESS_MESSAGES = {
 	saved: "Data berhasil disimpan",
 	generated: "Laporan berhasil dibuat",
@@ -294,10 +250,6 @@ export const SUCCESS_MESSAGES = {
 	copied: "Berhasil disalin ke clipboard",
 	deleted: "Data berhasil dihapus",
 };
-
-// ============================================================================
-// PROMPT TEMPLATES
-// ============================================================================
 
 export const PROMPT_TEMPLATES = {
 	systemRole: `ROLE: Asisten Administrasi ASN Profesional
@@ -338,28 +290,20 @@ OUTPUT: Markdown terstruktur dengan Bahasa Indonesia baku`,
 `,
 };
 
-// ============================================================================
-// FEATURE FLAGS
-// ============================================================================
-
 export const FEATURES = {
-	multiAI: true, // Multi-model AI support
+	multiAI: true,
 	pdfExport: true,
 	docxExport: true,
 	excelImport: true,
 	history: true,
-	tte: true, // Tanda Tangan Elektronik
+	tte: true,
 	qrCode: true,
-	googleDrive: false, // Coming soon
-	nextCloud: false, // Coming soon
-	cloudBackup: false, // Coming soon
-	multiUser: false, // Coming soon
-	analytics: false, // Coming soon
+	googleDrive: false,
+	nextCloud: false,
+	cloudBackup: false,
+	multiUser: false,
+	analytics: false,
 };
-
-// ============================================================================
-// DEVELOPER INFO
-// ============================================================================
 
 export const DEVELOPER_INFO = {
 	name: "Yahya Zulfikri",
@@ -368,10 +312,6 @@ export const DEVELOPER_INFO = {
 	github: "https://github.com/zulfikriyahya",
 	website: "https://zulfikriyahya.github.io",
 };
-
-// ============================================================================
-// ANALYTICS EVENTS (for future implementation)
-// ============================================================================
 
 export const ANALYTICS_EVENTS = {
 	pageView: "page_view",
@@ -384,10 +324,6 @@ export const ANALYTICS_EVENTS = {
 	error: "error_occurred",
 };
 
-// ============================================================================
-// ENVIRONMENT HELPERS
-// ============================================================================
-
 export const ENV = {
 	isDevelopment: import.meta.env.DEV,
 	isProduction: import.meta.env.PROD,
@@ -395,13 +331,6 @@ export const ENV = {
 	baseURL: import.meta.env.BASE_URL,
 };
 
-// ============================================================================
-// HELPER FUNCTIONS FOR CONFIG
-// ============================================================================
-
-/**
- * Get API key from environment
- */
 export const getAPIKey = (
 	model: "gemini" | "claude" | "gpt" | "groq",
 ): string => {
@@ -414,37 +343,23 @@ export const getAPIKey = (
 	return keys[model] || "";
 };
 
-/**
- * Check if feature is enabled
- */
 export const isFeatureEnabled = (feature: keyof typeof FEATURES): boolean => {
 	return FEATURES[feature] === true;
 };
 
-/**
- * Get current year for default values
- */
 export const getCurrentYear = (): number => {
 	return new Date().getFullYear();
 };
 
-/**
- * Get current month (1-12)
- */
 export const getCurrentMonth = (): number => {
 	return new Date().getMonth() + 1;
 };
 
-/**
- * Get academic year (Tahun Pelajaran)
- */
 export const getAcademicYear = (): string => {
 	const now = new Date();
 	const year = now.getFullYear();
 	const month = now.getMonth() + 1;
 
-	// If before July, academic year is (year-1)/year
-	// If July or after, academic year is year/(year+1)
 	if (month < 7) {
 		return `${year - 1}/${year}`;
 	} else {
@@ -452,12 +367,7 @@ export const getAcademicYear = (): string => {
 	}
 };
 
-/**
- * Get semester based on current month
- */
 export const getCurrentSemester = (): "Ganjil" | "Genap" => {
 	const month = new Date().getMonth() + 1;
-	// Ganjil: July - December (7-12)
-	// Genap: January - June (1-6)
 	return month >= 7 ? "Ganjil" : "Genap";
 };

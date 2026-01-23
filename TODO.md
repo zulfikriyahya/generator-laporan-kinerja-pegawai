@@ -100,11 +100,11 @@
 
 - **ID Kelas**: [Auto generate]
 - **Nama Kelas**: [Contoh: VII-A, VIII-B, IX-C]
-- **Tingkat**: [7/8/9 untuk SMP, 10/11/12 untuk SMA]
-- **Jurusan**: [IPA/IPS/Bahasa] (untuk SMA)
+- **Tingkat**: [7/8/9 untuk SMP/MTs, 10/11/12 untuk SMA/SMK/MA]
+- **Jurusan**: [IPA/IPS/Bahasa] (untuk SMA/SMK/MA)
 - **Wali Kelas**: [Nama wali kelas]
 - **Jumlah Siswa**: [Isi jumlah]
-- **Tahun Pelajaran**: [Contoh: 2024/2025]
+- **Tahun Pelajaran**: [Contoh: 2025/2026]
 
 #### 2.3.4 Data Jadwal Pelajaran
 
@@ -122,7 +122,7 @@
 
 #### 2.3.5 Data Kalender Pendidikan
 
-- **Tahun Pelajaran**: [Contoh: 2024/2025]
+- **Tahun Pelajaran**: [Contoh: 2025/2026]
 - **Semester**: [Ganjil/Genap]
 - **Tanggal Mulai Semester**: [DD-MM-YYYY]
 - **Tanggal Akhir Semester**: [DD-MM-YYYY]
@@ -293,7 +293,7 @@
 
 1. **Google Gemini**
    - API Key: [Isi API key]
-   - Model: [gemini-pro/gemini-pro-vision]
+   - Model: [gemini-3-flash-preview/gemini-3-pro-preview]
    - Max Token: [Isi limit]
    - Temperature: [0.0-1.0]
    - Status: [Aktif/Nonaktif]
@@ -440,11 +440,11 @@
 
 ### 4.1 Frontend Framework
 
-- **Astro**: [v4.x.x]
+- **Astro**: [v5.x.x]
   - Static Site Generation
   - Partial Hydration
   - Component Islands
-- **React.js**: [v18.x.x]
+- **React.js**: [v19.x.x]
   - Komponen UI interaktif
   - State management
   - Hooks
@@ -455,7 +455,7 @@
 
 ### 4.2 Styling
 
-- **Tailwind CSS**: [v3.x.x]
+- **Tailwind CSS**: [v4.x.x]
   - Utility-first CSS
   - Responsive design
   - Custom configuration
@@ -544,32 +544,60 @@
 ### 5.1 Folder Structure
 
 ```
-generator-laporan-kinerja-pegawai/
-├── public/
-│   ├── icons/
-│   ├── images/
-│   └── manifest.json
-├── src/
-│   ├── components/
-│   │   ├── common/
-│   │   ├── forms/
-│   │   ├── layout/
-│   │   └── reports/
-│   ├── layouts/
-│   ├── pages/
-│   ├── styles/
-│   ├── utils/
-│   ├── services/
-│   │   ├── ai/
-│   │   ├── storage/
-│   │   └── pdf/
-│   └── types/
-├── templates/
-│   └── excel/
-├── docs/
-├── package.json
+.
 ├── astro.config.mjs
-├── tailwind.config.js
+├── package.json
+├── public
+│   ├── 192x192.png
+│   ├── 512x512.png
+│   └── favicon.svg
+├── src
+│   ├── components
+│   │   ├── common
+│   │   ├── forms
+│   │   │   ├── FormAkademik.astro
+│   │   │   ├── FormInstansi.astro
+│   │   │   ├── FormKinerja.astro
+│   │   │   ├── FormPegawai.astro
+│   │   │   ├── KopSuratConfig.astro
+│   │   │   ├── SelectGroup.astro
+│   │   │   └── TabNavigation.astro
+│   │   ├── HistoryPanel.astro
+│   │   ├── InputGroup.astro
+│   │   ├── layout
+│   │   ├── reports
+│   │   ├── TextAreaGroup.astro
+│   │   └── ui
+│   │   ├── AutoSaveIndicator.astro
+│   │   ├── DocumentStats.astro
+│   │   ├── KeyboardShortcuts.astro
+│   │   ├── ProgressBar.astro
+│   │   ├── Skeleton.astro
+│   │   ├── ToastContainer.astro
+│   │   └── ZoomControl.astro
+│   ├── config
+│   │   └── constants.ts
+│   ├── layouts
+│   │   └── Layout.astro
+│   ├── pages
+│   │   └── index.astro
+│   ├── services
+│   │   ├── aiService.ts
+│   │   ├── excelService.ts
+│   │   ├── exportService.ts
+│   │   ├── pdf
+│   │   ├── storage
+│   │   └── tteService.ts
+│   ├── stores
+│   │   ├── reportStore.ts
+│   │   └── toastStore.ts
+│   ├── styles
+│   │   └── global.css
+│   ├── types
+│   │   └── ReportTypes.ts
+│   └── utils
+│   ├── helpers.ts
+│   └── markdown.ts
 └── tsconfig.json
 ```
 
@@ -594,151 +622,3 @@ generator-laporan-kinerja-pegawai/
   - `OPENAI_API_KEY`
   - `GROQ_API_KEY`
   - `BASE_URL`
-
-### 6.2 Hosting Options
-
-1. **Vercel** [Recommended]
-2. **Netlify**
-3. **GitHub Pages**
-4. **Self-hosted Server**
-
-### 6.3 Domain
-
-- **Domain**: [Isi domain]
-- **SSL**: [Auto dengan hosting]
-- **CDN**: [Optional]
-
----
-
-## 7. TESTING & QUALITY ASSURANCE
-
-### 7.1 Testing Strategy
-
-- **Unit Testing**: [Vitest]
-- **Integration Testing**: [Playwright]
-- **E2E Testing**: [Cypress]
-- **Performance Testing**: [Lighthouse]
-
-### 7.2 Quality Metrics
-
-- **Performance Score**: > 90
-- **Accessibility Score**: > 95
-- **Best Practices**: > 90
-- **SEO Score**: > 90
-
----
-
-## 8. DOKUMENTASI
-
-### 8.1 User Documentation
-
-- User Guide (Bahasa Indonesia)
-- FAQ
-- Video Tutorial
-- Troubleshooting Guide
-
-### 8.2 Developer Documentation
-
-- API Documentation
-- Component Documentation
-- Code Style Guide
-- Contribution Guide
-
-### 8.3 Technical Documentation
-
-- System Architecture
-- Database Schema
-- API Endpoints
-- Deployment Guide
-
----
-
-## 9. ROADMAP & FUTURE FEATURES
-
-### 9.1 Phase 1 (MVP) - [Target Date]
-
-- ✅ Import Excel data master
-- ✅ Generate laporan dengan AI
-- ✅ Export PDF/DOCX
-- ✅ Local storage
-- ✅ PWA installable
-
-### 9.2 Phase 2 - [Target Date]
-
-- ⬜ Multi-user support
-- ⬜ Cloud backup
-- ⬜ Template customization
-- ⬜ Advanced analytics
-- ⬜ Mobile app (React Native)
-
-### 9.3 Phase 3 - [Target Date]
-
-- ⬜ Integration dengan SIMPEG
-- ⬜ Integration dengan E-Kinerja API
-- ⬜ Approval workflow
-- ⬜ Notifikasi real-time
-- ⬜ Dashboard analytics
-
----
-
-## 10. BUDGET & RESOURCES
-
-### 10.1 Cost Estimation
-
-- **AI API Costs**: [Estimasi per bulan]
-  - Gemini: $XX
-  - Claude: $XX
-  - GPT: $XX
-  - Groq: $XX
-- **Hosting**: $XX/bulan
-- **Domain**: $XX/tahun
-- **SSL Certificate**: Gratis (Let's Encrypt)
-- **Total Estimate**: $XX/bulan
-
-### 10.2 Time Estimation
-
-- **Planning & Design**: [X minggu]
-- **Development**: [X minggu]
-- **Testing**: [X minggu]
-- **Deployment**: [X hari]
-- **Documentation**: [X minggu]
-- **Total**: [X bulan]
-
----
-
-## 11. CONTACT & SUPPORT
-
-### 11.1 Developer Contact
-
-- **Name**: Yahya Zulfikri
-- **Role**: FullStack Developer
-- **Email**: [email]
-- **Phone**: +62 895-3518-56267
-- **GitHub**: https://github.com/zulfikriyahya
-- **LinkedIn**: [URL]
-
-### 11.2 Support Channels
-
-- **GitHub Issues**: [Repository URL]/issues
-- **Email Support**: [support email]
-- **Documentation**: [docs URL]
-- **Community**: [Discord/Telegram]
-
----
-
-## 12. CHANGELOG
-
-### Version 1.0.0 - [Date]
-
-- Initial release
-- Core features implementation
-- PWA support
-- Multi AI model integration
-
----
-
-## 13. LICENSE
-
-[MIT License / Proprietary License]
-
-Copyright (c) 2025 Yahya Zulfikri

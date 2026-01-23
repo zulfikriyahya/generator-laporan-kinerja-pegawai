@@ -53,10 +53,11 @@
 │   │   └── ReportTypes.ts
 │   └── utils
 │   ├── helpers.ts
-│   └── markdown.ts
+│   ├── markdown.ts
+│   └── validation.ts
 └── tsconfig.json
 
-19 directories, 36 files
+19 directories, 37 files
 
 # File Contents
 
@@ -117,6 +118,294 @@ const { title } = Astro.props;
 	</body>
 </html>
 
+```
+
+---
+
+## ./src/utils/validation.ts
+
+```typescript
+// ============================================================================
+// ENHANCED VALIDATION UTILITIES
+// Version: 1.0.0
+// ============================================================================
+
+export const ValidationRules = {
+	nip: {
+		length: 18,
+		regex: /^[0-9]{18}$/,
+		validate: (value: string): boolean => {
+			if (!value || value.length !== 18) return false;
+
+			// Validate format: YYYYMMDD-GENDER-REGION-SEQUENCE
+			const year = parseInt(value.substring(0, 4));
+			const month = parseInt(value.substring(4, 6));
+			const day = parseInt(value.substring(6, 8));
+
+			if (year < 1900 || year > new Date().getFullYear()) return false;
+			if (month < 1 || month > 12) return false;
+			if (day < 1 || day > 31) return false;
+
+			return true;
+		},
+		message: "NIP harus 18 digit dengan format yang valid",
+	},
+
+	nuptk: {
+		length: 16,
+		regex: /^[0-9]{16}$/,
+		validate: (value: string): boolean => {
+			return value.length === 16 && /^[0-9]{16}$/.test(value);
+		},
+		message: "NUPTK harus 16 digit angka",
+	},
+
+	nik: {
+		length: 16,
+		regex: /^[0-9]{16}$/,
+		validate: (value: string): boolean => {
+			if (!value || value.length !== 16) return false;
+
+			// Validate province code
+			const provinceCode = parseInt(value.substring(0, 2));
+			if (provinceCode < 11 || provinceCode > 94) return false;
+
+			// Validate date
+			const day = parseInt(value.substring(6, 8));
+			const month = parseInt(value.substring(8, 10));
+			const year = parseInt(value.substring(10, 12));
+
+			// Adjust day for female (add 40)
+			const actualDay = day > 40 ? day - 40 : day;
+
+			if (actualDay < 1 || actualDay > 31) return false;
+			if (month < 1 || month > 12) return false;
+
+			return true;
+		},
+		message: "NIK harus 16 digit dengan format yang valid",
+	},
+
+	email: {
+		regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+		validate: (value: string): boolean => {
+			if (!value) return true; // Email optional
+			return ValidationRules.email.regex.test(value);
+		},
+		message: "Format email tidak valid",
+	},
+
+	phone: {
+		regex: /^(\+62|62|0)[0-9]{9,12}$/,
+		validate: (value: string): boolean => {
+			if (!value) return true; // Phone optional
+			const cleaned = value.replace(/[\s-()]/g, "");
+			return ValidationRules.phone.regex.test(cleaned);
+		},
+		message:
+			"Nomor telepon tidak valid (format: 08xxxxxxxxxx atau +628xxxxxxxxxx)",
+	},
+
+	required: {
+		validate: (value: string): boolean => {
+			return !!value && value.trim().length > 0;
+		},
+		message: "Field ini wajib diisi",
+	},
+
+	minLength: (min: number) => ({
+		validate: (value: string): boolean => {
+			return value.length >= min;
+		},
+		message: `Minimal ${min} karakter`,
+	}),
+
+	maxLength: (max: number) => ({
+		validate: (value: string): boolean => {
+			return value.length <= max;
+		},
+		message: `Maksimal ${max} karakter`,
+	}),
+
+	numeric: {
+		regex: /^[0-9]+$/,
+		validate: (value: string): boolean => {
+			return /^[0-9]+$/.test(value);
+		},
+		message: "Harus berupa angka",
+	},
+
+	alphanumeric: {
+		regex: /^[a-zA-Z0-9]+$/,
+		validate: (value: string): boolean => {
+			return /^[a-zA-Z0-9]+$/.test(value);
+		},
+		message: "Hanya boleh huruf dan angka",
+	},
+};
+
+export type ValidationRule = keyof typeof ValidationRules;
+
+export interface ValidationError {
+	field: string;
+	message: string;
+}
+
+export interface ValidationResult {
+	valid: boolean;
+	errors: ValidationError[];
+}
+
+export const validateField = (
+	field: ValidationRule,
+	value: string,
+): { valid: boolean; message?: string } => {
+	const rule = ValidationRules[field];
+
+	if (!rule) {
+		return { valid: true };
+	}
+
+	const isValid = rule.validate(value);
+
+	return {
+		valid: isValid,
+		message: isValid ? undefined : rule.message,
+	};
+};
+
+export const validateMultipleFields = (
+	fields: Array<{ name: string; value: string; rules: ValidationRule[] }>,
+): ValidationResult => {
+	const errors: ValidationError[] = [];
+
+	for (const field of fields) {
+		for (const rule of field.rules) {
+			const result = validateField(rule, field.value);
+			if (!result.valid) {
+				errors.push({
+					field: field.name,
+					message: result.message || "Validasi gagal",
+				});
+			}
+		}
+	}
+
+	return {
+		valid: errors.length === 0,
+		errors,
+	};
+};
+
+// Real-time validation composable
+export const useFieldValidation = (field: ValidationRule) => {
+	return {
+		validate: (value: string) => validateField(field, value),
+		regex: ValidationRules[field].regex,
+		message: ValidationRules[field].message,
+	};
+};
+
+// Batch validation for form
+export const validateForm = (
+	data: Record<string, any>,
+	schema: Record<string, ValidationRule[]>,
+): ValidationResult => {
+	const errors: ValidationError[] = [];
+
+	for (const [fieldName, rules] of Object.entries(schema)) {
+		const value = String(data[fieldName] || "");
+
+		for (const rule of rules) {
+			const result = validateField(rule, value);
+			if (!result.valid) {
+				errors.push({
+					field: fieldName,
+					message: result.message || "Validasi gagal",
+				});
+				break; // Stop at first error for this field
+			}
+		}
+	}
+
+	return {
+		valid: errors.length === 0,
+		errors,
+	};
+};
+
+// Custom validators
+export const customValidators = {
+	dateFormat: (format: string = "YYYY-MM-DD") => ({
+		validate: (value: string): boolean => {
+			if (!value) return true;
+			const regex = /^\d{4}-\d{2}-\d{2}$/;
+			if (!regex.test(value)) return false;
+
+			const [year, month, day] = value.split("-").map(Number);
+			const date = new Date(year, month - 1, day);
+
+			return (
+				date.getFullYear() === year &&
+				date.getMonth() === month - 1 &&
+				date.getDate() === day
+			);
+		},
+		message: `Format tanggal harus ${format}`,
+	}),
+
+	fileSize: (maxSizeKB: number) => ({
+		validate: (file: File): boolean => {
+			return file.size <= maxSizeKB * 1024;
+		},
+		message: `Ukuran file maksimal ${maxSizeKB}KB`,
+	}),
+
+	fileType: (allowedTypes: string[]) => ({
+		validate: (file: File): boolean => {
+			return allowedTypes.includes(file.type);
+		},
+		message: `Tipe file harus salah satu dari: ${allowedTypes.join(", ")}`,
+	}),
+
+	numberRange: (min: number, max: number) => ({
+		validate: (value: string): boolean => {
+			const num = parseFloat(value);
+			return !isNaN(num) && num >= min && num <= max;
+		},
+		message: `Nilai harus antara ${min} dan ${max}`,
+	}),
+
+	match: (otherField: string, otherValue: string) => ({
+		validate: (value: string): boolean => {
+			return value === otherValue;
+		},
+		message: `Harus sama dengan ${otherField}`,
+	}),
+
+	url: {
+		validate: (value: string): boolean => {
+			if (!value) return true;
+			try {
+				new URL(value);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+		message: "Format URL tidak valid",
+	},
+};
+
+// Export all
+export default {
+	ValidationRules,
+	validateField,
+	validateMultipleFields,
+	validateForm,
+	useFieldValidation,
+	customValidators,
+};
 ```
 
 ---
@@ -772,22 +1061,443 @@ export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]> => {
 
 ## ./src/utils/markdown.ts
 
-```typescript
+````typescript
+// ============================================================================
+// ENHANCED MARKDOWN PARSER
+// Version: 1.0.0
+// ============================================================================
+
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+marked.setOptions({
+	gfm: true, // GitHub Flavored Markdown
+	breaks: true, // Convert \n to <br>
+	headerIds: true,
+	mangle: false,
+	pedantic: false,
+});
+
+// ============================================================================
+// CUSTOM RENDERER
+// ============================================================================
+
+const renderer = new marked.Renderer();
+
+/**
+ * Enhanced table renderer dengan styling yang lebih baik
+ */
+renderer.table = (header: string, body: string): string => {
+	return `
+    <div class="table-wrapper overflow-x-auto my-6 shadow-sm">
+      <table class="report-table min-w-full border-collapse border border-slate-300">
+        <thead class="bg-slate-100">${header}</thead>
+        <tbody class="bg-white">${body}</tbody>
+      </table>
+    </div>
+  `;
+};
+
+/**
+ * Enhanced table header cell renderer
+ */
+renderer.tablecell = (
+	content: string,
+	flags: {
+		header: boolean;
+		align: "center" | "left" | "right" | null;
+	},
+): string => {
+	const type = flags.header ? "th" : "td";
+	const align = flags.align ? ` style="text-align: ${flags.align}"` : "";
+	const classes = flags.header
+		? "px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border border-slate-300"
+		: "px-4 py-3 text-sm text-slate-900 border border-slate-300";
+
+	return `<${type}${align} class="${classes}">${content}</${type}>`;
+};
+
+/**
+ * Enhanced heading renderer dengan anchor links dan proper hierarchy
+ */
+renderer.heading = (text: string, level: number): string => {
+	const escapedText = text.toLowerCase().replace(/[^\w]+/g, "-");
+
+	const sizeClasses = {
+		1: "text-2xl font-bold mb-6 mt-8 pb-2 border-b-2 border-slate-200",
+		2: "text-xl font-bold mb-4 mt-6",
+		3: "text-lg font-semibold mb-3 mt-5",
+		4: "text-base font-semibold mb-2 mt-4",
+		5: "text-sm font-semibold mb-2 mt-3",
+		6: "text-sm font-semibold mb-2 mt-2",
+	};
+
+	const sizeClass = sizeClasses[level as keyof typeof sizeClasses] || "";
+
+	return `
+    <h${level} id="${escapedText}" class="heading-${level} ${sizeClass} group relative">
+      ${text}
+      <a href="#${escapedText}" class="anchor-link opacity-0 group-hover:opacity-100 ml-2 text-blue-500 transition-opacity">#</a>
+    </h${level}>
+  `;
+};
+
+/**
+ * Enhanced list renderer
+ */
+renderer.list = (body: string, ordered: boolean, start: number): string => {
+	const type = ordered ? "ol" : "ul";
+	const startAttr = ordered && start !== 1 ? ` start="${start}"` : "";
+	const listStyle = ordered ? "list-decimal" : "list-disc";
+
+	return `<${type}${startAttr} class="${listStyle} ml-6 my-4 space-y-2">${body}</${type}>`;
+};
+
+/**
+ * Enhanced list item renderer
+ */
+renderer.listitem = (text: string): string => {
+	return `<li class="text-sm leading-relaxed">${text}</li>`;
+};
+
+/**
+ * Enhanced blockquote renderer
+ */
+renderer.blockquote = (quote: string): string => {
+	return `
+    <blockquote class="border-l-4 border-blue-500 pl-4 py-2 my-4 italic text-slate-600 bg-blue-50 rounded-r">
+      ${quote}
+    </blockquote>
+  `;
+};
+
+/**
+ * Enhanced code block renderer dengan syntax highlighting support
+ */
+renderer.code = (code: string, language: string | undefined): string => {
+	const lang = language || "text";
+	const escapedCode = escapeHtml(code);
+
+	return `
+    <div class="code-block my-4">
+      <div class="code-header bg-slate-800 text-slate-300 px-4 py-2 rounded-t text-xs font-mono">
+        ${lang}
+      </div>
+      <pre class="bg-slate-900 text-slate-100 rounded-b p-4 overflow-x-auto"><code class="language-${lang}">${escapedCode}</code></pre>
+    </div>
+  `;
+};
+
+/**
+ * Enhanced inline code renderer
+ */
+renderer.codespan = (code: string): string => {
+	return `<code class="bg-slate-100 text-red-600 px-2 py-1 rounded text-sm font-mono">${code}</code>`;
+};
+
+/**
+ * Enhanced paragraph renderer
+ */
+renderer.paragraph = (text: string): string => {
+	return `<p class="mb-4 text-sm leading-relaxed text-justify">${text}</p>`;
+};
+
+/**
+ * Enhanced link renderer dengan security
+ */
+renderer.link = (href: string, title: string | null, text: string): string => {
+	const titleAttr = title ? ` title="${title}"` : "";
+	const isExternal = href.startsWith("http");
+	const externalAttrs = isExternal
+		? ' target="_blank" rel="noopener noreferrer"'
+		: "";
+
+	return `<a href="${href}"${titleAttr}${externalAttrs} class="text-blue-600 hover:text-blue-800 underline">${text}</a>`;
+};
+
+/**
+ * Enhanced image renderer dengan lazy loading
+ */
+renderer.image = (href: string, title: string | null, text: string): string => {
+	const titleAttr = title ? ` title="${title}"` : "";
+	const altAttr = text ? ` alt="${text}"` : "";
+
+	return `
+    <figure class="my-6">
+      <img src="${href}"${altAttr}${titleAttr} loading="lazy" class="max-w-full h-auto rounded shadow-lg" />
+      ${title ? `<figcaption class="text-center text-sm text-slate-600 mt-2 italic">${title}</figcaption>` : ""}
+    </figure>
+  `;
+};
+
+/**
+ * Enhanced strong (bold) renderer
+ */
+renderer.strong = (text: string): string => {
+	return `<strong class="font-bold text-slate-900">${text}</strong>`;
+};
+
+/**
+ * Enhanced emphasis (italic) renderer
+ */
+renderer.em = (text: string): string => {
+	return `<em class="italic">${text}</em>`;
+};
+
+/**
+ * Enhanced horizontal rule renderer
+ */
+renderer.hr = (): string => {
+	return `<hr class="my-8 border-t-2 border-slate-200" />`;
+};
+
+// Apply custom renderer
+marked.use({ renderer });
+
+// ============================================================================
+// MAIN PARSER FUNCTION
+// ============================================================================
+
+/**
+ * Parse markdown to HTML with enhanced rendering and sanitization
+ */
 export const parseMarkdown = async (text: string): Promise<string> => {
 	if (!text) return "";
 
-	// Pastikan GFM aktif untuk tabel
-	const html = await marked.parse(text, {
-		async: true,
-		gfm: true,
-		breaks: true,
-	});
-	return DOMPurify.sanitize(html);
+	try {
+		// Parse markdown
+		const html = await marked.parse(text, { async: true });
+
+		// Sanitize with comprehensive config
+		const sanitized = DOMPurify.sanitize(html, {
+			ALLOWED_TAGS: [
+				// Headings
+				"h1",
+				"h2",
+				"h3",
+				"h4",
+				"h5",
+				"h6",
+				// Text formatting
+				"p",
+				"br",
+				"strong",
+				"em",
+				"u",
+				"s",
+				"del",
+				"ins",
+				"mark",
+				"small",
+				"sub",
+				"sup",
+				// Lists
+				"ul",
+				"ol",
+				"li",
+				// Tables
+				"table",
+				"thead",
+				"tbody",
+				"tfoot",
+				"tr",
+				"th",
+				"td",
+				"caption",
+				// Quotes and code
+				"blockquote",
+				"code",
+				"pre",
+				// Links and media
+				"a",
+				"img",
+				"figure",
+				"figcaption",
+				// Structure
+				"div",
+				"span",
+				"hr",
+				// Semantic
+				"article",
+				"section",
+				"aside",
+				"nav",
+			],
+			ALLOWED_ATTR: [
+				"href",
+				"src",
+				"alt",
+				"title",
+				"class",
+				"id",
+				"target",
+				"rel",
+				"colspan",
+				"rowspan",
+				"start",
+				"type",
+				"loading",
+				"style", // Limited style for alignment
+			],
+			ALLOWED_STYLES: {
+				"*": {
+					"text-align": [/^(left|right|center|justify)$/],
+				},
+			},
+			ALLOW_DATA_ATTR: false,
+			ADD_ATTR: ["target", "rel"], // For external links
+		});
+
+		return sanitized;
+	} catch (error) {
+		console.error("[Markdown Parser] Parsing error:", error);
+		return `<div class="p-4 bg-red-50 border border-red-200 rounded text-red-700">
+      <strong>Error:</strong> Gagal memproses konten markdown.
+    </div>`;
+	}
 };
-```
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Escape HTML special characters
+ */
+const escapeHtml = (unsafe: string): string => {
+	return unsafe
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+};
+
+/**
+ * Strip markdown from text (get plain text)
+ */
+export const stripMarkdown = (markdown: string): string => {
+	return (
+		markdown
+			// Remove code blocks
+			.replace(/```[\s\S]*?```/g, "")
+			// Remove inline code
+			.replace(/`([^`]+)`/g, "$1")
+			// Remove images
+			.replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+			// Remove links
+			.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+			// Remove headers
+			.replace(/^#{1,6}\s+/gm, "")
+			// Remove bold
+			.replace(/\*\*([^*]+)\*\*/g, "$1")
+			.replace(/__([^_]+)__/g, "$1")
+			// Remove italic
+			.replace(/\*([^*]+)\*/g, "$1")
+			.replace(/_([^_]+)_/g, "$1")
+			// Remove strikethrough
+			.replace(/~~([^~]+)~~/g, "$1")
+			// Remove horizontal rules
+			.replace(/^[-*_]{3,}$/gm, "")
+			// Remove blockquotes
+			.replace(/^\s*>\s+/gm, "")
+			// Clean up multiple spaces
+			.replace(/\s+/g, " ")
+			.trim()
+	);
+};
+
+/**
+ * Get word count from markdown
+ */
+export const getWordCount = (markdown: string): number => {
+	const plain = stripMarkdown(markdown);
+	const words = plain.split(/\s+/).filter((word) => word.length > 0);
+	return words.length;
+};
+
+/**
+ * Get reading time estimate (average 200 words per minute)
+ */
+export const getReadingTime = (markdown: string): string => {
+	const wordCount = getWordCount(markdown);
+	const minutes = Math.ceil(wordCount / 200);
+	return minutes === 0 ? "< 1 menit" : `${minutes} menit`;
+};
+
+/**
+ * Get table of contents from markdown
+ */
+export const getTableOfContents = (
+	markdown: string,
+): Array<{ level: number; text: string; id: string }> => {
+	const headings: Array<{ level: number; text: string; id: string }> = [];
+	const lines = markdown.split("\n");
+
+	for (const line of lines) {
+		const match = line.match(/^(#{1,6})\s+(.+)$/);
+		if (match) {
+			const level = match[1].length;
+			const text = match[2].trim();
+			const id = text.toLowerCase().replace(/[^\w]+/g, "-");
+
+			headings.push({ level, text, id });
+		}
+	}
+
+	return headings;
+};
+
+/**
+ * Validate markdown structure
+ */
+export const validateMarkdown = (
+	markdown: string,
+): { valid: boolean; warnings: string[] } => {
+	const warnings: string[] = [];
+
+	// Check for unclosed code blocks
+	const codeBlockCount = (markdown.match(/```/g) || []).length;
+	if (codeBlockCount % 2 !== 0) {
+		warnings.push("Ditemukan code block yang tidak ditutup");
+	}
+
+	// Check for unclosed links
+	const openBrackets = (markdown.match(/\[/g) || []).length;
+	const closeBrackets = (markdown.match(/\]/g) || []).length;
+	if (openBrackets !== closeBrackets) {
+		warnings.push("Ditemukan link yang tidak lengkap");
+	}
+
+	// Check for empty headers
+	const emptyHeaders = markdown.match(/^#{1,6}\s*$/gm);
+	if (emptyHeaders && emptyHeaders.length > 0) {
+		warnings.push("Ditemukan heading kosong");
+	}
+
+	return {
+		valid: warnings.length === 0,
+		warnings,
+	};
+};
+
+// ============================================================================
+// EXPORT
+// ============================================================================
+
+export default {
+	parseMarkdown,
+	stripMarkdown,
+	getWordCount,
+	getReadingTime,
+	getTableOfContents,
+	validateMarkdown,
+};
+````
 
 ---
 
@@ -1360,7 +2070,21 @@ export const addToast = (message: string, type: ToastType = "info") => {
 ## ./src/types/ReportTypes.ts
 
 ```typescript
-// src/types/ReportTypes.ts
+// ============================================================================
+// GENERATOR LAPORAN KINERJA PEGAWAI - TYPE DEFINITIONS
+// Version: 1.0.0
+// ============================================================================
+
+// ============================================================================
+// CORE DATA TYPES
+// ============================================================================
+
+export interface Pejabat {
+	nama: string;
+	nip: string;
+	pangkat: string;
+	ttd: string; // Base64 signature
+}
 
 export interface InstansiData {
 	// 2.1 Identitas Instansi
@@ -1379,20 +2103,13 @@ export interface InstansiData {
 	titimangsa: string; // Tempat surat
 }
 
-export interface Pejabat {
-	nama: string;
-	nip: string;
-	pangkat: string;
-	ttd: string; // Base64 signature
-}
-
 export interface PegawaiData {
 	// 2.2 Identitas Pegawai
 	nama: string;
 	nip: string;
 	nuptk: string;
 	nik: string;
-	jenis: "PNS" | "PPPK" | "Honorer" | "GTT" | "PTT";
+	jenis: "PNS" | "PPPK" | "Honorer" | "GTT" | "PTT" | "Guru";
 	status: "Aktif" | "Cuti" | "Tugas Belajar";
 	golongan: string;
 	jabatan: string;
@@ -1403,6 +2120,7 @@ export interface PegawaiData {
 	alamat: string;
 	hp: string;
 	email: string;
+	fotoPegawai: string; // Base64
 	pendidikan: string; // S1/S2 Jurusan
 	masaKerjaTahun: string;
 	masaKerjaBulan: string;
@@ -1435,18 +2153,31 @@ export interface ConfigData {
 	// 2.6 Integrasi AI & System
 	bulan: string;
 	tahun: string;
-	modelAI: "gemini" | "claude" | "gpt" | "groq";
+	modelAI: AIModel;
 	tokenLimit: number;
 	customInstruction: string;
 }
 
+export interface TTEData {
+	qrCode: string; // Base64
+	nomorDokumen: string;
+	hashDokumen: string;
+	timestamp: string;
+	statusValidasi: "Valid" | "Invalid" | "Expired";
+}
+
+export interface TitimangsaData {
+	tempat: string;
+	tanggal: string;
+	bahasa: "Indonesia" | "Inggris";
+}
+
 export interface OutputData {
 	// 2.5 Dokumen Output
-	nomorDokumen: string;
-	tanggalGenerate: string;
+	titimangsa: TitimangsaData;
+	tte: TTEData;
 	content: string; // Markdown result
-	qrCode: string; // Base64
-	hash: string;
+	lastUpdated: string;
 }
 
 export interface AppStore {
@@ -1456,6 +2187,145 @@ export interface AppStore {
 	kinerja: KinerjaData;
 	config: ConfigData;
 	output: OutputData;
+}
+
+// ============================================================================
+// HISTORY TYPES
+// ============================================================================
+
+export interface HistoryItem {
+	id: string;
+	title: string;
+	date: string; // ISO format
+	data: AppStore;
+}
+
+export interface HistoryStore {
+	items: HistoryItem[];
+}
+
+// ============================================================================
+// AI SERVICE TYPES
+// ============================================================================
+
+export type AIModel = "gemini" | "claude" | "gpt" | "groq";
+
+export interface GenerateAIResult {
+	success: boolean;
+	content?: string;
+	tokensUsed?: number;
+	error?: string;
+}
+
+export interface AIModelConfig {
+	model: string;
+	maxTokens: number;
+	temperature: number;
+}
+
+// ============================================================================
+// VALIDATION TYPES
+// ============================================================================
+
+export interface ValidationError {
+	field: string;
+	message: string;
+}
+
+export interface ValidationResult {
+	valid: boolean;
+	errors: ValidationError[];
+}
+
+// ============================================================================
+// EXCEL SERVICE TYPES
+// ============================================================================
+
+export interface ImportExcelResult {
+	success: boolean;
+	data?: AppStore;
+	errors?: ValidationError[];
+}
+
+export interface ExcelTemplateConfig {
+	sheets: string[];
+	headers: Record<string, string[]>;
+	validation: Record<string, any>;
+}
+
+// ============================================================================
+// EXPORT SERVICE TYPES
+// ============================================================================
+
+export interface ExportResult {
+	success: boolean;
+	file?: Blob;
+	error?: string;
+}
+
+export interface ExportOptions {
+	format: "pdf" | "docx" | "xlsx";
+	filename?: string;
+	metadata?: Record<string, any>;
+}
+
+// ============================================================================
+// UI STATE TYPES
+// ============================================================================
+
+export interface Tab {
+	id: string;
+	label: string;
+	icon?: string;
+}
+
+export interface Toast {
+	id: number;
+	message: string;
+	type: "success" | "error" | "info" | "warning";
+	duration?: number;
+}
+
+export interface LoadingState {
+	isLoading: boolean;
+	message?: string;
+	progress?: number;
+}
+
+// ============================================================================
+// UTILITY TYPES
+// ============================================================================
+
+export type DeepPartial<T> = {
+	[P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+export type Nullable<T> = T | null;
+
+export type Optional<T> = T | undefined;
+
+export type AsyncResult<T> = Promise<{
+	success: boolean;
+	data?: T;
+	error?: string;
+}>;
+
+// ============================================================================
+// API RESPONSE TYPES
+// ============================================================================
+
+export interface APIResponse<T = any> {
+	success: boolean;
+	data?: T;
+	error?: {
+		code: string;
+		message: string;
+		details?: any;
+	};
+	meta?: {
+		timestamp: string;
+		version: string;
+	};
 }
 ```
 
@@ -2241,7 +3111,20 @@ import SelectGroup from "./SelectGroup.astro";
 	/>
 
 	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="NIP (18 Digit)" name="nip" model="form.pegawai.nip" />
+		<InputGroup
+			label="NIP"
+			name="nip"
+			model="form.pegawai.nip"
+			@blur="validateNIP"
+		/>
+		<script>
+			function validateNIP() {
+				const result = validateField("nip", form.pegawai.nip);
+				if (!result.valid) {
+					showError(result.message);
+				}
+			}
+		</script>
 		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
 	</div>
 
@@ -6543,7 +7426,7 @@ import {
 ## ./.env
 
 ```env
-PUBLIC_GEMINI_API_KEY=AIzaSyASLmPGOUUbUTRmzalKYb5RF5B55-lI5wg
+PUBLIC_GEMINI_API_KEY=
 PUBLIC_CLAUDE_API_KEY=sk-ant...
 PUBLIC_OPENAI_API_KEY=sk-...
 PUBLIC_GROQ_API_KEY=gsk_...

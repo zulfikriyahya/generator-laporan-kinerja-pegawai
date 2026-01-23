@@ -7,56 +7,53 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AppStore, AIModel, GenerateAIResult } from "../types/ReportTypes";
 import {
-  reportStore,
-  updateStore,
-  generateNomorDokumen,
+	reportStore,
+	updateStore,
+	generateNomorDokumen,
 } from "../stores/reportStore";
 
 // ============================================================================
 // API KEYS CONFIGURATION
 // ============================================================================
 const API_KEYS = {
-  gemini: import.meta.env.PUBLIC_GEMINI_API_KEY || "",
-  claude: import.meta.env.PUBLIC_CLAUDE_API_KEY || "",
-  gpt: import.meta.env.PUBLIC_OPENAI_API_KEY || "",
-  groq: import.meta.env.PUBLIC_GROQ_API_KEY || "",
+	gemini: import.meta.env.PUBLIC_GEMINI_API_KEY || "",
+	claude: import.meta.env.PUBLIC_CLAUDE_API_KEY || "",
+	gpt: import.meta.env.PUBLIC_OPENAI_API_KEY || "",
+	groq: import.meta.env.PUBLIC_GROQ_API_KEY || "",
 };
 
 // ============================================================================
 // MODEL CONFIGURATIONS
 // ============================================================================
 const MODEL_CONFIGS = {
-  gemini: {
-    model: "gemini-3-flash-preview",
-    maxTokens: 8000,
-    temperature: 0.7,
-  },
-  claude: {
-    model: "claude-sonnet-4-20250514",
-    maxTokens: 4000,
-    temperature: 0.7,
-  },
-  gpt: {
-    model: "gpt-4-turbo-preview",
-    maxTokens: 4000,
-    temperature: 0.7,
-  },
-  groq: {
-    model: "mixtral-8x7b-32768",
-    maxTokens: 4000,
-    temperature: 0.7,
-  },
+	gemini: {
+		model: "gemini-3-flash-preview",
+		maxTokens: 8000,
+		temperature: 0.7,
+	},
+	claude: {
+		model: "claude-sonnet-4-20250514",
+		maxTokens: 4000,
+		temperature: 0.7,
+	},
+	gpt: {
+		model: "gpt-4-turbo-preview",
+		maxTokens: 4000,
+		temperature: 0.7,
+	},
+	groq: {
+		model: "mixtral-8x7b-32768",
+		maxTokens: 4000,
+		temperature: 0.7,
+	},
 };
 
 // ============================================================================
 // PROMPT BUILDER
 // ============================================================================
 
-/**
- * Build System Prompt - Mendefinisikan role dan perilaku AI
- */
 const buildSystemPrompt = (): string => {
-  return `ROLE: Anda adalah Asisten Administrasi ASN (Aparatur Sipil Negara) Profesional yang ahli dalam menyusun dokumen laporan kinerja pegawai di lingkungan instansi pemerintah Indonesia.
+	return `ROLE: Anda adalah Asisten Administrasi ASN (Aparatur Sipil Negara) Profesional yang ahli dalam menyusun dokumen laporan kinerja pegawai di lingkungan instansi pemerintah Indonesia.
 
 EXPERTISE:
 - Menguasai format dan struktur laporan kinerja pegawai ASN
@@ -77,22 +74,17 @@ OUTPUT STANDARDS:
 - Length: Sesuai kebutuhan, tidak bertele-tele namun lengkap`;
 };
 
-/**
- * Build User Prompt - Konteks spesifik untuk generate laporan
- */
 const buildUserPrompt = (store: AppStore): string => {
-  const { pegawai, akademik, kinerja, config, instansi } = store;
+	const { pegawai, akademik, kinerja, config, instansi } = store;
 
-  // Nama bulan dalam Bahasa Indonesia
-  const namaBulan = new Date(
-    parseInt(config.tahun),
-    parseInt(config.bulan) - 1,
-  ).toLocaleString("id-ID", { month: "long" });
+	const namaBulan = new Date(
+		parseInt(config.tahun),
+		parseInt(config.bulan) - 1,
+	).toLocaleString("id-ID", { month: "long" });
 
-  // Build konteks akademik (jika pegawai adalah guru)
-  let konteksAkademik = "";
-  if (pegawai.jenis === "Guru" || pegawai.jenis === "GTT") {
-    konteksAkademik = `
+	let konteksAkademik = "";
+	if (pegawai.jenis === "Guru" || pegawai.jenis === "GTT") {
+		konteksAkademik = `
 
 KONTEKS PEMBELAJARAN:
 - Mata Pelajaran: ${akademik.mapel}
@@ -103,9 +95,9 @@ KONTEKS PEMBELAJARAN:
 - Ekstrakurikuler: ${akademik.ekskul || "Tidak ada"}
 - Tahun Pelajaran: ${akademik.tahunPelajaran}
 - Semester: ${akademik.semester}`;
-  }
+	}
 
-  const prompt = `TASK: Buat ISI LAPORAN KINERJA BULANAN (Tanpa Kop Surat dan Tanda Tangan)
+	const prompt = `TASK: Buat ISI LAPORAN KINERJA BULANAN (Tanpa Kop Surat dan Tanda Tangan)
 
 ===========================================
 DATA PEGAWAI
@@ -259,328 +251,303 @@ Pastikan output Anda memenuhi kriteria:
 
 MULAI GENERATE SEKARANG!`;
 
-  return prompt;
+	return prompt;
 };
 
 // ============================================================================
 // AI MODEL GENERATORS
 // ============================================================================
 
-/**
- * Generate dengan Google Gemini
- */
 const generateWithGemini = async (
-  systemPrompt: string,
-  userPrompt: string,
+	systemPrompt: string,
+	userPrompt: string,
 ): Promise<GenerateAIResult> => {
-  const apiKey = API_KEYS.gemini;
-  if (!apiKey) {
-    return {
-      success: false,
-      error: "API Key Gemini tidak ditemukan. Silakan cek file .env",
-    };
-  }
+	const apiKey = API_KEYS.gemini;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key Gemini tidak ditemukan. Silakan cek file .env",
+		};
+	}
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const config = MODEL_CONFIGS.gemini;
-    const model = genAI.getGenerativeModel({
-      model: config.model,
-      systemInstruction: systemPrompt,
-    });
+	try {
+		const genAI = new GoogleGenerativeAI(apiKey);
+		const config = MODEL_CONFIGS.gemini;
+		const model = genAI.getGenerativeModel({
+			model: config.model,
+			systemInstruction: systemPrompt,
+		});
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-      generationConfig: {
-        temperature: config.temperature,
-        maxOutputTokens: config.maxTokens,
-      },
-    });
+		const result = await model.generateContent({
+			contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+			generationConfig: {
+				temperature: config.temperature,
+				maxOutputTokens: config.maxTokens,
+			},
+		});
 
-    const response = result.response;
-    let text = response.text();
+		const response = result.response;
+		let text = response.text();
 
-    // Clean markdown code blocks
-    text = text
-      .replace(/^```markdown\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
+		text = text
+			.replace(/^```markdown\s*/i, "")
+			.replace(/^```\s*/i, "")
+			.replace(/```\s*$/i, "")
+			.trim();
 
-    return {
-      success: true,
-      content: text,
-      tokensUsed: response.usageMetadata?.totalTokenCount || 0,
-    };
-  } catch (error: any) {
-    console.error("Gemini Error:", error);
-    return {
-      success: false,
-      error: error.message || "Gagal menghubungi Gemini API",
-    };
-  }
+		return {
+			success: true,
+			content: text,
+			tokensUsed: response.usageMetadata?.totalTokenCount || 0,
+		};
+	} catch (error: any) {
+		console.error("Gemini Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi Gemini API",
+		};
+	}
 };
 
-/**
- * Generate dengan Anthropic Claude
- */
 const generateWithClaude = async (
-  systemPrompt: string,
-  userPrompt: string,
+	systemPrompt: string,
+	userPrompt: string,
 ): Promise<GenerateAIResult> => {
-  const apiKey = API_KEYS.claude;
-  if (!apiKey) {
-    return {
-      success: false,
-      error: "API Key Claude tidak ditemukan. Silakan cek file .env",
-    };
-  }
+	const apiKey = API_KEYS.claude;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key Claude tidak ditemukan. Silakan cek file .env",
+		};
+	}
 
-  try {
-    const config = MODEL_CONFIGS.claude;
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: config.model,
-        max_tokens: config.maxTokens,
-        temperature: config.temperature,
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: userPrompt,
-          },
-        ],
-      }),
-    });
+	try {
+		const config = MODEL_CONFIGS.claude;
+		const response = await fetch("https://api.anthropic.com/v1/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": apiKey,
+				"anthropic-version": "2023-06-01",
+			},
+			body: JSON.stringify({
+				model: config.model,
+				max_tokens: config.maxTokens,
+				temperature: config.temperature,
+				system: systemPrompt,
+				messages: [
+					{
+						role: "user",
+						content: userPrompt,
+					},
+				],
+			}),
+		});
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Claude API request failed");
-    }
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error?.message || "Claude API request failed");
+		}
 
-    const data = await response.json();
-    const text = data.content[0].text;
+		const data = await response.json();
+		const text = data.content[0].text;
 
-    return {
-      success: true,
-      content: text,
-      tokensUsed: data.usage.input_tokens + data.usage.output_tokens,
-    };
-  } catch (error: any) {
-    console.error("Claude Error:", error);
-    return {
-      success: false,
-      error: error.message || "Gagal menghubungi Claude API",
-    };
-  }
+		return {
+			success: true,
+			content: text,
+			tokensUsed: data.usage.input_tokens + data.usage.output_tokens,
+		};
+	} catch (error: any) {
+		console.error("Claude Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi Claude API",
+		};
+	}
 };
 
-/**
- * Generate dengan OpenAI GPT
- */
 const generateWithGPT = async (
-  systemPrompt: string,
-  userPrompt: string,
+	systemPrompt: string,
+	userPrompt: string,
 ): Promise<GenerateAIResult> => {
-  const apiKey = API_KEYS.gpt;
-  if (!apiKey) {
-    return {
-      success: false,
-      error: "API Key OpenAI tidak ditemukan. Silakan cek file .env",
-    };
-  }
+	const apiKey = API_KEYS.gpt;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key OpenAI tidak ditemukan. Silakan cek file .env",
+		};
+	}
 
-  try {
-    const config = MODEL_CONFIGS.gpt;
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: config.model,
-        max_tokens: config.maxTokens,
-        temperature: config.temperature,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+	try {
+		const config = MODEL_CONFIGS.gpt;
+		const response = await fetch("https://api.openai.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${apiKey}`,
+			},
+			body: JSON.stringify({
+				model: config.model,
+				max_tokens: config.maxTokens,
+				temperature: config.temperature,
+				messages: [
+					{ role: "system", content: systemPrompt },
+					{ role: "user", content: userPrompt },
+				],
+			}),
+		});
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "OpenAI API request failed");
-    }
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error?.message || "OpenAI API request failed");
+		}
 
-    const data = await response.json();
-    const text = data.choices[0].message.content;
+		const data = await response.json();
+		const text = data.choices[0].message.content;
 
-    return {
-      success: true,
-      content: text,
-      tokensUsed: data.usage.total_tokens,
-    };
-  } catch (error: any) {
-    console.error("GPT Error:", error);
-    return {
-      success: false,
-      error: error.message || "Gagal menghubungi OpenAI API",
-    };
-  }
+		return {
+			success: true,
+			content: text,
+			tokensUsed: data.usage.total_tokens,
+		};
+	} catch (error: any) {
+		console.error("GPT Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi OpenAI API",
+		};
+	}
 };
 
-/**
- * Generate dengan Groq
- */
 const generateWithGroq = async (
-  systemPrompt: string,
-  userPrompt: string,
+	systemPrompt: string,
+	userPrompt: string,
 ): Promise<GenerateAIResult> => {
-  const apiKey = API_KEYS.groq;
-  if (!apiKey) {
-    return {
-      success: false,
-      error: "API Key Groq tidak ditemukan. Silakan cek file .env",
-    };
-  }
+	const apiKey = API_KEYS.groq;
+	if (!apiKey) {
+		return {
+			success: false,
+			error: "API Key Groq tidak ditemukan. Silakan cek file .env",
+		};
+	}
 
-  try {
-    const config = MODEL_CONFIGS.groq;
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: config.model,
-          max_tokens: config.maxTokens,
-          temperature: config.temperature,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-        }),
-      },
-    );
+	try {
+		const config = MODEL_CONFIGS.groq;
+		const response = await fetch(
+			"https://api.groq.com/openai/v1/chat/completions",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					model: config.model,
+					max_tokens: config.maxTokens,
+					temperature: config.temperature,
+					messages: [
+						{ role: "system", content: systemPrompt },
+						{ role: "user", content: userPrompt },
+					],
+				}),
+			},
+		);
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Groq API request failed");
-    }
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error?.message || "Groq API request failed");
+		}
 
-    const data = await response.json();
-    const text = data.choices[0].message.content;
+		const data = await response.json();
+		const text = data.choices[0].message.content;
 
-    return {
-      success: true,
-      content: text,
-      tokensUsed: data.usage.total_tokens,
-    };
-  } catch (error: any) {
-    console.error("Groq Error:", error);
-    return {
-      success: false,
-      error: error.message || "Gagal menghubungi Groq API",
-    };
-  }
+		return {
+			success: true,
+			content: text,
+			tokensUsed: data.usage.total_tokens,
+		};
+	} catch (error: any) {
+		console.error("Groq Error:", error);
+		return {
+			success: false,
+			error: error.message || "Gagal menghubungi Groq API",
+		};
+	}
 };
 
 // ============================================================================
 // MAIN GENERATE FUNCTION
 // ============================================================================
 
-/**
- * Generate Laporan - Multi Model Support
- */
 export const generateLaporan = async (
-  model?: AIModel,
+	model?: AIModel,
 ): Promise<GenerateAIResult> => {
-  const store = reportStore.get();
-  const selectedModel = model || store.config.modelAI;
+	const store = reportStore.get();
+	const selectedModel = model || store.config.modelAI;
 
-  // Build prompts
-  const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(store);
+	const systemPrompt = buildSystemPrompt();
+	const userPrompt = buildUserPrompt(store);
 
-  // Select generator based on model
-  let result: GenerateAIResult;
+	let result: GenerateAIResult;
 
-  switch (selectedModel) {
-    case "gemini":
-      result = await generateWithGemini(systemPrompt, userPrompt);
-      break;
-    case "claude":
-      result = await generateWithClaude(systemPrompt, userPrompt);
-      break;
-    case "gpt":
-      result = await generateWithGPT(systemPrompt, userPrompt);
-      break;
-    case "groq":
-      result = await generateWithGroq(systemPrompt, userPrompt);
-      break;
-    default:
-      result = {
-        success: false,
-        error: `Model AI "${selectedModel}" tidak didukung`,
-      };
-  }
+	switch (selectedModel) {
+		case "gemini":
+			result = await generateWithGemini(systemPrompt, userPrompt);
+			break;
+		case "claude":
+			result = await generateWithClaude(systemPrompt, userPrompt);
+			break;
+		case "gpt":
+			result = await generateWithGPT(systemPrompt, userPrompt);
+			break;
+		case "groq":
+			result = await generateWithGroq(systemPrompt, userPrompt);
+			break;
+		default:
+			result = {
+				success: false,
+				error: `Model AI "${selectedModel}" tidak didukung`,
+			};
+	}
 
-  // Update store jika berhasil
-  if (result.success && result.content) {
-    const nomorDokumen = generateNomorDokumen();
-    const timestamp = new Date().toISOString();
+	if (result.success && result.content) {
+		const nomorDokumen = generateNomorDokumen();
+		const timestamp = new Date().toISOString();
 
-    updateStore("output", {
-      ...store.output,
-      content: result.content,
-      lastUpdated: timestamp,
-      titimangsa: {
-        ...store.output.titimangsa,
-        tanggal: new Date().toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }),
-      },
-      tte: {
-        ...store.output.tte,
-        nomorDokumen,
-        timestamp,
-      },
-    });
-  }
+		updateStore("output", {
+			...store.output,
+			content: result.content,
+			lastUpdated: timestamp,
+			titimangsa: {
+				...store.output.titimangsa,
+				tanggal: new Date().toLocaleDateString("id-ID", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+				}),
+			},
+			tte: {
+				...store.output.tte,
+				nomorDokumen,
+				timestamp,
+			},
+		});
+	}
 
-  return result;
+	return result;
 };
 
-/**
- * Check API Key availability
- */
 export const checkAPIKey = (model: AIModel): boolean => {
-  return !!API_KEYS[model];
+	return !!API_KEYS[model];
 };
 
-/**
- * Get available models
- */
 export const getAvailableModels = (): AIModel[] => {
-  const available: AIModel[] = [];
+	const available: AIModel[] = [];
 
-  if (API_KEYS.gemini) available.push("gemini");
-  if (API_KEYS.claude) available.push("claude");
-  if (API_KEYS.gpt) available.push("gpt");
-  if (API_KEYS.groq) available.push("groq");
+	if (API_KEYS.gemini) available.push("gemini");
+	if (API_KEYS.claude) available.push("claude");
+	if (API_KEYS.gpt) available.push("gpt");
+	if (API_KEYS.groq) available.push("groq");
 
-  return available;
+	return available;
 };

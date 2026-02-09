@@ -14,7 +14,12 @@ export const exportToPDF = async () => {
       margin: [1.5, 2, 1.5, 2],
       filename: filename,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+      },
       jsPDF: { unit: "cm", format: "a4", orientation: "portrait" },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     };

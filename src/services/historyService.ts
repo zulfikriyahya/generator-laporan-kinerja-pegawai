@@ -3,12 +3,12 @@ import { historyStore, reportStore } from "../stores/reportStore";
 
 export const fetchHistory = async () => {
   try {
-    const response = await api.get("/reports/my-reports?limit=20");
+    const response = await api.get("/reports/my-reports?limit=50");
     const reports = response.data.data;
 
     const items = reports.map((report: any) => ({
       id: report.id,
-      title: `Laporan ${report.bulan}/${report.tahun}`,
+      title: `Laporan ${report.bulan}/${report.tahun} - ${report.pegawai?.nama || "Unknown"}`,
       date: report.createdAt,
       status: report.status,
     }));
@@ -24,6 +24,14 @@ export const loadReportDetail = async (id: string) => {
     const response = await api.get(`/reports/${id}`);
     const data = response.data;
     const current = reportStore.get();
+
+    const apiBaseUrl =
+      import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+      "http://localhost:3000";
+    const normalizeUrl = (url: string) => {
+      if (!url) return "";
+      return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+    };
 
     reportStore.set({
       ...current,
@@ -59,11 +67,21 @@ export const loadReportDetail = async (id: string) => {
         id: p.id,
         nama: p.nama,
         nip: p.nip,
+        nuptk: p.nuptk || "",
+        nik: p.nik || "",
         jenis: p.jenisPegawai,
         status: p.statusPegawai,
         jabatan: p.jabatan,
         unitKerja: p.unitKerja,
         golongan: p.golongan || "",
+        tempatLahir: p.tempatLahir || "",
+        tanggalLahir: p.tanggalLahir ? p.tanggalLahir.split("T")[0] : "",
+        gender: p.gender,
+        alamat: p.alamat || "",
+        hp: p.hp || "",
+        email: p.email || "",
+        fotoPegawai: normalizeUrl(p.fotoPegawai || ""),
+        pendidikan: p.pendidikan || "",
         masaKerjaTahun: String(p.masaKerjaTahun || 0),
         masaKerjaBulan: String(p.masaKerjaBulan || 0),
       };
@@ -71,16 +89,25 @@ export const loadReportDetail = async (id: string) => {
       reportStore.set({ ...reportStore.get(), pegawai: mappedPegawai });
     }
 
-    if (data.instansi) {
-      const inst = data.instansi;
-      const apiBaseUrl =
-        import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
-        "http://localhost:3000";
-      const normalizeUrl = (url: string) => {
-        if (!url) return "";
-        return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+    if (data.pegawai?.akademik) {
+      const akademik = data.pegawai.akademik;
+      const mappedAkademik = {
+        ...current.akademik,
+        kurikulum: akademik.kurikulum,
+        tahunPelajaran: akademik.tahunPelajaran,
+        semester: akademik.semester,
+        mapel: akademik.mapel || "",
+        kelas: akademik.kelas || "",
+        jamMengajar: String(akademik.jamMengajar || 0),
+        jumlahSiswa: String(akademik.jumlahSiswa || 0),
+        ekskul: akademik.ekskul || "",
       };
 
+      reportStore.set({ ...reportStore.get(), akademik: mappedAkademik });
+    }
+
+    if (data.instansi) {
+      const inst = data.instansi;
       const mappedInstansi = {
         ...current.instansi,
         id: inst.id,

@@ -1,8 +1,9 @@
 import api from "../utils/api";
+import { authStore } from "../stores/authStore";
 
 export const fetchUserProfile = async () => {
   try {
-    const response = await api.get("/users/me");
+    const response = await api.get("/auth/me");
     return {
       success: true,
       data: response.data,
@@ -20,7 +21,21 @@ export const updateUserProfile = async (data: {
   email?: string;
 }) => {
   try {
-    const response = await api.patch("/users/me", data);
+    const user = authStore.get().user;
+    if (!user) {
+      return {
+        success: false,
+        error: "User tidak ditemukan",
+      };
+    }
+
+    const response = await api.patch(`/users/${user.id}`, data);
+
+    authStore.set({
+      ...authStore.get(),
+      user: { ...user, ...data },
+    });
+
     return {
       success: true,
       data: response.data,

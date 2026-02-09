@@ -17,9 +17,10 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     return `<table class="report-table"><thead>${header}</thead><tbody>${body}</tbody></table>`;
   };
 
-  renderer.heading = (text: string, level: number) => {
-    const escapedText = text.toLowerCase().replace(/[^\w]+/g, "-");
-    return `<h${level} id="${escapedText}" class="heading-${level}">${text}</h${level}>`;
+  renderer.heading = (text: any, level: number) => {
+    const textContent = typeof text === "string" ? text : text.text || "";
+    const escapedText = textContent.toLowerCase().replace(/[^\w]+/g, "-");
+    return `<h${level} id="${escapedText}" class="heading-${level}">${textContent}</h${level}>`;
   };
 
   renderer.list = (body: string, ordered: boolean, start: number) => {

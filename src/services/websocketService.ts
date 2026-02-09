@@ -5,34 +5,53 @@ let socket: Socket | null = null;
 
 export const connectWebSocket = () => {
   const token = getToken();
-  if (!token) return null;
+  if (!token) {
+    console.warn("No token available for WebSocket");
+    return null;
+  }
 
   const BASE_URL =
     import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
     "http://localhost:3000";
 
-  socket = io(`${BASE_URL}/notifications`, {
-    auth: {
-      token: token,
-    },
-    transports: ["websocket"],
-  });
+  try {
+    socket = io(`${BASE_URL}/notifications`, {
+      auth: {
+        token: token,
+      },
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+    });
 
-  socket.on("connected", (data) => {
-    console.log("WebSocket connected:", data);
-  });
+    socket.on("connect", () => {
+      console.log("WebSocket connected");
+    });
 
-  socket.on("notification", (notification) => {
-    window.dispatchEvent(
-      new CustomEvent("ws:notification", { detail: notification }),
-    );
-  });
+    socket.on("connected", (data) => {
+      console.log("WebSocket authenticated:", data);
+    });
 
-  socket.on("disconnect", () => {
-    console.log("WebSocket disconnected");
-  });
+    socket.on("notification", (notification) => {
+      window.dispatchEvent(
+        new CustomEvent("ws:notification", { detail: notification }),
+      );
+    });
 
-  return socket;
+    socket.on("disconnect", (reason) => {
+      console.log("WebSocket disconnected:", reason);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.warn("WebSocket connection error:", error.message);
+    });
+
+    return socket;
+  } catch (error) {
+    console.error("Failed to create WebSocket:", error);
+    return null;
+  }
 };
 
 export const disconnectWebSocket = () => {

@@ -8,6 +8,14 @@ export const fetchPegawaiProfile = async () => {
     const data = response.data;
 
     if (data) {
+      const apiBaseUrl =
+        import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+        "http://localhost:3000";
+      const normalizeUrl = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+      };
+
       updateStore("pegawai", {
         id: data.id,
         nama: data.nama,
@@ -25,7 +33,7 @@ export const fetchPegawaiProfile = async () => {
         alamat: data.alamat || "",
         hp: data.hp || "",
         email: data.email || "",
-        fotoPegawai: data.fotoPegawai || "",
+        fotoPegawai: normalizeUrl(data.fotoPegawai || ""),
         pendidikan: data.pendidikan || "",
         masaKerjaTahun: String(data.masaKerjaTahun || 0),
         masaKerjaBulan: String(data.masaKerjaBulan || 0),
@@ -128,7 +136,18 @@ export const savePegawaiProfile = async () => {
       const pegawaiId = response.data.id || check?.data?.id;
       if (pegawaiId) {
         try {
-          await api.post(`/pegawai/${pegawaiId}/akademik`, akademikPayload);
+          const checkAkademik = await api
+            .get(`/pegawai/${pegawaiId}`)
+            .catch(() => null);
+
+          if (checkAkademik?.data?.akademik) {
+            await api.patch(
+              `/pegawai/${pegawaiId}/akademik/${checkAkademik.data.akademik.id}`,
+              akademikPayload,
+            );
+          } else {
+            await api.post(`/pegawai/${pegawaiId}/akademik`, akademikPayload);
+          }
         } catch (err) {
           console.warn("Gagal menyimpan akademik:", err);
         }

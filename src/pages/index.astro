@@ -138,7 +138,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
           <header class="mb-6 pb-2 border-b-4 border-black">
             <div class="grid grid-cols-[80px_1fr_80px] gap-4 items-center mb-2">
               <div class="h-20 flex items-center justify-center">
-                <template x-if="form.instansi.logoUtama"><img :src="form.instansi.logoUtama" class="max-w-full max-h-full object-contain" /></template>
+                <template x-if="form.instansi.logoUtama"><img :src="form.instansi.logoUtama" class="max-w-full max-h-full object-contain" crossorigin="anonymous" /></template>
               </div>
               <div class="text-center">
                 <h3 class="font-bold text-[13px] uppercase" x-text="form.instansi.header1"></h3>
@@ -147,7 +147,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
                 <p class="text-[11px]" x-text="form.instansi.alamat"></p>
               </div>
               <div class="h-20 flex items-center justify-center">
-                <template x-if="form.instansi.logoInstansi"><img :src="form.instansi.logoInstansi" class="max-w-full max-h-full object-contain" /></template>
+                <template x-if="form.instansi.logoInstansi"><img :src="form.instansi.logoInstansi" class="max-w-full max-h-full object-contain" crossorigin="anonymous" /></template>
               </div>
             </div>
           </header>
@@ -188,6 +188,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
       x-transition:enter-start="translate-x-full"
       x-transition:enter-end="translate-x-0"
       class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print shadow-2xl p-4"
+      style="display: none;"
     >
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-white font-bold flex items-center gap-2"><History class="w-4 h-4" /> Riwayat Cloud</h3>
@@ -250,7 +251,81 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
         { id: "kinerja", label: "4. Kinerja" },
       ],
       activeTab: "pegawai",
-      form: reportStore.get(),
+      form: {
+        instansi: {
+          logoUtama: "",
+          logoInstansi: "",
+          header1: "",
+          header2: "",
+          header3: "",
+          alamat: "",
+          telepon: "",
+          email: "",
+          website: "",
+          kepala: {
+            nama: "",
+            nip: "",
+            pangkat: "",
+            ttd: "",
+          },
+          titimangsa: "",
+        },
+        pegawai: {
+          nama: "",
+          nip: "",
+          nuptk: "",
+          nik: "",
+          jenis: "PNS",
+          status: "AKTIF",
+          golongan: "",
+          jabatan: "",
+          unitKerja: "",
+          tempatLahir: "",
+          tanggalLahir: "",
+          gender: "L",
+          alamat: "",
+          hp: "",
+          email: "",
+          fotoPegawai: "",
+          pendidikan: "",
+          masaKerjaTahun: "0",
+          masaKerjaBulan: "0",
+        },
+        akademik: {
+          kurikulum: "MERDEKA",
+          tahunPelajaran: "",
+          semester: "GENAP",
+          mapel: "",
+          kelas: "",
+          jamMengajar: "0",
+          jumlahSiswa: "0",
+          ekskul: "",
+        },
+        kinerja: {
+          tugasPokok: "",
+          tugasTambahan: "",
+          targetTahunan: "",
+          hambatan: "",
+          solusi: "",
+        },
+        config: {
+          bulan: "1",
+          tahun: "2026",
+          modelAI: "gemini",
+          tokenLimit: 2000,
+          customInstruction: "",
+        },
+        output: {
+          tte: {
+            qrCode: "",
+            nomorDokumen: "",
+            hashDokumen: "",
+            timestamp: "",
+          },
+          content: "",
+          lastUpdated: "",
+        },
+      },
       loading: false,
       renderedHTML: "",
       showHistory: false,
@@ -259,6 +334,11 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
       unreadCount: 0,
 
       async init() {
+        const stored = reportStore.get();
+        if (stored) {
+          this.form = stored;
+        }
+
         if (this.form.output.content) {
           this.renderedHTML = await parseMarkdown(this.form.output.content);
         }
@@ -280,6 +360,10 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
           this.historyItems = val.items;
         });
 
+        reportStore.subscribe((val) => {
+          this.form = val;
+        });
+
         let timeout;
         this.$watch("form", (val) => {
           clearTimeout(timeout);
@@ -288,13 +372,13 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bel
             reportStore.set(JSON.parse(JSON.stringify(val)));
             window.dispatchEvent(new CustomEvent("autosave:success"));
           }, 800);
-        });
+        }, { deep: true });
 
         window.addEventListener("ws:notification", () => {
           this.loadUnreadCount();
         });
 
-        window.addEventListener("report:loaded", async (e: any) => {
+        window.addEventListener("report:loaded", async (e) => {
           this.renderedHTML = e.detail.html;
           this.form = reportStore.get();
         });

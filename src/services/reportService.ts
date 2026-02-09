@@ -1,6 +1,4 @@
 import api from "../utils/api";
-import { reportStore } from "../stores/reportStore";
-import type { ReportDTO } from "../types/ReportTypes";
 
 export const fetchMyReports = async (page = 1, limit = 20) => {
   try {
@@ -35,7 +33,7 @@ export const fetchReportById = async (id: string) => {
   }
 };
 
-export const updateReport = async (id: string, data: Partial<ReportDTO>) => {
+export const updateReport = async (id: string, data: any) => {
   try {
     const response = await api.patch(`/reports/${id}`, data);
     return {

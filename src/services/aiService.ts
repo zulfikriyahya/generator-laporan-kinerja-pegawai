@@ -52,9 +52,10 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
 
     return { success: false, error: "Respon server tidak valid" };
   } catch (error: any) {
+    const errorMsg = error.response?.data?.message || "Gagal generate laporan";
     return {
       success: false,
-      error: error.response?.data?.message || "Gagal generate laporan",
+      error: errorMsg,
     };
   }
 };

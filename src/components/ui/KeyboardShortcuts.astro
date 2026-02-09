@@ -1,50 +1,49 @@
 <script>
-    import { addToast } from "../../stores/toastStore";
+  import { addToast } from "../../stores/toastStore";
 
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("keyboardShortcuts", () => ({
-			init() {
-				document.addEventListener("keydown", (e) => {
-                    // Check for Ctrl/Cmd keys
-					if (e.ctrlKey || e.metaKey) {
-						switch (e.key.toLowerCase()) {
-							case "enter": 
-                                e.preventDefault(); 
-                                this.triggerGenerate(); 
-                                break;
-							case "s": 
-                                e.preventDefault(); 
-                                this.triggerSave(); 
-                                break;
-							case "p": 
-                                e.preventDefault(); 
-                                this.triggerExportPDF(); 
-                                break;
-                            case "j":
-                                e.preventDefault();
-                                this.triggerExportDOCX();
-                                break;
-						}
-					}
-				});
-			},
-			triggerGenerate() { 
-                addToast("Shortcut: Generate Report", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:generate")); 
-            },
-			triggerSave() { 
-                addToast("Shortcut: Menyimpan...", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:save")); 
-            },
-			triggerExportPDF() { 
-                addToast("Shortcut: Export PDF", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); 
-            },
-            triggerExportDOCX() {
-                addToast("Shortcut: Export DOCX", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:export-docx")); // Pastikan listen event ini di index.astro
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("keyboardShortcuts", () => ({
+      init() {
+        document.addEventListener("keydown", (e) => {
+          if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+              case "enter":
+                e.preventDefault();
+                this.triggerGenerate();
+                break;
+              case "s":
+                e.preventDefault();
+                this.triggerSave();
+                break;
+              case "p":
+                e.preventDefault();
+                this.triggerExportPDF();
+                break;
+              case "j":
+                e.preventDefault();
+                this.triggerExportDOCX();
+                break;
             }
-		}));
-	});
+          }
+        });
+      },
+      triggerGenerate() {
+        addToast("Shortcut: Generate Report", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:generate"));
+      },
+      triggerSave() {
+        addToast("Shortcut: Menyimpan...", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:save"));
+      },
+      triggerExportPDF() {
+        addToast("Shortcut: Export PDF", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:export-pdf"));
+      },
+      triggerExportDOCX() {
+        addToast("Shortcut: Export DOCX", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:export-docx"));
+      },
+    }));
+  });
 </script>
 <div x-data="keyboardShortcuts"></div>

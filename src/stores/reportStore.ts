@@ -8,55 +8,54 @@ const defaultState: AppStore = {
     header1: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
     header2: "KANTOR KABUPATEN PANDEGLANG",
     header3: "MADRASAH TSANAWIYAH NEGERI 1 PANDEGLANG",
-    alamat: "Jl. Raya Labuan Km. 5,7 Pandeglang - Banten 42253",
-    telepon: "(0253) 201000",
-    email: "mtsn1pandeglang@kemenag.go.id",
-    website: "mtsn1pandeglang.sch.id",
+    alamat:
+      "Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
+    telepon: "62895351856267",
+    email: "adm@mtsn1pandeglang.sch.id",
+    website: "https://mtsn1pandeglang.sch.id",
     kepala: {
       nama: "",
       nip: "",
-      pangkat: "Pembina/IV-a",
+      pangkat: "Pembina/IV-c",
       ttd: "",
     },
     titimangsa: "Pandeglang",
   },
   pegawai: {
-    nama: "",
-    nip: "",
+    nama: "Yahya Zulfikri",
+    nip: "200001142025211016",
     nuptk: "",
-    nik: "",
-    jenis: "PNS",
+    nik: "3601211801000001",
+    jenis: "PPPK",
     status: "AKTIF",
     golongan: "III/a",
-    jabatan: "Guru Ahli Pertama",
-    unitKerja: "MTsN 1 Pandeglang",
+    jabatan: "Pengadministrasi Perkantoran",
+    unitKerja: "Tata Usaha MTs Negeri 1 Pandeglang",
     tempatLahir: "Pandeglang",
-    tanggalLahir: "1990-01-01",
+    tanggalLahir: "2000-01-04",
     gender: "L",
-    alamat: "",
-    hp: "",
-    email: "",
+    alamat: "Kp. Kebon Cau RT 001 RW 005 Pandeglang",
+    hp: "628211558571",
+    email: "zulfikriyahya18@gmail.com",
     fotoPegawai: "",
-    pendidikan: "S1 Pendidikan",
-    masaKerjaTahun: "5",
-    masaKerjaBulan: "0",
+    pendidikan: "S1 Sistem Informasi",
+    masaKerjaTahun: "0",
+    masaKerjaBulan: "5",
   },
   akademik: {
     kurikulum: "MERDEKA",
     tahunPelajaran: `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
-    semester: "GANJIL",
+    semester: "GENAP",
     mapel: "",
     kelas: "",
-    jamMengajar: "24",
-    jumlahSiswa: "32",
+    jamMengajar: "0",
+    jumlahSiswa: "0",
     ekskul: "",
   },
   kinerja: {
     tugasPokok: "Merencanakan, melaksanakan, dan mengevaluasi pembelajaran.",
     tugasTambahan: "Wali Kelas, Piket Harian",
     targetTahunan: "Meningkatkan ketuntasan belajar siswa minimal 85%",
-    targetKuantitatif: "Laporan Kinerja Bulanan, Perangkat Pembelajaran",
-    targetKualitatif: "Tercapainya standar kompetensi lulusan",
     hambatan: "",
     solusi: "",
   },
@@ -68,17 +67,11 @@ const defaultState: AppStore = {
     customInstruction: "",
   },
   output: {
-    titimangsa: {
-      tempat: "Pandeglang",
-      tanggal: "",
-      bahasa: "Indonesia",
-    },
     tte: {
       qrCode: "",
       nomorDokumen: "",
       hashDokumen: "",
       timestamp: "",
-      statusValidasi: "Valid",
     },
     content: "",
     lastUpdated: "",
@@ -115,11 +108,13 @@ export const validateBeforeGenerate = (
   data: AppStore,
 ): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
+
   if (!data.pegawai.nama) errors.push("Nama pegawai harus diisi");
   if (!data.pegawai.nip) errors.push("NIP harus diisi");
   if (!data.pegawai.jabatan) errors.push("Jabatan harus diisi");
   if (!data.config.bulan) errors.push("Bulan laporan harus dipilih");
   if (!data.config.tahun) errors.push("Tahun laporan harus diisi");
+  if (!data.kinerja.tugasPokok) errors.push("Tugas pokok harus diisi");
 
   if (data.pegawai.email && data.pegawai.email.trim() !== "") {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -130,9 +125,7 @@ export const validateBeforeGenerate = (
 
   const validStatus = ["AKTIF", "CUTI", "TUGAS_BELAJAR", "NON_AKTIF"];
   if (!validStatus.includes(data.pegawai.status)) {
-    errors.push(
-      "Status pegawai tidak valid (Gunakan: AKTIF, CUTI, TUGAS_BELAJAR, NON_AKTIF)",
-    );
+    errors.push("Status pegawai tidak valid");
   }
 
   return { valid: errors.length === 0, errors };

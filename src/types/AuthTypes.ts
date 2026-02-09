@@ -19,3 +19,17 @@ export interface AuthResponse {
     role: string;
   };
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface AuthState {
+  token: string;
+  refreshToken: string;
+  user: User | null;
+  isAuthenticated: boolean;
+}

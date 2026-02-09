@@ -10,6 +10,7 @@ marked.setOptions({
 
 export const parseMarkdown = async (text: string): Promise<string> => {
   if (!text) return "";
+
   const renderer = new marked.Renderer();
 
   renderer.table = (header: string, body: string) => {
@@ -21,7 +22,6 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     return `<h${level} id="${escapedText}" class="heading-${level}">${text}</h${level}>`;
   };
 
-  // Custom list renderer for better spacing
   renderer.list = (body: string, ordered: boolean, start: number) => {
     const type = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ` start="${start}"` : "";

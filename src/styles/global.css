@@ -94,7 +94,6 @@
     margin-top: 1.2rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
-    border-bottom: 1px solid transparent; /* Fix spacing */
   }
   .prose-report h3 {
     font-size: 12pt;

@@ -65,3 +65,7 @@ export const getToken = () => {
 export const checkAuth = () => {
   return authStore.get().isAuthenticated;
 };
+
+export const getCurrentUser = () => {
+  return authStore.get().user;
+};

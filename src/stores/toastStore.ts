@@ -14,7 +14,6 @@ export const addToast = (message: string, type: ToastType = "info") => {
   const id = Date.now();
   const currentToasts = $toasts.get();
 
-  // Prevent duplicate messages in short time
   if (currentToasts.some((t) => t.message === message && t.type === type)) {
     return;
   }

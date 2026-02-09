@@ -4,72 +4,72 @@ import { Info } from "lucide-astro";
 ---
 
 <div class="space-y-6 animate-fade-in pb-10" x-data="{ editing: false }">
-    <div x-show="!form.instansi.id && !editing" class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3 items-start">
-        <Info class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-        <div>
-            <h4 class="text-sm font-bold text-yellow-500 mb-1">Data Instansi Belum Diatur</h4>
-            <p class="text-xs text-yellow-200/80 mb-3">
-                Anda belum terhubung dengan data instansi aktif. Silakan hubungi admin atau isi data manual sementara.
-            </p>
-            <button @click="editing = true" class="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1.5 rounded transition">
-                Isi Manual
-            </button>
-        </div>
+  <div x-show="!form.instansi.id && !editing" class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3 items-start">
+    <Info class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+    <div>
+      <h4 class="text-sm font-bold text-yellow-500 mb-1">Data Instansi Belum Diatur</h4>
+      <p class="text-xs text-yellow-200/80 mb-3">
+        Anda belum terhubung dengan data instansi aktif. Silakan hubungi admin atau isi data manual sementara.
+      </p>
+      <button @click="editing = true" class="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1.5 rounded transition">
+        Isi Manual
+      </button>
+    </div>
+  </div>
+
+  <div class="space-y-3" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+    <div class="flex justify-between items-center border-b border-white/10 pb-1">
+      <h3 class="text-xs font-bold text-blue-400 uppercase">Identitas Instansi</h3>
+      <button x-show="form.instansi.id && !editing" @click="editing = true" class="text-[10px] text-slate-400 hover:text-white">Edit</button>
+      <button x-show="editing" @click="editing = false; updateInstansi()" class="text-[10px] text-green-400 hover:text-green-300">Simpan</button>
     </div>
 
-	<div class="space-y-3" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
-        <div class="flex justify-between items-center border-b border-white/10 pb-1">
-		    <h3 class="text-xs font-bold text-blue-400 uppercase">Identitas Instansi</h3>
-            <button x-show="form.instansi.id && !editing" @click="editing = true" class="text-[10px] text-slate-400 hover:text-white">Edit</button>
-            <button x-show="editing" @click="editing = false" class="text-[10px] text-red-400 hover:text-red-300">Batal</button>
-        </div>
+    <InputGroup label="Header 1" name="h1" model="form.instansi.header1" placeholder="KEMENTERIAN..." />
+    <InputGroup label="Header 2" name="h2" model="form.instansi.header2" placeholder="KANTOR..." />
+    <InputGroup label="Header 3" name="h3" model="form.instansi.header3" placeholder="MADRASAH..." />
+    <InputGroup label="Alamat" name="addr" model="form.instansi.alamat" />
+    <div class="grid grid-cols-2 gap-3">
+      <InputGroup label="Website" name="web" model="form.instansi.website" />
+      <InputGroup label="Email" name="mail" model="form.instansi.email" />
+    </div>
+  </div>
 
-		<InputGroup label="Header 1" name="h1" model="form.instansi.header1" placeholder="KEMENTERIAN..." />
-		<InputGroup label="Header 2" name="h2" model="form.instansi.header2" placeholder="KANTOR..." />
-		<InputGroup label="Header 3" name="h3" model="form.instansi.header3" placeholder="MADRASAH..." />
-		<InputGroup label="Alamat" name="addr" model="form.instansi.alamat" />
-		<div class="grid grid-cols-2 gap-3">
-			<InputGroup label="Website" name="web" model="form.instansi.website" />
-			<InputGroup label="Email" name="mail" model="form.instansi.email" />
-		</div>
-	</div>
+  <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4" x-show="editing || !form.instansi.id">
+    <div class="bg-slate-800 p-3 rounded text-center">
+      <span class="text-xs text-slate-400 block mb-2">Logo Kiri (Utama)</span>
+      <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+        <template x-if="form.instansi.logoUtama">
+          <img :src="form.instansi.logoUtama" class="h-full object-contain" />
+        </template>
+        <template x-if="!form.instansi.logoUtama">
+          <span class="text-[10px] text-slate-600">No Logo</span>
+        </template>
+      </div>
+      <input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
+    </div>
+    <div class="bg-slate-800 p-3 rounded text-center">
+      <span class="text-xs text-slate-400 block mb-2">Logo Kanan (Instansi)</span>
+      <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+        <template x-if="form.instansi.logoInstansi">
+          <img :src="form.instansi.logoInstansi" class="h-full object-contain" />
+        </template>
+        <template x-if="!form.instansi.logoInstansi">
+          <span class="text-[10px] text-slate-600">No Logo</span>
+        </template>
+      </div>
+      <input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
+    </div>
+  </div>
 
-	<div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4" x-show="editing || !form.instansi.id">
-		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kiri (Utama)</span>
-            <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
-                <template x-if="form.instansi.logoUtama">
-                    <img :src="form.instansi.logoUtama" class="h-full object-contain" />
-                </template>
-                <template x-if="!form.instansi.logoUtama">
-                    <span class="text-[10px] text-slate-600">No Logo</span>
-                </template>
-            </div>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
-		</div>
-		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kanan (Instansi)</span>
-             <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
-                <template x-if="form.instansi.logoInstansi">
-                    <img :src="form.instansi.logoInstansi" class="h-full object-contain" />
-                </template>
-                <template x-if="!form.instansi.logoInstansi">
-                    <span class="text-[10px] text-slate-600">No Logo</span>
-                </template>
-            </div>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
-		</div>
-	</div>
-
-	<div class="space-y-3 pt-4 border-t border-white/10" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
-		<h3 class="text-xs font-bold text-blue-400 uppercase">Pejabat Penilai</h3>
-		<InputGroup label="Titimangsa (Tempat)" name="titimangsa" model="form.instansi.titimangsa" />
-		<div class="p-3 bg-white/5 rounded-lg border border-white/5">
-			<InputGroup label="Nama Kepala" name="k_nama" model="form.instansi.kepala.nama" />
-			<div class="grid grid-cols-2 gap-2 mt-2">
-				<InputGroup label="NIP Kepala" name="k_nip" model="form.instansi.kepala.nip" />
-				<InputGroup label="Pangkat/Gol" name="k_pgkt" model="form.instansi.kepala.pangkat" />
-			</div>
-		</div>
-	</div>
+  <div class="space-y-3 pt-4 border-t border-white/10" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+    <h3 class="text-xs font-bold text-blue-400 uppercase">Pejabat Penilai</h3>
+    <InputGroup label="Titimangsa (Tempat)" name="titimangsa" model="form.instansi.titimangsa" />
+    <div class="p-3 bg-white/5 rounded-lg border border-white/5">
+      <InputGroup label="Nama Kepala" name="k_nama" model="form.instansi.kepala.nama" />
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <InputGroup label="NIP Kepala" name="k_nip" model="form.instansi.kepala.nip" />
+        <InputGroup label="Pangkat/Gol" name="k_pgkt" model="form.instansi.kepala.pangkat" />
+      </div>
+    </div>
+  </div>
 </div>

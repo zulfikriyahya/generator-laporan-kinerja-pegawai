@@ -1,8 +1,7 @@
 import axios from "axios";
 import { getToken, logout } from "../services/authService";
 
-const BASE_URL =
-  import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api/v1";
+const BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api";
 
 const api = axios.create({
   baseURL: BASE_URL,

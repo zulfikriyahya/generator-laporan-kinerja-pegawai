@@ -4,53 +4,53 @@ import SelectGroup from "./SelectGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in pb-10">
-	<h3 class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1">Data Pegawai</h3>
-	<InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
-		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
-	</div>
-	<div class="grid grid-cols-2 gap-3">
-		<SelectGroup
-			label="Status"
-			name="stts"
-			model="form.pegawai.jenis"
-			options={[
-				{ val: "PNS", label: "PNS" },
-				{ val: "PPPK", label: "PPPK" },
-				{ val: "HONORER", label: "HONORER" },
-				{ val: "GURU", label: "GURU" },
-			]}
-		/>
-        <SelectGroup
-			label="Status Pegawai"
-			name="stts_peg"
-			model="form.pegawai.status"
-			options={[
-				{ val: "AKTIF", label: "AKTIF" },
-				{ val: "CUTI", label: "CUTI" },
-				{ val: "TUGAS_BELAJAR", label: "TUGAS BELAJAR" },
-				{ val: "NON_AKTIF", label: "NON AKTIF" },
-			]}
-		/>
-	</div>
-    <div class="grid grid-cols-2 gap-3">
-        <SelectGroup
-			label="Gender"
-			name="gender"
-			model="form.pegawai.gender"
-			options={[
-				{ val: "L", label: "Laki-laki" },
-				{ val: "P", label: "Perempuan" },
-			]}
-		/>
-        <InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
-    </div>
-	<InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
-	<InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
-    <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
-		<InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
-	</div>
+  <h3 class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1">Data Pegawai</h3>
+  <InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
+    <InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <SelectGroup
+      label="Status"
+      name="stts"
+      model="form.pegawai.jenis"
+      options={[
+        { val: "PNS", label: "PNS" },
+        { val: "PPPK", label: "PPPK" },
+        { val: "HONORER", label: "HONORER" },
+        { val: "GURU", label: "GURU" },
+      ]}
+    />
+    <SelectGroup
+      label="Status Pegawai"
+      name="stts_peg"
+      model="form.pegawai.status"
+      options={[
+        { val: "AKTIF", label: "AKTIF" },
+        { val: "CUTI", label: "CUTI" },
+        { val: "TUGAS_BELAJAR", label: "TUGAS BELAJAR" },
+        { val: "NON_AKTIF", label: "NON AKTIF" },
+      ]}
+    />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <SelectGroup
+      label="Gender"
+      name="gender"
+      model="form.pegawai.gender"
+      options={[
+        { val: "L", label: "Laki-laki" },
+        { val: "P", label: "Perempuan" },
+      ]}
+    />
+    <InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
+  </div>
+  <InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
+  <InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+  <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
+    <InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
+  </div>
 </div>

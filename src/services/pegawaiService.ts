@@ -1,6 +1,6 @@
 import api from "../utils/api";
 import { reportStore, updateStore } from "../stores/reportStore";
-import type { PegawaiDTO } from "../types/ReportTypes";
+import type { PegawaiDTO, AkademikDTO } from "../types/ReportTypes";
 
 export const fetchPegawaiProfile = async () => {
   try {
@@ -46,10 +46,7 @@ export const fetchPegawaiProfile = async () => {
       return true;
     }
   } catch (error: any) {
-    // Jika 404, artinya user baru belum punya data pegawai.
-    // Jangan lempar error, return false saja agar UI tetap load form kosong.
     if (error.response && error.response.status === 404) {
-      console.log("Profil pegawai belum ada, siap untuk input baru.");
       return false;
     }
     console.warn("Gagal fetch pegawai:", error);
@@ -72,9 +69,7 @@ export const savePegawaiProfile = async () => {
     nuptk: store.pegawai.nuptk || undefined,
     nik: store.pegawai.nik || undefined,
     tempatLahir: store.pegawai.tempatLahir || undefined,
-    tanggalLahir: store.pegawai.tanggalLahir
-      ? new Date(store.pegawai.tanggalLahir).toISOString()
-      : undefined,
+    tanggalLahir: store.pegawai.tanggalLahir || undefined,
     alamat: store.pegawai.alamat || undefined,
     hp: store.pegawai.hp || undefined,
     email: store.pegawai.email || undefined,
@@ -86,27 +81,48 @@ export const savePegawaiProfile = async () => {
 
   try {
     let response;
-
-    // Cek dulu apakah data sudah ada di backend
     const check = await api.get("/pegawai/me").catch(() => null);
 
     if (check && check.data && check.data.id) {
-      // Jika ada, lakukan PATCH
       response = await api.patch(`/pegawai/${check.data.id}`, payload);
       if (store.pegawai.id !== check.data.id) {
         updateStore("pegawai", { ...store.pegawai, id: check.data.id });
       }
     } else {
-      // Jika tidak ada (404), lakukan POST
       response = await api.post("/pegawai", payload);
       if (response.data && response.data.id) {
         updateStore("pegawai", { ...store.pegawai, id: response.data.id });
       }
     }
 
+    if (
+      store.akademik.mapel &&
+      store.akademik.kelas &&
+      store.akademik.jamMengajar
+    ) {
+      const akademikPayload: AkademikDTO = {
+        kurikulum: store.akademik.kurikulum,
+        tahunPelajaran: store.akademik.tahunPelajaran,
+        semester: store.akademik.semester,
+        mapel: store.akademik.mapel,
+        kelas: store.akademik.kelas,
+        jamMengajar: parseInt(store.akademik.jamMengajar) || 0,
+        jumlahSiswa: parseInt(store.akademik.jumlahSiswa) || 0,
+        ekskul: store.akademik.ekskul || undefined,
+      };
+
+      const pegawaiId = response.data.id || check?.data?.id;
+      if (pegawaiId) {
+        try {
+          await api.post(`/pegawai/${pegawaiId}/akademik`, akademikPayload);
+        } catch (err) {
+          console.warn("Gagal menyimpan akademik:", err);
+        }
+      }
+    }
+
     return { success: true, data: response.data };
   } catch (error: any) {
-    // Tangkap error validasi backend (misal statusPegawai salah enum)
     const errorMsg = Array.isArray(error.response?.data?.message)
       ? error.response.data.message.join(", ")
       : error.response?.data?.message || "Gagal menyimpan data pegawai";

@@ -71,6 +71,40 @@ export const loadReportDetail = async (id: string) => {
       reportStore.set({ ...reportStore.get(), pegawai: mappedPegawai });
     }
 
+    if (data.instansi) {
+      const inst = data.instansi;
+      const apiBaseUrl =
+        import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+        "http://localhost:3000";
+      const normalizeUrl = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+      };
+
+      const mappedInstansi = {
+        ...current.instansi,
+        id: inst.id,
+        header1: inst.header1,
+        header2: inst.header2,
+        header3: inst.header3,
+        alamat: inst.alamat,
+        telepon: inst.telepon || "",
+        email: inst.email || "",
+        website: inst.website || "",
+        logoUtama: normalizeUrl(inst.logoUtama || ""),
+        logoInstansi: normalizeUrl(inst.logoInstansi || ""),
+        titimangsa: inst.titimangsa,
+        kepala: {
+          nama: inst.namaKepala,
+          nip: inst.nipKepala,
+          pangkat: inst.pangkatKepala,
+          ttd: normalizeUrl(inst.ttdKepala || ""),
+        },
+      };
+
+      reportStore.set({ ...reportStore.get(), instansi: mappedInstansi });
+    }
+
     return true;
   } catch (error) {
     console.error("Gagal memuat laporan:", error);

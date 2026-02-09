@@ -1,18 +1,5 @@
 import { persistentMap } from "@nanostores/persistent";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
-
-export interface AuthState {
-  token: string;
-  refreshToken: string;
-  user: User | null;
-  isAuthenticated: boolean;
-}
+import type { AuthState } from "../types/AuthTypes";
 
 export const authStore = persistentMap<AuthState>(
   "ekinerja-auth:",

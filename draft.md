@@ -5,6 +5,7 @@
 ├── draft.md
 ├── generate.sh
 ├── package.json
+├── README.md
 ├── src
 │   ├── components
 │   │   ├── forms
@@ -57,7 +58,7 @@
 ├── tsconfig.json
 └── yarn.lock
 
-13 directories, 43 files
+13 directories, 44 files
 
 # File Contents
 
@@ -104,14 +105,6 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
-    server: {
-      proxy: {
-        "/api": {
-          target: "http://localhost:3000",
-          changeOrigin: true,
-        },
-      },
-    },
   },
 });
 ```
@@ -145,7 +138,6 @@ export default defineConfig({
     "docx": "^8.5.0",
     "dompurify": "3.3.1",
     "file-saver": "^2.0.5",
-    "html-docx-js-typescript": "^0.1.5",
     "html2pdf.js": "^0.14.0",
     "lucide-astro": "^0.556.0",
     "marked": "17.0.1",
@@ -185,27 +177,27 @@ export default defineConfig({
 ```astro
 ---
 interface Props {
-	label: string;
-	name: string;
-	type?: "text" | "number" | "date" | "email";
-	placeholder?: string;
-	model: string;
+  label: string;
+  name: string;
+  type?: "text" | "number" | "date" | "email";
+  placeholder?: string;
+  model: string;
 }
 const { label, name, type = "text", placeholder, model } = Astro.props;
 ---
 
 <div class="flex flex-col gap-2 group">
-	<label for={name} class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
-		{label}
-	</label>
-	<input
-		type={type}
-		id={name}
-		name={name}
-		x-model={model}
-		placeholder={placeholder}
-		class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all placeholder:text-slate-600"
-	/>
+  <label for={name} class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
+    {label}
+  </label>
+  <input
+    type={type}
+    id={name}
+    name={name}
+    x-model={model}
+    placeholder={placeholder}
+    class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all placeholder:text-slate-600"
+  />
 </div>```
 
 ---
@@ -214,39 +206,53 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <div x-data="zoomControl" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 no-print">
-	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10 rounded-full bg-slate-900/80 backdrop-blur">
-        <button @click="zoomOut" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-        </button>
-		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-        <button @click="zoomIn" class="text-slate-400 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-        </button>
-		<span class="text-xs font-medium text-white w-10 text-right font-mono" x-text="zoom + '%'"></span>
-		<button @click="resetZoom" class="ml-2 px-2 py-1 text-[10px] font-medium bg-white/10 hover:bg-white/20 rounded transition text-slate-300">Reset</button>
-	</div>
+  <div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10 rounded-full bg-slate-900/80 backdrop-blur">
+    <button @click="zoomOut" class="text-slate-400 hover:text-white transition">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <line x1="8" y1="11" x2="14" y2="11" />
+      </svg>
+    </button>
+    <input type="range" x-model="zoom" min="50" max="150" step="10" class="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+    <button @click="zoomIn" class="text-slate-400 hover:text-white transition">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <line x1="11" y1="8" x2="11" y2="14" />
+        <line x1="8" y1="11" x2="14" y2="11" />
+      </svg>
+    </button>
+    <span class="text-xs font-medium text-white w-10 text-right font-mono" x-text="zoom + '%'"></span>
+    <button @click="resetZoom" class="ml-2 px-2 py-1 text-[10px] font-medium bg-white/10 hover:bg-white/20 rounded transition text-slate-300">Reset</button>
+  </div>
 </div>
 
 <script>
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("zoomControl", () => ({
-			zoom: 100,
-			init() {
-				this.$watch("zoom", (value) => {
-					const preview = document.getElementById("document-preview");
-					if (preview) {
-						preview.style.transform = `scale(${value / 100})`;
-						preview.style.transformOrigin = "top center";
-                        // Update margin bottom to prevent overlap
-                        preview.style.marginBottom = `${(value / 100) * 50}px`;
-					}
-				});
-			},
-            zoomIn() { if(this.zoom < 150) this.zoom = parseInt(this.zoom) + 10; },
-            zoomOut() { if(this.zoom > 50) this.zoom = parseInt(this.zoom) - 10; },
-			resetZoom() { this.zoom = 100; },
-		}));
-	});
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("zoomControl", () => ({
+      zoom: 100,
+      init() {
+        this.$watch("zoom", (value) => {
+          const preview = document.getElementById("document-preview");
+          if (preview) {
+            preview.style.transform = `scale(${value / 100})`;
+            preview.style.transformOrigin = "top center";
+            preview.style.marginBottom = `${(value / 100) * 50}px`;
+          }
+        });
+      },
+      zoomIn() {
+        if (this.zoom < 150) this.zoom = parseInt(this.zoom) + 10;
+      },
+      zoomOut() {
+        if (this.zoom > 50) this.zoom = parseInt(this.zoom) - 10;
+      },
+      resetZoom() {
+        this.zoom = 100;
+      },
+    }));
+  });
 </script>```
 
 ---
@@ -264,31 +270,47 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
         'bg-blue-900/80 border-blue-500/30 text-blue-100': toast.type === 'info'
       }"
     >
-      <div :class="{
-        'bg-emerald-500': toast.type === 'success',
-        'bg-red-500': toast.type === 'error',
-        'bg-blue-500': toast.type === 'info'
-      }" class="w-2 h-2 rounded-full"></div>
+      <div
+        :class="{
+          'bg-emerald-500': toast.type === 'success',
+          'bg-red-500': toast.type === 'error',
+          'bg-blue-500': toast.type === 'info'
+        }"
+        class="w-2 h-2 rounded-full"
+      ></div>
       <span x-text="toast.message" class="text-sm font-medium"></span>
     </div>
   </template>
 </div>
 
 <script>
-  import { $toasts } from '../../stores/toastStore';
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('toastContainer', () => ({
+  import { $toasts } from "../../stores/toastStore";
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("toastContainer", () => ({
       toasts: [],
       init() {
-        $toasts.subscribe((value) => { this.toasts = value; });
-      }
+        $toasts.subscribe((value) => {
+          this.toasts = value;
+        });
+      },
     }));
   });
 </script>
 
 <style>
-  .animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .animate-slide-in {
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 </style>```
 
 ---
@@ -297,61 +319,80 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <div
-	x-data="autoSaveIndicator"
-	x-show="visible"
-	x-transition:enter="transition ease-out duration-300"
-	x-transition:enter-start="opacity-0 translate-y-4"
-	x-transition:enter-end="opacity-100 translate-y-0"
-	x-transition:leave="transition ease-in duration-200"
-	x-transition:leave-start="opacity-100 translate-y-0"
-	x-transition:leave-end="opacity-0 translate-y-4"
-	class="fixed bottom-6 right-6 z-50 no-print"
-    style="display: none;"
+  x-data="autoSaveIndicator"
+  x-show="visible"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0 translate-y-4"
+  x-transition:enter-end="opacity-100 translate-y-0"
+  x-transition:leave="transition ease-in duration-200"
+  x-transition:leave-start="opacity-100 translate-y-0"
+  x-transition:leave-end="opacity-0 translate-y-4"
+  class="fixed bottom-6 right-6 z-50 no-print"
+  style="display: none;"
 >
-	<div
-		class="flex items-center gap-2 px-3 py-2 rounded-full shadow-lg border backdrop-blur-md transition-colors duration-300"
-		:class="{
-			'bg-emerald-500/10 border-emerald-500/20 text-emerald-400': status === 'saved',
-			'bg-blue-500/10 border-blue-500/20 text-blue-400': status === 'saving',
-			'bg-red-500/10 border-red-500/20 text-red-400': status === 'error'
-		}"
-	>
-        <template x-if="status === 'saving'">
-             <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </template>
-        <template x-if="status === 'saved'">
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </template>
-        <template x-if="status === 'error'">
-            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        </template>
-		<span class="text-[10px] font-bold uppercase tracking-wide" x-text="message"></span>
-	</div>
+  <div
+    class="flex items-center gap-2 px-3 py-2 rounded-full shadow-lg border backdrop-blur-md transition-colors duration-300"
+    :class="{
+      'bg-emerald-500/10 border-emerald-500/20 text-emerald-400': status === 'saved',
+      'bg-blue-500/10 border-blue-500/20 text-blue-400': status === 'saving',
+      'bg-red-500/10 border-red-500/20 text-red-400': status === 'error'
+    }"
+  >
+    <template x-if="status === 'saving'">
+      <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </template>
+    <template x-if="status === 'saved'">
+      <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </template>
+    <template x-if="status === 'error'">
+      <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </template>
+    <span class="text-[10px] font-bold uppercase tracking-wide" x-text="message"></span>
+  </div>
 </div>
 
 <script>
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("autoSaveIndicator", () => ({
-			visible: false,
-			status: "saving",
-			message: "",
-			timeout: null,
-			init() {
-				window.addEventListener("autosave:start", () => this.show("saving", "Menyimpan..."));
-				window.addEventListener("autosave:success", () => { this.show("saved", "Tersimpan"); this.hideAfter(2000); });
-				window.addEventListener("autosave:error", () => { this.show("error", "Gagal menyimpan"); this.hideAfter(3000); });
-			},
-			show(status, message) {
-				clearTimeout(this.timeout);
-				this.status = status;
-				this.message = message;
-				this.visible = true;
-			},
-			hideAfter(delay) {
-				this.timeout = setTimeout(() => { this.visible = false; }, delay);
-			},
-		}));
-	});
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("autoSaveIndicator", () => ({
+      visible: false,
+      status: "saving",
+      message: "",
+      timeout: null,
+      init() {
+        window.addEventListener("autosave:start", () =>
+          this.show("saving", "Menyimpan...")
+        );
+        window.addEventListener("autosave:success", () => {
+          this.show("saved", "Tersimpan");
+          this.hideAfter(2000);
+        });
+        window.addEventListener("autosave:error", () => {
+          this.show("error", "Gagal menyimpan");
+          this.hideAfter(3000);
+        });
+      },
+      show(status, message) {
+        clearTimeout(this.timeout);
+        this.status = status;
+        this.message = message;
+        this.visible = true;
+      },
+      hideAfter(delay) {
+        this.timeout = setTimeout(() => {
+          this.visible = false;
+        }, delay);
+      },
+    }));
+  });
 </script>```
 
 ---
@@ -360,60 +401,57 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <div
-	x-data="documentStats"
-	x-show="hasContent"
-	class="fixed top-24 right-8 z-20 no-print"
-	style="display: none;"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0 translate-x-4"
-    x-transition:enter-end="opacity-100 translate-x-0"
+  x-data="documentStats"
+  x-show="hasContent"
+  class="fixed top-24 right-8 z-20 no-print"
+  style="display: none;"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0 translate-x-4"
+  x-transition:enter-end="opacity-100 translate-x-0"
 >
-	<div class="glass-panel px-4 py-3 min-w-[180px] border border-white/5 bg-slate-900/50 backdrop-blur rounded-xl">
-		<h4 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">Statistik Dokumen</h4>
-		<div class="space-y-2">
-			<div class="flex justify-between items-center">
-				<span class="text-xs text-slate-400">Kata</span>
-				<span class="text-sm font-bold text-slate-200" x-text="stats.words">0</span>
-			</div>
-            <div class="flex justify-between items-center">
-				<span class="text-xs text-slate-400">Karakter</span>
-				<span class="text-sm font-bold text-slate-200" x-text="stats.chars">0</span>
-			</div>
-            <div class="flex justify-between items-center">
-				<span class="text-xs text-slate-400">Token Estimasi</span>
-				<span class="text-sm font-bold text-blue-400" x-text="stats.tokens">0</span>
-			</div>
-		</div>
-	</div>
+  <div class="glass-panel px-4 py-3 min-w-[180px] border border-white/5 bg-slate-900/50 backdrop-blur rounded-xl">
+    <h4 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">Statistik Dokumen</h4>
+    <div class="space-y-2">
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-400">Kata</span>
+        <span class="text-sm font-bold text-slate-200" x-text="stats.words">0</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-400">Karakter</span>
+        <span class="text-sm font-bold text-slate-200" x-text="stats.chars">0</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-400">Token Estimasi</span>
+        <span class="text-sm font-bold text-blue-400" x-text="stats.tokens">0</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("documentStats", () => ({
-			stats: { words: 0, chars: 0, tokens: 0 },
-			hasContent: false,
-			init() {
-                // Subscribe to store changes indirectly via window event or watching local prop if bound
-				window.addEventListener("generate:complete", () => this.calculate());
-                // Also watch for manual edits if possible, or just re-calc periodically
-                setInterval(() => this.calculate(), 2000);
-			},
-			calculate() {
-                const preview = document.querySelector(".prose-report");
-                if (!preview || !preview.innerText.trim()) {
-                    this.hasContent = false;
-                    return;
-                }
-                
-                const text = preview.innerText;
-                this.hasContent = true;
-                this.stats.chars = text.length;
-                this.stats.words = text.trim().split(/\s+/).length;
-                // Rough estimate: 1 token ~= 4 chars or 0.75 words
-                this.stats.tokens = Math.ceil(text.length / 4);
-			},
-		}));
-	});
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("documentStats", () => ({
+      stats: { words: 0, chars: 0, tokens: 0 },
+      hasContent: false,
+      init() {
+        window.addEventListener("generate:complete", () => this.calculate());
+        setInterval(() => this.calculate(), 2000);
+      },
+      calculate() {
+        const preview = document.querySelector(".prose-report");
+        if (!preview || !preview.innerText.trim()) {
+          this.hasContent = false;
+          return;
+        }
+
+        const text = preview.innerText;
+        this.hasContent = true;
+        this.stats.chars = text.length;
+        this.stats.words = text.trim().split(/\s+/).length;
+        this.stats.tokens = Math.ceil(text.length / 4);
+      },
+    }));
+  });
 </script>```
 
 ---
@@ -422,83 +460,86 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <div
-	x-data="progressBar"
-	x-show="isGenerating"
-	class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
-	style="display: none;"
-    x-transition.opacity
+  x-data="progressBar"
+  x-show="isGenerating"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+  style="display: none;"
+  x-transition.opacity
 >
-	<div class="glass-panel p-6 max-w-md w-full mx-4 border border-white/10 bg-slate-900 rounded-xl shadow-2xl">
-		<div class="flex items-center gap-3 mb-4">
-			<div class="flex-1">
-				<h3 class="text-white font-bold text-lg">Generating Report</h3>
-				<p class="text-xs text-slate-400" x-text="currentStep">Menghubungi AI...</p>
-			</div>
-            <div class="animate-spin text-blue-500">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </div>
-		</div>
-		<div class="mb-4">
-			<div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
-			</div>
-		</div>
-		<button @click="cancel" class="mt-2 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition hover:bg-slate-800">Batalkan</button>
-	</div>
+  <div class="glass-panel p-6 max-w-md w-full mx-4 border border-white/10 bg-slate-900 rounded-xl shadow-2xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex-1">
+        <h3 class="text-white font-bold text-lg">Generating Report</h3>
+        <p class="text-xs text-slate-400" x-text="currentStep">Menghubungi AI...</p>
+      </div>
+      <div class="animate-spin text-blue-500">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    </div>
+    <div class="mb-4">
+      <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
+      </div>
+    </div>
+    <button @click="cancel" class="mt-2 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition hover:bg-slate-800">
+      Batalkan
+    </button>
+  </div>
 </div>
 
 <script>
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("progressBar", () => ({
-			isGenerating: false,
-			progress: 0,
-			currentStep: "Memulai...",
-			progressInterval: null,
-			init() {
-				window.addEventListener("generate:start", () => this.start());
-				window.addEventListener("generate:complete", () => this.complete());
-				window.addEventListener("generate:error", () => this.error());
-			},
-			start() {
-				this.isGenerating = true;
-				this.progress = 5;
-                this.currentStep = "Mengirim data ke server...";
-				this.animateProgress();
-			},
-			animateProgress() {
-				this.progressInterval = setInterval(() => {
-					if (this.progress < 30) {
-                        this.progress += Math.random() * 5;
-                        this.currentStep = "Memproses konteks data...";
-                    } else if (this.progress < 60) {
-                        this.progress += Math.random() * 2;
-                        this.currentStep = "AI sedang menyusun laporan...";
-                    } else if (this.progress < 90) {
-                        this.progress += Math.random();
-                        this.currentStep = "Finishing format dokumen...";
-                    }
-				}, 500);
-			},
-			complete() {
-				clearInterval(this.progressInterval);
-				this.progress = 100;
-                this.currentStep = "Selesai!";
-				setTimeout(() => { this.isGenerating = false; }, 800);
-			},
-			error() {
-				clearInterval(this.progressInterval);
-				this.isGenerating = false;
-			},
-			cancel() {
-				clearInterval(this.progressInterval);
-				this.isGenerating = false;
-				// Logic to cancel request if possible
-			},
-		}));
-	});
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("progressBar", () => ({
+      isGenerating: false,
+      progress: 0,
+      currentStep: "Memulai...",
+      progressInterval: null,
+      init() {
+        window.addEventListener("generate:start", () => this.start());
+        window.addEventListener("generate:complete", () => this.complete());
+        window.addEventListener("generate:error", () => this.error());
+      },
+      start() {
+        this.isGenerating = true;
+        this.progress = 5;
+        this.currentStep = "Mengirim data ke server...";
+        this.animateProgress();
+      },
+      animateProgress() {
+        this.progressInterval = setInterval(() => {
+          if (this.progress < 30) {
+            this.progress += Math.random() * 5;
+            this.currentStep = "Memproses konteks data...";
+          } else if (this.progress < 60) {
+            this.progress += Math.random() * 2;
+            this.currentStep = "AI sedang menyusun laporan...";
+          } else if (this.progress < 90) {
+            this.progress += Math.random();
+            this.currentStep = "Finishing format dokumen...";
+          }
+        }, 500);
+      },
+      complete() {
+        clearInterval(this.progressInterval);
+        this.progress = 100;
+        this.currentStep = "Selesai!";
+        setTimeout(() => {
+          this.isGenerating = false;
+        }, 800);
+      },
+      error() {
+        clearInterval(this.progressInterval);
+        this.isGenerating = false;
+      },
+      cancel() {
+        clearInterval(this.progressInterval);
+        this.isGenerating = false;
+      },
+    }));
+  });
 </script>```
 
 ---
@@ -507,53 +548,52 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <script>
-    import { addToast } from "../../stores/toastStore";
+  import { addToast } from "../../stores/toastStore";
 
-	document.addEventListener("alpine:init", () => {
-		Alpine.data("keyboardShortcuts", () => ({
-			init() {
-				document.addEventListener("keydown", (e) => {
-                    // Check for Ctrl/Cmd keys
-					if (e.ctrlKey || e.metaKey) {
-						switch (e.key.toLowerCase()) {
-							case "enter": 
-                                e.preventDefault(); 
-                                this.triggerGenerate(); 
-                                break;
-							case "s": 
-                                e.preventDefault(); 
-                                this.triggerSave(); 
-                                break;
-							case "p": 
-                                e.preventDefault(); 
-                                this.triggerExportPDF(); 
-                                break;
-                            case "j":
-                                e.preventDefault();
-                                this.triggerExportDOCX();
-                                break;
-						}
-					}
-				});
-			},
-			triggerGenerate() { 
-                addToast("Shortcut: Generate Report", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:generate")); 
-            },
-			triggerSave() { 
-                addToast("Shortcut: Menyimpan...", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:save")); 
-            },
-			triggerExportPDF() { 
-                addToast("Shortcut: Export PDF", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); 
-            },
-            triggerExportDOCX() {
-                addToast("Shortcut: Export DOCX", "info");
-                window.dispatchEvent(new CustomEvent("shortcut:export-docx")); // Pastikan listen event ini di index.astro
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("keyboardShortcuts", () => ({
+      init() {
+        document.addEventListener("keydown", (e) => {
+          if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+              case "enter":
+                e.preventDefault();
+                this.triggerGenerate();
+                break;
+              case "s":
+                e.preventDefault();
+                this.triggerSave();
+                break;
+              case "p":
+                e.preventDefault();
+                this.triggerExportPDF();
+                break;
+              case "j":
+                e.preventDefault();
+                this.triggerExportDOCX();
+                break;
             }
-		}));
-	});
+          }
+        });
+      },
+      triggerGenerate() {
+        addToast("Shortcut: Generate Report", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:generate"));
+      },
+      triggerSave() {
+        addToast("Shortcut: Menyimpan...", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:save"));
+      },
+      triggerExportPDF() {
+        addToast("Shortcut: Export PDF", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:export-pdf"));
+      },
+      triggerExportDOCX() {
+        addToast("Shortcut: Export DOCX", "info");
+        window.dispatchEvent(new CustomEvent("shortcut:export-docx"));
+      },
+    }));
+  });
 </script>
 <div x-data="keyboardShortcuts"></div>```
 
@@ -564,29 +604,29 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 ```astro
 ---
 interface Props {
-	label: string;
-	name: string;
-	model: string;
-	options: { val: string; label: string }[];
+  label: string;
+  name: string;
+  model: string;
+  options: { val: string; label: string }[];
 }
 const { label, name, model, options } = Astro.props;
 ---
 
 <div class="flex flex-col gap-2 group">
-	<label class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
-		{label}
-	</label>
-	<div class="relative">
-		<select
-			x-model={model}
-			class="w-full appearance-none bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all cursor-pointer"
-		>
-			{options.map((opt) => <option value={opt.val}>{opt.label}</option>)}
-		</select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-        </div>
-	</div>
+  <label class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
+    {label}
+  </label>
+  <div class="relative">
+    <select
+      x-model={model}
+      class="w-full appearance-none bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all cursor-pointer"
+    >
+      {options.map((opt) => <option value={opt.val}>{opt.label}</option>)}
+    </select>
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+      <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+    </div>
+  </div>
 </div>```
 
 ---
@@ -599,14 +639,14 @@ import TextAreaGroup from "../TextAreaGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in">
-	<TextAreaGroup label="Tugas Pokok" name="tp" model="form.kinerja.tugasPokok" rows="4" placeholder="Deskripsikan tugas utama..." />
-	<TextAreaGroup label="Tugas Tambahan" name="tt" model="form.kinerja.tugasTambahan" rows="2" placeholder="Wali kelas, pembina ekskul..." />
-	<div class="pt-4 border-t border-white/5">
-		<h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Target & Evaluasi</h4>
-		<TextAreaGroup label="Target Tahunan" name="iku" model="form.kinerja.targetTahunan" rows="2" placeholder="Target IKU atau SKP..." />
-		<TextAreaGroup label="Hambatan / Kendala" name="hambat" model="form.kinerja.hambatan" rows="2" placeholder="Kendala yang dihadapi bulan ini..." />
-		<TextAreaGroup label="Solusi / Tindak Lanjut" name="solusi" model="form.kinerja.solusi" rows="2" placeholder="Solusi atas kendala..." />
-	</div>
+  <TextAreaGroup label="Tugas Pokok" name="tp" model="form.kinerja.tugasPokok" rows="4" placeholder="Deskripsikan tugas utama..." />
+  <TextAreaGroup label="Tugas Tambahan" name="tt" model="form.kinerja.tugasTambahan" rows="2" placeholder="Wali kelas, pembina ekskul..." />
+  <div class="pt-4 border-t border-white/5">
+    <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Target & Evaluasi</h4>
+    <TextAreaGroup label="Target Tahunan" name="iku" model="form.kinerja.targetTahunan" rows="2" placeholder="Target IKU atau SKP..." />
+    <TextAreaGroup label="Hambatan / Kendala" name="hambat" model="form.kinerja.hambatan" rows="2" placeholder="Kendala yang dihadapi bulan ini..." />
+    <TextAreaGroup label="Solusi / Tindak Lanjut" name="solusi" model="form.kinerja.solusi" rows="2" placeholder="Solusi atas kendala..." />
+  </div>
 </div>```
 
 ---
@@ -620,31 +660,34 @@ import SelectGroup from "./SelectGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in">
-	<SelectGroup
-		label="Kurikulum"
-		name="kur"
-		model="form.akademik.kurikulum"
-		options={[
-			{ val: "MERDEKA", label: "Kurikulum Merdeka" },
-			{ val: "K13", label: "Kurikulum 2013" },
-			{ val: "KTSP", label: "KTSP" },
-		]}
-	/>
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Tahun Pelajaran" name="tapel" model="form.akademik.tahunPelajaran" />
-		<SelectGroup
-			label="Semester"
-			name="sem"
-			model="form.akademik.semester"
-			options={[{ val: "GANJIL", label: "GANJIL" }, { val: "GENAP", label: "GENAP" }]}
-		/>
-	</div>
-	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
-	<InputGroup label="Kelas" name="kls" model="form.akademik.kelas" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Jam Mengajar" name="jam" model="form.akademik.jamMengajar" type="number" />
-		<InputGroup label="Jumlah Siswa" name="siswa" model="form.akademik.jumlahSiswa" type="number" />
-	</div>
+  <SelectGroup
+    label="Kurikulum"
+    name="kur"
+    model="form.akademik.kurikulum"
+    options={[
+      { val: "MERDEKA", label: "Kurikulum Merdeka" },
+      { val: "K13", label: "Kurikulum 2013" },
+      { val: "KTSP", label: "KTSP" },
+    ]}
+  />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Tahun Pelajaran" name="tapel" model="form.akademik.tahunPelajaran" />
+    <SelectGroup
+      label="Semester"
+      name="sem"
+      model="form.akademik.semester"
+      options={[
+        { val: "GANJIL", label: "GANJIL" },
+        { val: "GENAP", label: "GENAP" },
+      ]}
+    />
+  </div>
+  <InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
+  <InputGroup label="Kelas" name="kls" model="form.akademik.kelas" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Jam Mengajar" name="jam" model="form.akademik.jamMengajar" type="number" />
+    <InputGroup label="Jumlah Siswa" name="siswa" model="form.akademik.jumlahSiswa" type="number" />
+  </div>
 </div>```
 
 ---
@@ -673,74 +716,74 @@ import { Info } from "lucide-astro";
 ---
 
 <div class="space-y-6 animate-fade-in pb-10" x-data="{ editing: false }">
-    <div x-show="!form.instansi.id && !editing" class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3 items-start">
-        <Info class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-        <div>
-            <h4 class="text-sm font-bold text-yellow-500 mb-1">Data Instansi Belum Diatur</h4>
-            <p class="text-xs text-yellow-200/80 mb-3">
-                Anda belum terhubung dengan data instansi aktif. Silakan hubungi admin atau isi data manual sementara.
-            </p>
-            <button @click="editing = true" class="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1.5 rounded transition">
-                Isi Manual
-            </button>
-        </div>
+  <div x-show="!form.instansi.id && !editing" class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3 items-start">
+    <Info class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+    <div>
+      <h4 class="text-sm font-bold text-yellow-500 mb-1">Data Instansi Belum Diatur</h4>
+      <p class="text-xs text-yellow-200/80 mb-3">
+        Anda belum terhubung dengan data instansi aktif. Silakan hubungi admin atau isi data manual sementara.
+      </p>
+      <button @click="editing = true" class="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1.5 rounded transition">
+        Isi Manual
+      </button>
+    </div>
+  </div>
+
+  <div class="space-y-3" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+    <div class="flex justify-between items-center border-b border-white/10 pb-1">
+      <h3 class="text-xs font-bold text-blue-400 uppercase">Identitas Instansi</h3>
+      <button x-show="form.instansi.id && !editing" @click="editing = true" class="text-[10px] text-slate-400 hover:text-white">Edit</button>
+      <button x-show="editing" @click="editing = false; updateInstansi()" class="text-[10px] text-green-400 hover:text-green-300">Simpan</button>
     </div>
 
-	<div class="space-y-3" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
-        <div class="flex justify-between items-center border-b border-white/10 pb-1">
-		    <h3 class="text-xs font-bold text-blue-400 uppercase">Identitas Instansi</h3>
-            <button x-show="form.instansi.id && !editing" @click="editing = true" class="text-[10px] text-slate-400 hover:text-white">Edit</button>
-            <button x-show="editing" @click="editing = false" class="text-[10px] text-red-400 hover:text-red-300">Batal</button>
-        </div>
+    <InputGroup label="Header 1" name="h1" model="form.instansi.header1" placeholder="KEMENTERIAN..." />
+    <InputGroup label="Header 2" name="h2" model="form.instansi.header2" placeholder="KANTOR..." />
+    <InputGroup label="Header 3" name="h3" model="form.instansi.header3" placeholder="MADRASAH..." />
+    <InputGroup label="Alamat" name="addr" model="form.instansi.alamat" />
+    <div class="grid grid-cols-2 gap-3">
+      <InputGroup label="Website" name="web" model="form.instansi.website" />
+      <InputGroup label="Email" name="mail" model="form.instansi.email" />
+    </div>
+  </div>
 
-		<InputGroup label="Header 1" name="h1" model="form.instansi.header1" placeholder="KEMENTERIAN..." />
-		<InputGroup label="Header 2" name="h2" model="form.instansi.header2" placeholder="KANTOR..." />
-		<InputGroup label="Header 3" name="h3" model="form.instansi.header3" placeholder="MADRASAH..." />
-		<InputGroup label="Alamat" name="addr" model="form.instansi.alamat" />
-		<div class="grid grid-cols-2 gap-3">
-			<InputGroup label="Website" name="web" model="form.instansi.website" />
-			<InputGroup label="Email" name="mail" model="form.instansi.email" />
-		</div>
-	</div>
+  <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4" x-show="editing || !form.instansi.id">
+    <div class="bg-slate-800 p-3 rounded text-center">
+      <span class="text-xs text-slate-400 block mb-2">Logo Kiri (Utama)</span>
+      <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+        <template x-if="form.instansi.logoUtama">
+          <img :src="form.instansi.logoUtama" class="h-full object-contain" />
+        </template>
+        <template x-if="!form.instansi.logoUtama">
+          <span class="text-[10px] text-slate-600">No Logo</span>
+        </template>
+      </div>
+      <input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
+    </div>
+    <div class="bg-slate-800 p-3 rounded text-center">
+      <span class="text-xs text-slate-400 block mb-2">Logo Kanan (Instansi)</span>
+      <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+        <template x-if="form.instansi.logoInstansi">
+          <img :src="form.instansi.logoInstansi" class="h-full object-contain" />
+        </template>
+        <template x-if="!form.instansi.logoInstansi">
+          <span class="text-[10px] text-slate-600">No Logo</span>
+        </template>
+      </div>
+      <input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
+    </div>
+  </div>
 
-	<div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4" x-show="editing || !form.instansi.id">
-		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kiri (Utama)</span>
-            <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
-                <template x-if="form.instansi.logoUtama">
-                    <img :src="form.instansi.logoUtama" class="h-full object-contain" />
-                </template>
-                <template x-if="!form.instansi.logoUtama">
-                    <span class="text-[10px] text-slate-600">No Logo</span>
-                </template>
-            </div>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
-		</div>
-		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kanan (Instansi)</span>
-             <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
-                <template x-if="form.instansi.logoInstansi">
-                    <img :src="form.instansi.logoInstansi" class="h-full object-contain" />
-                </template>
-                <template x-if="!form.instansi.logoInstansi">
-                    <span class="text-[10px] text-slate-600">No Logo</span>
-                </template>
-            </div>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
-		</div>
-	</div>
-
-	<div class="space-y-3 pt-4 border-t border-white/10" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
-		<h3 class="text-xs font-bold text-blue-400 uppercase">Pejabat Penilai</h3>
-		<InputGroup label="Titimangsa (Tempat)" name="titimangsa" model="form.instansi.titimangsa" />
-		<div class="p-3 bg-white/5 rounded-lg border border-white/5">
-			<InputGroup label="Nama Kepala" name="k_nama" model="form.instansi.kepala.nama" />
-			<div class="grid grid-cols-2 gap-2 mt-2">
-				<InputGroup label="NIP Kepala" name="k_nip" model="form.instansi.kepala.nip" />
-				<InputGroup label="Pangkat/Gol" name="k_pgkt" model="form.instansi.kepala.pangkat" />
-			</div>
-		</div>
-	</div>
+  <div class="space-y-3 pt-4 border-t border-white/10" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+    <h3 class="text-xs font-bold text-blue-400 uppercase">Pejabat Penilai</h3>
+    <InputGroup label="Titimangsa (Tempat)" name="titimangsa" model="form.instansi.titimangsa" />
+    <div class="p-3 bg-white/5 rounded-lg border border-white/5">
+      <InputGroup label="Nama Kepala" name="k_nama" model="form.instansi.kepala.nama" />
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <InputGroup label="NIP Kepala" name="k_nip" model="form.instansi.kepala.nip" />
+        <InputGroup label="Pangkat/Gol" name="k_pgkt" model="form.instansi.kepala.pangkat" />
+      </div>
+    </div>
+  </div>
 </div>```
 
 ---
@@ -754,55 +797,55 @@ import SelectGroup from "./SelectGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in pb-10">
-	<h3 class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1">Data Pegawai</h3>
-	<InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
-		<InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
-	</div>
-	<div class="grid grid-cols-2 gap-3">
-		<SelectGroup
-			label="Status"
-			name="stts"
-			model="form.pegawai.jenis"
-			options={[
-				{ val: "PNS", label: "PNS" },
-				{ val: "PPPK", label: "PPPK" },
-				{ val: "HONORER", label: "HONORER" },
-				{ val: "GURU", label: "GURU" },
-			]}
-		/>
-        <SelectGroup
-			label="Status Pegawai"
-			name="stts_peg"
-			model="form.pegawai.status"
-			options={[
-				{ val: "AKTIF", label: "AKTIF" },
-				{ val: "CUTI", label: "CUTI" },
-				{ val: "TUGAS_BELAJAR", label: "TUGAS BELAJAR" },
-				{ val: "NON_AKTIF", label: "NON AKTIF" },
-			]}
-		/>
-	</div>
-    <div class="grid grid-cols-2 gap-3">
-        <SelectGroup
-			label="Gender"
-			name="gender"
-			model="form.pegawai.gender"
-			options={[
-				{ val: "L", label: "Laki-laki" },
-				{ val: "P", label: "Perempuan" },
-			]}
-		/>
-        <InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
-    </div>
-	<InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
-	<InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
-    <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
-		<InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
-	</div>
+  <h3 class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1">Data Pegawai</h3>
+  <InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
+    <InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <SelectGroup
+      label="Status"
+      name="stts"
+      model="form.pegawai.jenis"
+      options={[
+        { val: "PNS", label: "PNS" },
+        { val: "PPPK", label: "PPPK" },
+        { val: "HONORER", label: "HONORER" },
+        { val: "GURU", label: "GURU" },
+      ]}
+    />
+    <SelectGroup
+      label="Status Pegawai"
+      name="stts_peg"
+      model="form.pegawai.status"
+      options={[
+        { val: "AKTIF", label: "AKTIF" },
+        { val: "CUTI", label: "CUTI" },
+        { val: "TUGAS_BELAJAR", label: "TUGAS BELAJAR" },
+        { val: "NON_AKTIF", label: "NON AKTIF" },
+      ]}
+    />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <SelectGroup
+      label="Gender"
+      name="gender"
+      model="form.pegawai.gender"
+      options={[
+        { val: "L", label: "Laki-laki" },
+        { val: "P", label: "Perempuan" },
+      ]}
+    />
+    <InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
+  </div>
+  <InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
+  <InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+  <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
+    <InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
+  </div>
 </div>```
 
 ---
@@ -812,27 +855,27 @@ import SelectGroup from "./SelectGroup.astro";
 ```astro
 ---
 interface Props {
-	label: string;
-	name: string;
-	model: string;
-	rows?: string;
-	placeholder?: string;
+  label: string;
+  name: string;
+  model: string;
+  rows?: string;
+  placeholder?: string;
 }
 const { label, name, model, rows = "4", placeholder } = Astro.props;
 ---
 
 <div class="flex flex-col gap-2 group">
-	<label for={name} class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
-		{label}
-	</label>
-	<textarea
-		id={name}
-		name={name}
-		x-model={model}
-		rows={rows}
-		placeholder={placeholder}
-		class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all resize-none custom-scrollbar placeholder:text-slate-600"
-	></textarea>
+  <label for={name} class="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-blue-400 transition-colors">
+    {label}
+  </label>
+  <textarea
+    id={name}
+    name={name}
+    x-model={model}
+    rows={rows}
+    placeholder={placeholder}
+    class="w-full bg-slate-950/30 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:bg-slate-900/50 transition-all resize-none custom-scrollbar placeholder:text-slate-600"
+  ></textarea>
 </div>```
 
 ---
@@ -883,12 +926,7 @@ export const MODEL_CONFIGS = {
 /// <reference types="vite-plugin-pwa/client" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_GEMINI_API_KEY: string;
-  readonly PUBLIC_CLAUDE_API_KEY: string;
-  readonly PUBLIC_OPENAI_API_KEY: string;
-  readonly PUBLIC_GROQ_API_KEY: string;
-  readonly PUBLIC_TOGETHER_API_KEY: string;
-  readonly PUBLIC_DEEPSEEK_API_KEY: string;
+  readonly PUBLIC_API_URL: string;
 }
 
 interface ImportMeta {
@@ -916,25 +954,50 @@ import Layout from "../layouts/Layout.astro";
       <form @submit.prevent="handleRegister" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap</label>
-          <input type="text" x-model="name" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="Contoh: Ahmad Dahlan" required />
+          <input
+            type="text"
+            x-model="name"
+            class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950"
+            placeholder="Contoh: Ahmad Dahlan"
+            required
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
-          <input type="email" x-model="email" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="email@instansi.go.id" required />
+          <input
+            type="email"
+            x-model="email"
+            class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950"
+            placeholder="email@instansi.go.id"
+            required
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
-          <input type="password" x-model="password" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="Minimal 8 karakter" required minlength="8" />
+          <input
+            type="password"
+            x-model="password"
+            class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950"
+            placeholder="Minimal 8 karakter"
+            required
+            minlength="8"
+          />
         </div>
 
         <div x-show="error" x-transition.opacity class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2">
-            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span x-text="error"></span>
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span x-text="error"></span>
         </div>
 
-        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20"
+        >
           <span x-show="!loading">Daftar</span>
           <svg x-show="loading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -951,45 +1014,51 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <style>
-    .animate-fade-in-up {
-        animation: fadeInUp 0.5s ease-out;
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
+  }
 </style>
 
 <script>
-  import Alpine from 'alpinejs';
-  import { register } from '../services/authService';
+  import Alpine from "alpinejs";
+  import { register } from "../services/authService";
 
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('registerApp', () => ({
-      name: '',
-      email: '',
-      password: '',
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("registerApp", () => ({
+      name: "",
+      email: "",
+      password: "",
       loading: false,
-      error: '',
+      error: "",
 
       async handleRegister() {
         this.loading = true;
-        this.error = '';
+        this.error = "";
 
         const result = await register({
           name: this.name,
           email: this.email,
-          password: this.password
+          password: this.password,
         });
 
         if (result.success) {
-          window.location.href = '/';
+          window.location.href = "/";
         } else {
           this.error = result.error;
         }
 
         this.loading = false;
-      }
+      },
     }));
   });
 </script>```
@@ -1005,17 +1074,17 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="Login - E-Kinerja">
   <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4 relative overflow-hidden" x-data="loginApp">
-    
-    <!-- Background Elements -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]"></div>
-        <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]"></div>
+      <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]"></div>
     </div>
 
     <div class="max-w-md w-full bg-slate-800/80 backdrop-blur-md rounded-xl p-8 border border-white/10 shadow-2xl relative z-10 animate-fade-in-up">
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 mb-4 ring-1 ring-blue-500/40">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
+          </svg>
         </div>
         <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
         <p class="text-slate-400 text-sm">Masuk untuk mengelola laporan kinerja</p>
@@ -1024,20 +1093,38 @@ import Layout from "../layouts/Layout.astro";
       <form @submit.prevent="handleLogin" class="space-y-5">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
-          <input type="email" x-model="email" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="nama@instansi.go.id" required />
+          <input
+            type="email"
+            x-model="email"
+            class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900"
+            placeholder="nama@instansi.go.id"
+            required
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
-          <input type="password" x-model="password" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="••••••••" required />
+          <input
+            type="password"
+            x-model="password"
+            class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900"
+            placeholder="••••••••"
+            required
+          />
         </div>
 
         <div x-show="error" x-transition.opacity class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2">
-            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span x-text="error"></span>
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span x-text="error"></span>
         </div>
 
-        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20"
+        >
           <span x-show="!loading">Masuk</span>
           <svg x-show="loading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1054,40 +1141,46 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <style>
-    .animate-fade-in-up {
-        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
     }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
+  }
 </style>
 
 <script>
-  import Alpine from 'alpinejs';
-  import { login } from '../services/authService';
+  import Alpine from "alpinejs";
+  import { login } from "../services/authService";
 
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('loginApp', () => ({
-      email: '',
-      password: '',
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("loginApp", () => ({
+      email: "",
+      password: "",
       loading: false,
-      error: '',
+      error: "",
 
       async handleLogin() {
         this.loading = true;
-        this.error = '';
+        this.error = "";
 
         const result = await login({ email: this.email, password: this.password });
 
         if (result.success) {
-          window.location.href = '/';
+          window.location.href = "/";
         } else {
           this.error = result.error;
         }
 
         this.loading = false;
-      }
+      },
     }));
   });
 </script>```
@@ -1143,20 +1236,26 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
     </header>
 
     <div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
-      <aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shrink-0 transition-all duration-300" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'">
+      <aside
+        class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shrink-0 transition-all duration-300"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'"
+      >
         <div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
           <div class="grid grid-cols-2 gap-2">
-            <SelectGroup label="Bulan" name="bln" model="form.config.bulan" options={Array.from({length: 12}, (_, i) => ({val: String(i+1), label: String(i+1)}))} />
+            <SelectGroup label="Bulan" name="bln" model="form.config.bulan" options={Array.from({ length: 12 }, (_, i) => ({ val: String(i + 1), label: String(i + 1) }))} />
             <InputGroup label="Tahun" name="thn" model="form.config.tahun" type="number" />
           </div>
-          <SelectGroup label="Model AI" name="ai" model="form.config.modelAI"
+          <SelectGroup
+            label="Model AI"
+            name="ai"
+            model="form.config.modelAI"
             options={[
-              {val: "gemini", label: "Gemini 2.0 (Fast)"},
-              {val: "groq", label: "Groq Llama 3 (Ultra Fast)"},
-              {val: "claude", label: "Claude Sonnet (Smart)"},
-              {val: "gpt", label: "GPT-4o Mini"},
-              {val: "deepseek", label: "DeepSeek (Economical)"},
-              {val: "together", label: "Together AI"}
+              { val: "gemini", label: "Gemini 2.0 (Fast)" },
+              { val: "groq", label: "Groq Llama 3 (Ultra Fast)" },
+              { val: "claude", label: "Claude Sonnet (Smart)" },
+              { val: "gpt", label: "GPT-4o Mini" },
+              { val: "deepseek", label: "DeepSeek (Economical)" },
+              { val: "together", label: "Together AI" },
             ]}
           />
           <InputGroup label="Token Limit" name="tkn" model="form.config.tokenLimit" type="number" />
@@ -1164,32 +1263,52 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
         <div class="flex border-b border-white/5 bg-slate-950/30">
           <template x-for="tab in tabs" :key="tab.id">
-            <button @click="activeTab = tab.id" :class="activeTab === tab.id ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5' : 'text-slate-500 hover:text-white'" class="flex-1 py-3 text-xs font-medium transition text-center" x-text="tab.label"></button>
+            <button
+              @click="activeTab = tab.id"
+              :class="activeTab === tab.id ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5' : 'text-slate-500 hover:text-white'"
+              class="flex-1 py-3 text-xs font-medium transition text-center"
+              x-text="tab.label"
+            ></button>
           </template>
         </div>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-          <div x-show="activeTab === 'instansi'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormInstansi /></div>
-          <div x-show="activeTab === 'pegawai'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormPegawai /></div>
-          <div x-show="activeTab === 'akademik'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormAkademik /></div>
-          <div x-show="activeTab === 'kinerja'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormKinerja /></div>
+          <div x-show="activeTab === 'instansi'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">
+            <FormInstansi />
+          </div>
+          <div x-show="activeTab === 'pegawai'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">
+            <FormPegawai />
+          </div>
+          <div x-show="activeTab === 'akademik'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">
+            <FormAkademik />
+          </div>
+          <div x-show="activeTab === 'kinerja'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">
+            <FormKinerja />
+          </div>
         </div>
 
         <div class="p-4 border-t border-white/10 bg-slate-900 z-50">
-          <button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50 shadow-lg hover:shadow-blue-500/20">
+          <button
+            @click="generateLaporan"
+            :disabled="loading"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50 shadow-lg hover:shadow-blue-500/20"
+          >
             <RefreshCw :class="loading && 'animate-spin'" class="w-4 h-4" /> GENERATE & SAVE
           </button>
         </div>
       </aside>
 
-      <!-- Toggle Sidebar Mobile -->
       <button @click="sidebarOpen = !sidebarOpen" class="md:hidden fixed bottom-6 left-6 z-50 p-3 bg-blue-600 text-white rounded-full shadow-xl no-print">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
       </button>
 
       <section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar w-full">
         <div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
-          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700 transition hover:scale-105 tooltip" title="Print"><Printer class="w-6 h-6" /></button>
+          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700 transition hover:scale-105 tooltip" title="Print">
+            <Printer class="w-6 h-6" />
+          </button>
         </div>
 
         <div id="document-preview" class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300">
@@ -1217,9 +1336,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
           </div>
 
           <div x-show="!form.output.content" class="text-center py-20 text-gray-400">
-             <div class="mb-4 flex justify-center text-slate-300">
-                <FileText class="w-16 h-16" />
-             </div>
+            <div class="mb-4 flex justify-center text-slate-300">
+              <FileText class="w-16 h-16" />
+            </div>
             <p>Konten laporan akan muncul di sini setelah di-generate.</p>
             <p class="text-xs mt-2">Pastikan data di formulir sebelah kiri sudah lengkap.</p>
           </div>
@@ -1239,10 +1358,14 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       </section>
     </div>
 
-    <div x-show="showHistory" @click.away="showHistory = false"
-      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-      class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print shadow-2xl p-4">
-
+    <div
+      x-show="showHistory"
+      @click.away="showHistory = false"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="translate-x-full"
+      x-transition:enter-end="translate-x-0"
+      class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print shadow-2xl p-4"
+    >
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-white font-bold flex items-center gap-2"><History class="w-4 h-4" /> Riwayat Cloud</h3>
         <button @click="refreshHistory" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"><RefreshCw class="w-3 h-3" /> Refresh</button>
@@ -1251,8 +1374,8 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       <div class="space-y-2">
         <template x-if="historyItems.length === 0">
           <div class="text-center text-slate-500 text-xs py-10 flex flex-col items-center">
-             <History class="w-8 h-8 mb-2 opacity-50" />
-             <span>Belum ada riwayat laporan</span>
+            <History class="w-8 h-8 mb-2 opacity-50" />
+            <span>Belum ada riwayat laporan</span>
           </div>
         </template>
         <template x-for="item in historyItems" :key="item.id">
@@ -1263,8 +1386,8 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
             </div>
             <div class="text-sm font-medium text-slate-200 mb-2 truncate pr-6" x-text="item.title"></div>
             <div class="flex justify-between items-center mt-2">
-               <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700" x-text="item.status || 'DRAFT'"></span>
-               <span class="text-[10px] text-slate-500">Klik untuk buka</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700" x-text="item.status || 'DRAFT'"></span>
+              <span class="text-[10px] text-slate-500">Klik untuk buka</span>
             </div>
           </div>
         </template>
@@ -1274,12 +1397,14 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 </Layout>
 
 <style>
-  @reference "../styles/global.css";
+  @reference "tailwindcss";
   .btn-icon {
     @apply px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2 items-center border border-slate-700 hover:bg-slate-700 transition text-slate-300 cursor-pointer hover:border-slate-500 hover:text-white shadow-sm;
   }
 </style>
+
 <script>
+
   import { reportStore, historyStore, validateBeforeGenerate } from "../stores/reportStore";
   import { generateLaporan } from "../services/aiService";
   import { importFromExcel, downloadTemplate } from "../services/excelService";
@@ -1287,14 +1412,19 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   import { logout } from "../services/authService";
   import { uploadFile } from "../services/fileService";
   import { fetchPegawaiProfile, savePegawaiProfile } from "../services/pegawaiService";
-  import { fetchActiveInstansi, createManualInstansi } from "../services/instansiService";
+  import { fetchActiveInstansi, updateInstansi } from "../services/instansiService";
   import { fetchHistory, loadReportDetail, deleteReport } from "../services/historyService";
   import { parseMarkdown } from "../utils/markdown";
   import { addToast } from "../stores/toastStore";
 
   document.addEventListener("alpine:init", () => {
     Alpine.data("appCore", () => ({
-      tabs: [{id: "instansi", label: "1. Instansi"}, {id: "pegawai", label: "2. Pegawai"}, {id: "akademik", label: "3. Akademik"}, {id: "kinerja", label: "4. Kinerja"}],
+      tabs: [
+        { id: "instansi", label: "1. Instansi" },
+        { id: "pegawai", label: "2. Pegawai" },
+        { id: "akademik", label: "3. Akademik" },
+        { id: "kinerja", label: "4. Kinerja" },
+      ],
       activeTab: "pegawai",
       form: reportStore.get(),
       loading: false,
@@ -1304,28 +1434,24 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       historyItems: [],
 
       async init() {
-        // Render existing content
         if (this.form.output.content) {
-            this.renderedHTML = await parseMarkdown(this.form.output.content);
+          this.renderedHTML = await parseMarkdown(this.form.output.content);
         }
 
-        // Fetch data tanpa blocking UI jika error (404)
         try {
-            await fetchPegawaiProfile();
-            await fetchActiveInstansi();
+          await fetchPegawaiProfile();
+          await fetchActiveInstansi();
         } catch (e) {
-            // Error network/auth, biarkan silent di console
+          console.warn("Error fetching initial data:", e);
         }
-        
-        // Refresh store UI setelah fetch
+
         this.form = reportStore.get();
-        
-        // Load history
         this.refreshHistory();
 
-        historyStore.subscribe((val) => { this.historyItems = val.items; });
+        historyStore.subscribe((val) => {
+          this.historyItems = val.items;
+        });
 
-        // Autosave logic
         let timeout;
         this.$watch("form", (val) => {
           clearTimeout(timeout);
@@ -1349,15 +1475,15 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       async generateLaporan() {
         const validation = validateBeforeGenerate(this.form);
         if (!validation.valid) {
-            addToast("Data belum lengkap: " + validation.errors[0], "error");
-            return;
+          addToast("Data belum lengkap: " + validation.errors[0], "error");
+          return;
         }
 
-        // Auto-save instansi jika belum ada ID
         if (!this.form.instansi.id) {
-             addToast("Menyimpan data instansi baru...", "info");
-             const saved = await createManualInstansi();
-             if (!saved) return; 
+          const { createManualInstansi } = await import("../services/instansiService");
+          addToast("Menyimpan data instansi baru...", "info");
+          const saved = await createManualInstansi();
+          if (!saved) return;
         }
 
         this.loading = true;
@@ -1372,10 +1498,10 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
             window.dispatchEvent(new CustomEvent("generate:complete"));
             addToast(`Sukses! ${result.tokensUsed || 0} token digunakan.`, "success");
             await this.refreshHistory();
-            
+
             if (window.innerWidth < 768) {
-                this.sidebarOpen = false;
-                document.getElementById('document-preview')?.scrollIntoView({ behavior: 'smooth' });
+              this.sidebarOpen = false;
+              document.getElementById("document-preview")?.scrollIntoView({ behavior: "smooth" });
             }
           } else {
             addToast(result.error || "Gagal generate laporan", "error");
@@ -1392,23 +1518,22 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       async handleUpload(event, field) {
         const file = event.target.files?.[0];
         if (file) {
-          // Client side limit check (misal 5MB)
           if (file.size > 5 * 1024 * 1024) {
-              addToast("Ukuran file maksimal 5MB", "error");
-              return;
+            addToast("Ukuran file maksimal 5MB", "error");
+            return;
           }
-          
+
           addToast("Mengupload...", "info");
-          const category = field.includes('instansi') ? 'LOGO_INSTANSI' : 'FOTO_PEGAWAI';
+          const category = field.includes("instansi") ? "LOGO_INSTANSI" : "FOTO_PEGAWAI";
           const result = await uploadFile(file, category);
 
-          if(result.success) {
+          if (result.success) {
             const path = field.split(".");
             let target = this.form;
             for (let i = 0; i < path.length - 1; i++) target = target[path[i]];
             target[path[path.length - 1]] = result.url;
 
-            reportStore.set({...this.form});
+            reportStore.set({ ...this.form });
             addToast("Upload berhasil", "success");
           } else {
             addToast("Upload gagal: " + result.error, "error");
@@ -1431,14 +1556,21 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
       async saveDraft() {
         const result = await savePegawaiProfile();
-        if(result.success) {
-            addToast("Data tersimpan di server", "success");
-            // Cek juga instansi
-            if(!this.form.instansi.id) {
-                await createManualInstansi();
-            }
+        if (result.success) {
+          addToast("Data tersimpan di server", "success");
+          if (!this.form.instansi.id) {
+            const { createManualInstansi } = await import("../services/instansiService");
+            await createManualInstansi();
+          }
         } else {
-            addToast("Gagal menyimpan: " + result.error, "error");
+          addToast("Gagal menyimpan: " + result.error, "error");
+        }
+      },
+
+      async updateInstansi() {
+        const result = await updateInstansi();
+        if (result) {
+          addToast("Instansi berhasil diupdate", "success");
         }
       },
 
@@ -1447,44 +1579,64 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       },
 
       async loadItem(id) {
-        if(confirm("Buka laporan ini? Data yang belum disimpan di editor akan tertimpa.")) {
-            const success = await loadReportDetail(id);
-            if(success) {
-                this.form = reportStore.get();
-                if(this.form.output.content) {
-                    this.renderedHTML = await parseMarkdown(this.form.output.content);
-                }
-                this.showHistory = false;
-                addToast("Laporan dimuat", "success");
-            } else {
-                addToast("Gagal memuat laporan", "error");
+        if (confirm("Buka laporan ini? Data yang belum disimpan di editor akan tertimpa.")) {
+          const success = await loadReportDetail(id);
+          if (success) {
+            this.form = reportStore.get();
+            if (this.form.output.content) {
+              this.renderedHTML = await parseMarkdown(this.form.output.content);
             }
+            this.showHistory = false;
+            addToast("Laporan dimuat", "success");
+          } else {
+            addToast("Gagal memuat laporan", "error");
+          }
         }
       },
 
       async deleteItem(id) {
-        if(confirm("Hapus laporan ini secara permanen?")) {
-            const success = await deleteReport(id);
-            if(success) addToast("Laporan dihapus", "success");
-            else addToast("Gagal menghapus", "error");
+        if (confirm("Hapus laporan ini secara permanen?")) {
+          const success = await deleteReport(id);
+          if (success) addToast("Laporan dihapus", "success");
+          else addToast("Gagal menghapus", "error");
         }
       },
 
-      handleLogout() { logout(); },
-      downloadTemplate() { downloadTemplate(); },
-      exportPDF() { exportToPDF(); },
-      exportDOCX() { exportToDOCX(); },
-      printDoc() { printDocument(); },
-      toggleHistory() { this.showHistory = !this.showHistory; },
+      handleLogout() {
+        logout();
+      },
+      downloadTemplate() {
+        downloadTemplate();
+      },
+      exportPDF() {
+        exportToPDF();
+      },
+      exportDOCX() {
+        exportToDOCX();
+      },
+      printDoc() {
+        printDocument();
+      },
+      toggleHistory() {
+        this.showHistory = !this.showHistory;
+      },
 
       getCurrentDate() {
-        return new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        return new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
       },
 
       formatDate(isoString) {
-        if(!isoString) return '-';
-        return new Date(isoString).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: '2-digit' });
-      }
+        if (!isoString) return "-";
+        return new Date(isoString).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+        });
+      },
     }));
   });
 </script>```
@@ -1590,7 +1742,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
     margin-top: 1.2rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
-    border-bottom: 1px solid transparent; /* Fix spacing */
   }
   .prose-report h3 {
     font-size: 12pt;
@@ -1671,6 +1822,20 @@ export interface AuthResponse {
     role: string;
   };
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface AuthState {
+  token: string;
+  refreshToken: string;
+  user: User | null;
+  isAuthenticated: boolean;
+}
 ```
 
 ---
@@ -1713,6 +1878,35 @@ export interface PegawaiDTO {
   fotoPegawai?: string;
 }
 
+export interface InstansiDTO {
+  header1: string;
+  header2: string;
+  header3: string;
+  alamat: string;
+  telepon?: string;
+  email?: string;
+  website?: string;
+  logoUtama?: string;
+  logoInstansi?: string;
+  namaKepala: string;
+  nipKepala: string;
+  pangkatKepala: string;
+  ttdKepala?: string;
+  titimangsa: string;
+  isActive?: boolean;
+}
+
+export interface AkademikDTO {
+  kurikulum: "K13" | "MERDEKA" | "KTSP";
+  tahunPelajaran: string;
+  semester: "GANJIL" | "GENAP";
+  mapel: string;
+  kelas: string;
+  jamMengajar: number;
+  jumlahSiswa: number;
+  ekskul?: string;
+}
+
 export interface Pejabat {
   nama: string;
   nip: string;
@@ -1723,7 +1917,6 @@ export interface Pejabat {
 export interface InstansiData {
   id?: string;
   logoUtama: string;
-  logoInstitusi?: string;
   logoInstansi: string;
   header1: string;
   header2: string;
@@ -1733,7 +1926,6 @@ export interface InstansiData {
   email: string;
   website: string;
   kepala: Pejabat;
-  kepalaTu?: Pejabat;
   titimangsa: string;
 }
 
@@ -1775,8 +1967,6 @@ export interface KinerjaData {
   tugasPokok: string;
   tugasTambahan: string;
   targetTahunan: string;
-  targetKuantitatif: string;
-  targetKualitatif: string;
   hambatan: string;
   solusi: string;
 }
@@ -1794,15 +1984,9 @@ export interface TTEData {
   nomorDokumen: string;
   hashDokumen: string;
   timestamp: string;
-  statusValidasi: "Valid" | "Invalid" | "Expired";
 }
 
 export interface OutputData {
-  titimangsa: {
-    tempat: string;
-    tanggal: string;
-    bahasa: "Indonesia" | "Inggris";
-  };
   tte: TTEData;
   content: string;
   lastUpdated: string;
@@ -1822,7 +2006,6 @@ export interface HistoryItem {
   title: string;
   date: string;
   status: string;
-  data?: any;
 }
 
 export interface HistoryStore {
@@ -1834,16 +2017,6 @@ export interface GenerateAIResult {
   content?: string;
   tokensUsed?: number;
   error?: string;
-}
-
-export interface ValidationError {
-  field: string;
-  message: string;
-}
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationError[];
 }
 ```
 
@@ -1862,55 +2035,54 @@ const defaultState: AppStore = {
     header1: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
     header2: "KANTOR KABUPATEN PANDEGLANG",
     header3: "MADRASAH TSANAWIYAH NEGERI 1 PANDEGLANG",
-    alamat: "Jl. Raya Labuan Km. 5,7 Pandeglang - Banten 42253",
-    telepon: "(0253) 201000",
-    email: "mtsn1pandeglang@kemenag.go.id",
-    website: "mtsn1pandeglang.sch.id",
+    alamat:
+      "Jl. Raya Labuan Km. 5,7 Palurahan, Kaduhejo, Pandeglang - Banten 42253",
+    telepon: "62895351856267",
+    email: "adm@mtsn1pandeglang.sch.id",
+    website: "https://mtsn1pandeglang.sch.id",
     kepala: {
       nama: "",
       nip: "",
-      pangkat: "Pembina/IV-a",
+      pangkat: "Pembina/IV-c",
       ttd: "",
     },
     titimangsa: "Pandeglang",
   },
   pegawai: {
-    nama: "",
-    nip: "",
+    nama: "Yahya Zulfikri",
+    nip: "200001142025211016",
     nuptk: "",
-    nik: "",
-    jenis: "PNS",
+    nik: "3601211801000001",
+    jenis: "PPPK",
     status: "AKTIF",
     golongan: "III/a",
-    jabatan: "Guru Ahli Pertama",
-    unitKerja: "MTsN 1 Pandeglang",
+    jabatan: "Pengadministrasi Perkantoran",
+    unitKerja: "Tata Usaha MTs Negeri 1 Pandeglang",
     tempatLahir: "Pandeglang",
-    tanggalLahir: "1990-01-01",
+    tanggalLahir: "2000-01-04",
     gender: "L",
-    alamat: "",
-    hp: "",
-    email: "",
+    alamat: "Kp. Kebon Cau RT 001 RW 005 Pandeglang",
+    hp: "628211558571",
+    email: "zulfikriyahya18@gmail.com",
     fotoPegawai: "",
-    pendidikan: "S1 Pendidikan",
-    masaKerjaTahun: "5",
-    masaKerjaBulan: "0",
+    pendidikan: "S1 Sistem Informasi",
+    masaKerjaTahun: "0",
+    masaKerjaBulan: "5",
   },
   akademik: {
     kurikulum: "MERDEKA",
     tahunPelajaran: `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
-    semester: "GANJIL",
+    semester: "GENAP",
     mapel: "",
     kelas: "",
-    jamMengajar: "24",
-    jumlahSiswa: "32",
+    jamMengajar: "0",
+    jumlahSiswa: "0",
     ekskul: "",
   },
   kinerja: {
     tugasPokok: "Merencanakan, melaksanakan, dan mengevaluasi pembelajaran.",
     tugasTambahan: "Wali Kelas, Piket Harian",
     targetTahunan: "Meningkatkan ketuntasan belajar siswa minimal 85%",
-    targetKuantitatif: "Laporan Kinerja Bulanan, Perangkat Pembelajaran",
-    targetKualitatif: "Tercapainya standar kompetensi lulusan",
     hambatan: "",
     solusi: "",
   },
@@ -1922,17 +2094,11 @@ const defaultState: AppStore = {
     customInstruction: "",
   },
   output: {
-    titimangsa: {
-      tempat: "Pandeglang",
-      tanggal: "",
-      bahasa: "Indonesia",
-    },
     tte: {
       qrCode: "",
       nomorDokumen: "",
       hashDokumen: "",
       timestamp: "",
-      statusValidasi: "Valid",
     },
     content: "",
     lastUpdated: "",
@@ -1969,11 +2135,13 @@ export const validateBeforeGenerate = (
   data: AppStore,
 ): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
+
   if (!data.pegawai.nama) errors.push("Nama pegawai harus diisi");
   if (!data.pegawai.nip) errors.push("NIP harus diisi");
   if (!data.pegawai.jabatan) errors.push("Jabatan harus diisi");
   if (!data.config.bulan) errors.push("Bulan laporan harus dipilih");
   if (!data.config.tahun) errors.push("Tahun laporan harus diisi");
+  if (!data.kinerja.tugasPokok) errors.push("Tugas pokok harus diisi");
 
   if (data.pegawai.email && data.pegawai.email.trim() !== "") {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1984,9 +2152,7 @@ export const validateBeforeGenerate = (
 
   const validStatus = ["AKTIF", "CUTI", "TUGAS_BELAJAR", "NON_AKTIF"];
   if (!validStatus.includes(data.pegawai.status)) {
-    errors.push(
-      "Status pegawai tidak valid (Gunakan: AKTIF, CUTI, TUGAS_BELAJAR, NON_AKTIF)",
-    );
+    errors.push("Status pegawai tidak valid");
   }
 
   return { valid: errors.length === 0, errors };
@@ -1999,20 +2165,7 @@ export const validateBeforeGenerate = (
 
 ```typescript
 import { persistentMap } from "@nanostores/persistent";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
-
-export interface AuthState {
-  token: string;
-  refreshToken: string;
-  user: User | null;
-  isAuthenticated: boolean;
-}
+import type { AuthState } from "../types/AuthTypes";
 
 export const authStore = persistentMap<AuthState>(
   "ekinerja-auth:",
@@ -2050,7 +2203,6 @@ export const addToast = (message: string, type: ToastType = "info") => {
   const id = Date.now();
   const currentToasts = $toasts.get();
 
-  // Prevent duplicate messages in short time
   if (currentToasts.some((t) => t.message === message && t.type === type)) {
     return;
   }
@@ -2071,8 +2223,7 @@ export const addToast = (message: string, type: ToastType = "info") => {
 import axios from "axios";
 import { getToken, logout } from "../services/authService";
 
-const BASE_URL =
-  import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api/v1";
+const BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -2155,6 +2306,24 @@ export const debounce = (func: Function, wait: number) => {
     timeout = setTimeout(later, wait);
   };
 };
+
+export const getBulanIndonesia = (bulan: number): string => {
+  const namaBulan = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+  return namaBulan[bulan - 1] || "";
+};
 ```
 
 ---
@@ -2174,6 +2343,7 @@ marked.setOptions({
 
 export const parseMarkdown = async (text: string): Promise<string> => {
   if (!text) return "";
+
   const renderer = new marked.Renderer();
 
   renderer.table = (header: string, body: string) => {
@@ -2185,7 +2355,6 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     return `<h${level} id="${escapedText}" class="heading-${level}">${text}</h${level}>`;
   };
 
-  // Custom list renderer for better spacing
   renderer.list = (body: string, ordered: boolean, start: number) => {
     const type = ordered ? "ol" : "ul";
     const startAttr = ordered && start !== 1 ? ` start="${start}"` : "";
@@ -2253,41 +2422,41 @@ export const parseMarkdown = async (text: string): Promise<string> => {
 ---
 import "../styles/global.css";
 interface Props {
-	title: string;
+  title: string;
 }
 const { title } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="id" class="dark scroll-smooth">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{title}</title>
-		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-        <meta name="description" content="Aplikasi Generator Laporan Kinerja Pegawai Berbasis AI untuk ASN, PPPK, dan Guru. Cepat, Mudah, dan Akurat.">
-        <meta name="theme-color" content="#0f172a">
-	</head>
-	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200">
-		<slot />
-        <script>
-            import { checkAuth } from "../services/authService";
-            
-            // Client-side route protection
-            const path = window.location.pathname;
-            const publicPages = ['/login', '/register', '/forgot-password'];
-            const isPublicPage = publicPages.some(p => path.startsWith(p));
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="description" content="Aplikasi Generator Laporan Kinerja Pegawai Berbasis AI untuk ASN, PPPK, dan Guru. Cepat, Mudah, dan Akurat." />
+    <meta name="theme-color" content="#0f172a" />
+  </head>
+  <body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200">
+    <slot />
+    <script>
+      import { checkAuth } from "../services/authService";
 
-            if (!isPublicPage && !checkAuth()) {
-                // Redirect to login if not authenticated
-                window.location.href = '/login';
-            } else if (isPublicPage && checkAuth()) {
-                // Redirect to dashboard if already logged in
-                window.location.href = '/';
-            }
-        </script>
-	</body>
+      const path = window.location.pathname;
+      const publicPages = ["/login", "/register"];
+      const isPublicPage = publicPages.some((p) => path.startsWith(p));
+
+      if (!isPublicPage && !checkAuth()) {
+        window.location.href = "/login";
+      } else if (isPublicPage && checkAuth()) {
+        window.location.href = "/";
+      }
+    </script>
+  </body>
 </html>```
 
 ---
@@ -2396,10 +2565,42 @@ export const uploadFile = async (file: File, category: string = "OTHER") => {
       },
     });
 
-    const baseUrl =
+    const apiBaseUrl =
       import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
       "http://localhost:3000";
-    const fullUrl = `${baseUrl}${response.data.url}`;
+    const fullUrl = response.data.url.startsWith("http")
+      ? response.data.url
+      : `${apiBaseUrl}${response.data.url}`;
+
+    return {
+      success: true,
+      url: fullUrl,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Upload failed",
+    };
+  }
+};
+
+export const uploadBase64 = async (
+  base64Data: string,
+  category: string = "OTHER",
+) => {
+  try {
+    const response = await api.post("/files/upload-base64", {
+      data: base64Data,
+      category: category,
+    });
+
+    const apiBaseUrl =
+      import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+      "http://localhost:3000";
+    const fullUrl = response.data.url.startsWith("http")
+      ? response.data.url
+      : `${apiBaseUrl}${response.data.url}`;
 
     return {
       success: true,
@@ -2421,7 +2622,7 @@ export const uploadFile = async (file: File, category: string = "OTHER") => {
 
 ```typescript
 import { reportStore } from "../stores/reportStore";
-import { sanitizeFilename } from "../utils/helpers";
+import { sanitizeFilename, getBulanIndonesia } from "../utils/helpers";
 
 export const exportToPDF = async () => {
   try {
@@ -2459,70 +2660,142 @@ export const exportToDOCX = async () => {
       TextRun,
       AlignmentType,
       HeadingLevel,
+      Table,
+      TableRow,
+      TableCell,
+      WidthType,
+      BorderStyle,
     } = await import("docx");
     const { saveAs } = await import("file-saver");
+
+    const children: any[] = [];
+
+    children.push(
+      new Paragraph({
+        text: store.instansi.header1,
+        heading: HeadingLevel.HEADING_2,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({
+        text: store.instansi.header2,
+        heading: HeadingLevel.HEADING_2,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({
+        text: store.instansi.header3,
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({
+        text: store.instansi.alamat,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({
+        border: {
+          bottom: {
+            color: "000000",
+            space: 1,
+            style: BorderStyle.SINGLE,
+            size: 6,
+          },
+        },
+      }),
+      new Paragraph({ text: "" }),
+      new Paragraph({
+        text: "LAPORAN KINERJA PEGAWAI",
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({
+        text: `Periode: ${getBulanIndonesia(parseInt(store.config.bulan))} ${store.config.tahun}`,
+        alignment: AlignmentType.CENTER,
+      }),
+      new Paragraph({ text: "" }),
+    );
+
+    const lines = store.output.content.split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("## ")) {
+        children.push(
+          new Paragraph({
+            text: trimmed.replace("## ", ""),
+            heading: HeadingLevel.HEADING_1,
+          }),
+        );
+      } else if (trimmed.startsWith("### ")) {
+        children.push(
+          new Paragraph({
+            text: trimmed.replace("### ", ""),
+            heading: HeadingLevel.HEADING_2,
+          }),
+        );
+      } else if (trimmed !== "") {
+        children.push(new Paragraph({ text: trimmed }));
+      }
+    }
+
+    children.push(
+      new Paragraph({ text: "" }),
+      new Paragraph({ text: "" }),
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE },
+          bottom: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.NONE },
+          insideVertical: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE },
+        },
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [],
+                width: { size: 50, type: WidthType.PERCENTAGE },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: `${store.instansi.titimangsa}, ${new Date().toLocaleDateString("id-ID")}`,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  new Paragraph({
+                    text: "Pejabat Penilai,",
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  new Paragraph({ text: "" }),
+                  new Paragraph({ text: "" }),
+                  new Paragraph({ text: "" }),
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: store.instansi.kepala.nama,
+                        bold: true,
+                        underline: { type: "single" },
+                      }),
+                    ],
+                    alignment: AlignmentType.CENTER,
+                  }),
+                  new Paragraph({
+                    text: `NIP. ${store.instansi.kepala.nip}`,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
+                width: { size: 50, type: WidthType.PERCENTAGE },
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
 
     const doc = new Document({
       sections: [
         {
           properties: {},
-          children: [
-            new Paragraph({
-              text: store.instansi.header1,
-              heading: HeadingLevel.HEADING_2,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: store.instansi.header2,
-              heading: HeadingLevel.HEADING_2,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: store.instansi.header3,
-              heading: HeadingLevel.HEADING_1,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: store.instansi.alamat,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({ text: "" }),
-            new Paragraph({
-              text: "LAPORAN KINERJA PEGAWAI",
-              heading: HeadingLevel.HEADING_1,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: `Periode: ${store.config.bulan}/${store.config.tahun}`,
-              alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({ text: "" }),
-            ...store.output.content
-              .split("\n")
-              .map((line) => new Paragraph({ text: line })),
-            new Paragraph({ text: "" }),
-            new Paragraph({ text: "" }),
-            new Paragraph({
-              text: `${store.instansi.titimangsa}, ${new Date().toLocaleDateString("id-ID")}`,
-              alignment: AlignmentType.RIGHT,
-            }),
-            new Paragraph({
-              text: "Pejabat Penilai,",
-              alignment: AlignmentType.RIGHT,
-            }),
-            new Paragraph({ text: "" }),
-            new Paragraph({ text: "" }),
-            new Paragraph({ text: "" }),
-            new Paragraph({
-              text: store.instansi.kepala.nama,
-              bold: true,
-              alignment: AlignmentType.RIGHT,
-            }),
-            new Paragraph({
-              text: "NIP. " + store.instansi.kepala.nip,
-              alignment: AlignmentType.RIGHT,
-            }),
-          ],
+          children: children,
         },
       ],
     });
@@ -2613,6 +2886,10 @@ export const getToken = () => {
 export const checkAuth = () => {
   return authStore.get().isAuthenticated;
 };
+
+export const getCurrentUser = () => {
+  return authStore.get().user;
+};
 ```
 
 ---
@@ -2622,7 +2899,7 @@ export const checkAuth = () => {
 ```typescript
 import api from "../utils/api";
 import { reportStore, updateStore } from "../stores/reportStore";
-import type { PegawaiDTO } from "../types/ReportTypes";
+import type { PegawaiDTO, AkademikDTO } from "../types/ReportTypes";
 
 export const fetchPegawaiProfile = async () => {
   try {
@@ -2668,10 +2945,7 @@ export const fetchPegawaiProfile = async () => {
       return true;
     }
   } catch (error: any) {
-    // Jika 404, artinya user baru belum punya data pegawai.
-    // Jangan lempar error, return false saja agar UI tetap load form kosong.
     if (error.response && error.response.status === 404) {
-      console.log("Profil pegawai belum ada, siap untuk input baru.");
       return false;
     }
     console.warn("Gagal fetch pegawai:", error);
@@ -2694,9 +2968,7 @@ export const savePegawaiProfile = async () => {
     nuptk: store.pegawai.nuptk || undefined,
     nik: store.pegawai.nik || undefined,
     tempatLahir: store.pegawai.tempatLahir || undefined,
-    tanggalLahir: store.pegawai.tanggalLahir
-      ? new Date(store.pegawai.tanggalLahir).toISOString()
-      : undefined,
+    tanggalLahir: store.pegawai.tanggalLahir || undefined,
     alamat: store.pegawai.alamat || undefined,
     hp: store.pegawai.hp || undefined,
     email: store.pegawai.email || undefined,
@@ -2708,27 +2980,48 @@ export const savePegawaiProfile = async () => {
 
   try {
     let response;
-
-    // Cek dulu apakah data sudah ada di backend
     const check = await api.get("/pegawai/me").catch(() => null);
 
     if (check && check.data && check.data.id) {
-      // Jika ada, lakukan PATCH
       response = await api.patch(`/pegawai/${check.data.id}`, payload);
       if (store.pegawai.id !== check.data.id) {
         updateStore("pegawai", { ...store.pegawai, id: check.data.id });
       }
     } else {
-      // Jika tidak ada (404), lakukan POST
       response = await api.post("/pegawai", payload);
       if (response.data && response.data.id) {
         updateStore("pegawai", { ...store.pegawai, id: response.data.id });
       }
     }
 
+    if (
+      store.akademik.mapel &&
+      store.akademik.kelas &&
+      store.akademik.jamMengajar
+    ) {
+      const akademikPayload: AkademikDTO = {
+        kurikulum: store.akademik.kurikulum,
+        tahunPelajaran: store.akademik.tahunPelajaran,
+        semester: store.akademik.semester,
+        mapel: store.akademik.mapel,
+        kelas: store.akademik.kelas,
+        jamMengajar: parseInt(store.akademik.jamMengajar) || 0,
+        jumlahSiswa: parseInt(store.akademik.jumlahSiswa) || 0,
+        ekskul: store.akademik.ekskul || undefined,
+      };
+
+      const pegawaiId = response.data.id || check?.data?.id;
+      if (pegawaiId) {
+        try {
+          await api.post(`/pegawai/${pegawaiId}/akademik`, akademikPayload);
+        } catch (err) {
+          console.warn("Gagal menyimpan akademik:", err);
+        }
+      }
+    }
+
     return { success: true, data: response.data };
   } catch (error: any) {
-    // Tangkap error validasi backend (misal statusPegawai salah enum)
     const errorMsg = Array.isArray(error.response?.data?.message)
       ? error.response.data.message.join(", ")
       : error.response?.data?.message || "Gagal menyimpan data pegawai";
@@ -2886,6 +3179,40 @@ export const loadReportDetail = async (id: string) => {
       reportStore.set({ ...reportStore.get(), pegawai: mappedPegawai });
     }
 
+    if (data.instansi) {
+      const inst = data.instansi;
+      const apiBaseUrl =
+        import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+        "http://localhost:3000";
+      const normalizeUrl = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+      };
+
+      const mappedInstansi = {
+        ...current.instansi,
+        id: inst.id,
+        header1: inst.header1,
+        header2: inst.header2,
+        header3: inst.header3,
+        alamat: inst.alamat,
+        telepon: inst.telepon || "",
+        email: inst.email || "",
+        website: inst.website || "",
+        logoUtama: normalizeUrl(inst.logoUtama || ""),
+        logoInstansi: normalizeUrl(inst.logoInstansi || ""),
+        titimangsa: inst.titimangsa,
+        kepala: {
+          nama: inst.namaKepala,
+          nip: inst.nipKepala,
+          pangkat: inst.pangkatKepala,
+          ttd: normalizeUrl(inst.ttdKepala || ""),
+        },
+      };
+
+      reportStore.set({ ...reportStore.get(), instansi: mappedInstansi });
+    }
+
     return true;
   } catch (error) {
     console.error("Gagal memuat laporan:", error);
@@ -2911,11 +3238,11 @@ export const deleteReport = async (id: string) => {
 ```typescript
 import api from "../utils/api";
 import { reportStore, updateStore } from "../stores/reportStore";
+import type { InstansiDTO } from "../types/ReportTypes";
 import { addToast } from "../stores/toastStore";
 
 export const fetchActiveInstansi = async () => {
   try {
-    // Suppress console error untuk 404
     const response = await api.get("/instansi/active").catch((err) => {
       if (err.response && err.response.status === 404) return null;
       throw err;
@@ -2923,6 +3250,15 @@ export const fetchActiveInstansi = async () => {
 
     if (response && response.data) {
       const data = response.data;
+
+      const apiBaseUrl =
+        import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+        "http://localhost:3000";
+      const normalizeUrl = (url: string) => {
+        if (!url) return "";
+        return url.startsWith("http") ? url : `${apiBaseUrl}${url}`;
+      };
+
       updateStore("instansi", {
         id: data.id,
         header1: data.header1,
@@ -2932,21 +3268,14 @@ export const fetchActiveInstansi = async () => {
         telepon: data.telepon || "",
         email: data.email || "",
         website: data.website || "",
-        logoUtama: data.logoUtama || "",
-        logoInstansi: data.logoInstansi || "",
-        logoInstitusi: "",
+        logoUtama: normalizeUrl(data.logoUtama || ""),
+        logoInstansi: normalizeUrl(data.logoInstansi || ""),
         titimangsa: data.titimangsa,
         kepala: {
           nama: data.namaKepala,
           nip: data.nipKepala,
           pangkat: data.pangkatKepala,
-          ttd: data.ttdKepala || "",
-        },
-        kepalaTu: {
-          nama: "",
-          nip: "",
-          pangkat: "",
-          ttd: "",
+          ttd: normalizeUrl(data.ttdKepala || ""),
         },
       });
       return true;
@@ -2961,8 +3290,7 @@ export const fetchActiveInstansi = async () => {
 export const createManualInstansi = async () => {
   const store = reportStore.get();
 
-  // Pastikan payload bersih
-  const payload = {
+  const payload: InstansiDTO = {
     header1: store.instansi.header1 || "HEADER 1",
     header2: store.instansi.header2 || "HEADER 2",
     header3: store.instansi.header3 || "NAMA INSTANSI",
@@ -2970,12 +3298,12 @@ export const createManualInstansi = async () => {
     telepon: store.instansi.telepon,
     email: store.instansi.email,
     website: store.instansi.website,
-    // Pastikan ini mengirim URL jika sudah diupload, bukan base64 raksasa
     logoUtama: store.instansi.logoUtama,
     logoInstansi: store.instansi.logoInstansi,
     namaKepala: store.instansi.kepala.nama || "Nama Kepala",
     nipKepala: store.instansi.kepala.nip || "NIP Kepala",
     pangkatKepala: store.instansi.kepala.pangkat || "Pangkat",
+    ttdKepala: store.instansi.kepala.ttd,
     titimangsa: store.instansi.titimangsa || "Kota",
     isActive: true,
   };
@@ -2988,13 +3316,50 @@ export const createManualInstansi = async () => {
       return true;
     }
   } catch (e: any) {
-    addToast(
-      "Gagal menyimpan instansi: " + (e.response?.data?.message || e.message),
-      "error",
-    );
+    const errorMsg = Array.isArray(e.response?.data?.message)
+      ? e.response.data.message.join(", ")
+      : e.response?.data?.message || e.message;
+    addToast("Gagal menyimpan instansi: " + errorMsg, "error");
     return false;
   }
   return false;
+};
+
+export const updateInstansi = async () => {
+  const store = reportStore.get();
+
+  if (!store.instansi.id) {
+    return createManualInstansi();
+  }
+
+  const payload: InstansiDTO = {
+    header1: store.instansi.header1,
+    header2: store.instansi.header2,
+    header3: store.instansi.header3,
+    alamat: store.instansi.alamat,
+    telepon: store.instansi.telepon,
+    email: store.instansi.email,
+    website: store.instansi.website,
+    logoUtama: store.instansi.logoUtama,
+    logoInstansi: store.instansi.logoInstansi,
+    namaKepala: store.instansi.kepala.nama,
+    nipKepala: store.instansi.kepala.nip,
+    pangkatKepala: store.instansi.kepala.pangkat,
+    ttdKepala: store.instansi.kepala.ttd,
+    titimangsa: store.instansi.titimangsa,
+  };
+
+  try {
+    await api.patch(`/instansi/${store.instansi.id}`, payload);
+    addToast("Instansi berhasil diupdate", "success");
+    return true;
+  } catch (e: any) {
+    const errorMsg = Array.isArray(e.response?.data?.message)
+      ? e.response.data.message.join(", ")
+      : e.response?.data?.message || "Gagal update instansi";
+    addToast("Gagal update instansi: " + errorMsg, "error");
+    return false;
+  }
 };
 ```
 
@@ -3003,7 +3368,7 @@ export const createManualInstansi = async () => {
 ## .env
 
 ```
-PUBLIC_API_URL=http://localhost:3000/api/v1```
+PUBLIC_API_URL=http://localhost:3000/api```
 
 ---
 

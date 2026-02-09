@@ -4,29 +4,32 @@ import SelectGroup from "./SelectGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in">
-	<SelectGroup
-		label="Kurikulum"
-		name="kur"
-		model="form.akademik.kurikulum"
-		options={[
-			{ val: "MERDEKA", label: "Kurikulum Merdeka" },
-			{ val: "K13", label: "Kurikulum 2013" },
-			{ val: "KTSP", label: "KTSP" },
-		]}
-	/>
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Tahun Pelajaran" name="tapel" model="form.akademik.tahunPelajaran" />
-		<SelectGroup
-			label="Semester"
-			name="sem"
-			model="form.akademik.semester"
-			options={[{ val: "GANJIL", label: "GANJIL" }, { val: "GENAP", label: "GENAP" }]}
-		/>
-	</div>
-	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
-	<InputGroup label="Kelas" name="kls" model="form.akademik.kelas" />
-	<div class="grid grid-cols-2 gap-3">
-		<InputGroup label="Jam Mengajar" name="jam" model="form.akademik.jamMengajar" type="number" />
-		<InputGroup label="Jumlah Siswa" name="siswa" model="form.akademik.jumlahSiswa" type="number" />
-	</div>
+  <SelectGroup
+    label="Kurikulum"
+    name="kur"
+    model="form.akademik.kurikulum"
+    options={[
+      { val: "MERDEKA", label: "Kurikulum Merdeka" },
+      { val: "K13", label: "Kurikulum 2013" },
+      { val: "KTSP", label: "KTSP" },
+    ]}
+  />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Tahun Pelajaran" name="tapel" model="form.akademik.tahunPelajaran" />
+    <SelectGroup
+      label="Semester"
+      name="sem"
+      model="form.akademik.semester"
+      options={[
+        { val: "GANJIL", label: "GANJIL" },
+        { val: "GENAP", label: "GENAP" },
+      ]}
+    />
+  </div>
+  <InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
+  <InputGroup label="Kelas" name="kls" model="form.akademik.kelas" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Jam Mengajar" name="jam" model="form.akademik.jamMengajar" type="number" />
+    <InputGroup label="Jumlah Siswa" name="siswa" model="form.akademik.jumlahSiswa" type="number" />
+  </div>
 </div>

@@ -33,6 +33,35 @@ export interface PegawaiDTO {
   fotoPegawai?: string;
 }
 
+export interface InstansiDTO {
+  header1: string;
+  header2: string;
+  header3: string;
+  alamat: string;
+  telepon?: string;
+  email?: string;
+  website?: string;
+  logoUtama?: string;
+  logoInstansi?: string;
+  namaKepala: string;
+  nipKepala: string;
+  pangkatKepala: string;
+  ttdKepala?: string;
+  titimangsa: string;
+  isActive?: boolean;
+}
+
+export interface AkademikDTO {
+  kurikulum: "K13" | "MERDEKA" | "KTSP";
+  tahunPelajaran: string;
+  semester: "GANJIL" | "GENAP";
+  mapel: string;
+  kelas: string;
+  jamMengajar: number;
+  jumlahSiswa: number;
+  ekskul?: string;
+}
+
 export interface Pejabat {
   nama: string;
   nip: string;
@@ -43,7 +72,6 @@ export interface Pejabat {
 export interface InstansiData {
   id?: string;
   logoUtama: string;
-  logoInstitusi?: string;
   logoInstansi: string;
   header1: string;
   header2: string;
@@ -53,7 +81,6 @@ export interface InstansiData {
   email: string;
   website: string;
   kepala: Pejabat;
-  kepalaTu?: Pejabat;
   titimangsa: string;
 }
 
@@ -95,8 +122,6 @@ export interface KinerjaData {
   tugasPokok: string;
   tugasTambahan: string;
   targetTahunan: string;
-  targetKuantitatif: string;
-  targetKualitatif: string;
   hambatan: string;
   solusi: string;
 }
@@ -114,15 +139,9 @@ export interface TTEData {
   nomorDokumen: string;
   hashDokumen: string;
   timestamp: string;
-  statusValidasi: "Valid" | "Invalid" | "Expired";
 }
 
 export interface OutputData {
-  titimangsa: {
-    tempat: string;
-    tanggal: string;
-    bahasa: "Indonesia" | "Inggris";
-  };
   tte: TTEData;
   content: string;
   lastUpdated: string;
@@ -142,7 +161,6 @@ export interface HistoryItem {
   title: string;
   date: string;
   status: string;
-  data?: any;
 }
 
 export interface HistoryStore {
@@ -154,14 +172,4 @@ export interface GenerateAIResult {
   content?: string;
   tokensUsed?: number;
   error?: string;
-}
-
-export interface ValidationError {
-  field: string;
-  message: string;
-}
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationError[];
 }

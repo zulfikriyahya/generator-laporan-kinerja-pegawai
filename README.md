@@ -2743,14 +2743,5 @@ FRONTEND_URL=http://localhost:3000
 
 ---
 
-## Support
-
-Untuk pertanyaan atau issues, silakan hubungi:
-
-- Email: support@ekinerja.com
-- GitHub Issues: [repository-url]/issues
-
----
-
 **Version:** 1.0.0  
 **Last Updated:** February 9, 2025

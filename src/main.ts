@@ -72,10 +72,10 @@ async function bootstrap() {
   );
 
   // Versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1',
+  // });
 
   // Global prefix
   app.setGlobalPrefix('api');

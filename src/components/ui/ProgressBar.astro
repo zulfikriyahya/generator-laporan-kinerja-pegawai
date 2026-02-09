@@ -1,0 +1,61 @@
+<div
+	x-data="progressBar"
+	x-show="isGenerating"
+	class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+	style="display: none;"
+>
+	<div class="glass-panel p-6 max-w-md w-full mx-4">
+		<div class="flex items-center gap-3 mb-4">
+			<div class="flex-1">
+				<h3 class="text-white font-bold">Generating Report</h3>
+				<p class="text-xs text-slate-400" x-text="currentStep"></p>
+			</div>
+		</div>
+		<div class="mb-4">
+			<div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500 ease-out" :style="`width: ${progress}%`"></div>
+			</div>
+		</div>
+		<button @click="cancel" class="mt-4 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition">Cancel</button>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("progressBar", () => ({
+			isGenerating: false,
+			progress: 0,
+			currentStep: "",
+			progressInterval: null,
+			init() {
+				window.addEventListener("generate:start", () => this.start());
+				window.addEventListener("generate:complete", () => this.complete());
+				window.addEventListener("generate:error", () => this.error());
+			},
+			start() {
+				this.isGenerating = true;
+				this.progress = 0;
+				this.animateProgress();
+			},
+			animateProgress() {
+				this.progressInterval = setInterval(() => {
+					if (this.progress < 90) this.progress += Math.random() * 10;
+				}, 500);
+			},
+			complete() {
+				clearInterval(this.progressInterval);
+				this.progress = 100;
+				setTimeout(() => { this.isGenerating = false; }, 1000);
+			},
+			error() {
+				clearInterval(this.progressInterval);
+				this.isGenerating = false;
+			},
+			cancel() {
+				clearInterval(this.progressInterval);
+				this.isGenerating = false;
+				window.dispatchEvent(new CustomEvent("generate:cancel"));
+			},
+		}));
+	});
+</script>

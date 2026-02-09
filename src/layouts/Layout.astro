@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+interface Props {
+	title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="id" class="dark scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+	</head>
+	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+		<slot />
+        <script>
+            import { checkAuth } from "../services/authService";
+            const path = window.location.pathname;
+            const publicPages = ['/login', '/register'];
+            
+            if (!publicPages.includes(path) && !checkAuth()) {
+                window.location.href = '/login';
+            }
+        </script>
+	</body>
+</html>

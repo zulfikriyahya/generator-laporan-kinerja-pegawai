@@ -1,0 +1,227 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FormInstansi from "../components/forms/FormInstansi.astro";
+import FormPegawai from "../components/forms/FormPegawai.astro";
+import FormAkademik from "../components/forms/FormAkademik.astro";
+import FormKinerja from "../components/forms/FormKinerja.astro";
+import SelectGroup from "../components/forms/SelectGroup.astro";
+import InputGroup from "../components/InputGroup.astro";
+import ToastContainer from "../components/ui/ToastContainer.astro";
+import AutoSaveIndicator from "../components/ui/AutoSaveIndicator.astro";
+import KeyboardShortcuts from "../components/ui/KeyboardShortcuts.astro";
+import ZoomControl from "../components/ui/ZoomControl.astro";
+import ProgressBar from "../components/ui/ProgressBar.astro";
+import DocumentStats from "../components/ui/DocumentStats.astro";
+import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } from "@lucide/astro";
+---
+
+<Layout title="Generator Laporan Kinerja Pegawai AI">
+	<ToastContainer />
+	<AutoSaveIndicator />
+	<KeyboardShortcuts />
+	<ZoomControl />
+	<ProgressBar />
+	<DocumentStats />
+	<main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
+		<header class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print">
+			<div class="flex items-center gap-3">
+				<div class="bg-blue-600 p-2 rounded-lg"><Bot class="text-white w-5 h-5" /></div>
+				<h1 class="text-sm font-bold text-white">E-KINERJA AI</h1>
+			</div>
+			<div class="flex items-center gap-2">
+				<button @click="downloadTemplate" class="px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2"><Download class="w-3.5 h-3.5" /> Template</button>
+				<label class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 rounded-md text-xs cursor-pointer flex gap-2">
+					Import <input type="file" class="hidden" accept=".xlsx" @change="handleImportExcel" />
+				</label>
+				<button @click="exportPDF" class="px-3 py-1.5 bg-red-600/20 text-red-400 rounded-md text-xs flex gap-2"><FileText class="w-3.5 h-3.5" /> PDF</button>
+				<button @click="exportDOCX" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-md text-xs flex gap-2"><FileText class="w-3.5 h-3.5" /> DOCX</button>
+				<button @click="saveDraft" class="text-slate-400 hover:text-white"><Save class="w-5 h-5" /></button>
+				<button @click="toggleHistory" class="text-slate-400 hover:text-white"><History class="w-5 h-5" /></button>
+                <div class="w-px h-6 bg-white/10 mx-2"></div>
+                <button @click="handleLogout" class="text-red-400 hover:text-red-300" title="Logout"><LogOut class="w-5 h-5" /></button>
+			</div>
+		</header>
+
+		<div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
+			<aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30">
+				<div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
+					<div class="grid grid-cols-2 gap-2">
+						<SelectGroup label="Bulan" name="bln" model="form.config.bulan" options={Array.from({length: 12}, (_, i) => ({val: String(i+1), label: String(i+1)}))} />
+						<InputGroup label="Tahun" name="thn" model="form.config.tahun" type="number" />
+					</div>
+					<SelectGroup label="Model AI" name="ai" model="form.config.modelAI" options={[{val: "gemini", label: "Gemini"}, {val: "groq", label: "Groq"}, {val: "claude", label: "Claude"}, {val: "gpt", label: "GPT-4"}]} />
+					<InputGroup label="Token Limit" name="tkn" model="form.config.tokenLimit" type="number" />
+				</div>
+
+				<div class="flex border-b border-white/5 bg-slate-950/30">
+					<template x-for="tab in tabs" :key="tab.id">
+						<button @click="activeTab = tab.id" :class="activeTab === tab.id ? 'text-blue-400 border-b-2 border-blue-400' : 'text-slate-500'" class="flex-1 py-3 text-xs font-medium transition text-center" x-text="tab.label"></button>
+					</template>
+				</div>
+
+				<div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+					<div x-show="activeTab === 'instansi'"><FormInstansi /></div>
+					<div x-show="activeTab === 'pegawai'"><FormPegawai /></div>
+					<div x-show="activeTab === 'akademik'"><FormAkademik /></div>
+					<div x-show="activeTab === 'kinerja'"><FormKinerja /></div>
+				</div>
+
+				<div class="p-4 border-t border-white/10 bg-slate-900 z-50">
+					<button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2">
+						<RefreshCw :class="loading && 'animate-spin'" class="w-4 h-4" /> GENERATE
+					</button>
+				</div>
+			</aside>
+
+			<section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar">
+				<div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
+					<button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl"><Printer class="w-6 h-6" /></button>
+				</div>
+
+				<div id="document-preview" class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300">
+					<header class="mb-6 pb-2 border-b-4 border-black">
+						<div class="grid grid-cols-[80px_1fr_80px] gap-4 items-center mb-2">
+							<div class="h-20 flex items-center justify-center">
+								<template x-if="form.instansi.logoUtama"><img :src="form.instansi.logoUtama" class="max-w-full max-h-full" /></template>
+							</div>
+							<div class="text-center">
+								<h3 class="font-bold text-[13px] uppercase" x-text="form.instansi.header1"></h3>
+								<h2 class="font-bold text-[13px] uppercase" x-text="form.instansi.header2"></h2>
+								<h1 class="font-bold text-[15px] uppercase" x-text="form.instansi.header3"></h1>
+								<p class="text-[11px]" x-text="form.instansi.alamat"></p>
+							</div>
+							<div class="h-20 flex items-center justify-center">
+								<template x-if="form.instansi.logoInstansi"><img :src="form.instansi.logoInstansi" class="max-w-full max-h-full" /></template>
+							</div>
+						</div>
+					</header>
+
+					<div class="text-center mb-8">
+						<h2 class="font-bold uppercase text-lg">LAPORAN KINERJA PEGAWAI</h2>
+						<p class="text-sm font-medium mt-1">Periode: <span x-text="form.config.bulan + '/' + form.config.tahun"></span></p>
+					</div>
+
+					<article class="prose-report text-justify leading-relaxed font-serif" x-html="renderedHTML"></article>
+
+					<div class="mt-12 flex justify-end break-inside-avoid">
+						<div class="text-center w-64">
+							<p class="mb-1"><span x-text="form.instansi.titimangsa"></span>, <span x-text="getCurrentDate()"></span></p>
+							<p class="font-bold mb-16">Pejabat Penilai,</p>
+							<p class="font-bold underline uppercase text-sm" x-text="form.instansi.kepala.nama"></p>
+							<p class="text-sm">NIP. <span x-text="form.instansi.kepala.nip"></span></p>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<div x-show="showHistory" @click.away="showHistory = false" class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print">
+			<div class="p-4">
+				<h3 class="text-white font-bold mb-4">Riwayat</h3>
+				<div class="space-y-2">
+					<template x-for="item in historyItems" :key="item.id">
+						<div class="p-3 rounded-lg bg-white/5 hover:border-white/20 border border-transparent">
+							<div class="text-sm font-medium text-slate-200 mb-2" x-text="item.title"></div>
+							<button @click="loadHistoryItem(item.id)" class="text-xs text-blue-400">Muat</button>
+						</div>
+					</template>
+				</div>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<script>
+	import { reportStore, historyStore, saveToHistory, loadFromHistory, deleteHistory, validateBeforeGenerate } from "../stores/reportStore";
+	import { generateLaporan, checkAPIKey } from "../services/aiService";
+	import { importFromExcel, downloadTemplate } from "../services/excelService";
+	import { exportToPDF, exportToDOCX, printDocument } from "../services/exportService";
+    import { logout } from "../services/authService";
+    import { uploadFile } from "../services/fileService";
+	import { parseMarkdown } from "../utils/markdown";
+	import { addToast } from "../stores/toastStore";
+
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("appCore", () => ({
+			tabs: [{id: "instansi", label: "1. Instansi"}, {id: "pegawai", label: "2. Pegawai"}, {id: "akademik", label: "3. Akademik"}, {id: "kinerja", label: "4. Kinerja"}],
+			activeTab: "pegawai",
+			form: reportStore.get(),
+			loading: false,
+			renderedHTML: "",
+			showHistory: false,
+			historyItems: [],
+
+			async init() {
+				if (this.form.output.content) this.renderedHTML = await parseMarkdown(this.form.output.content);
+				this.historyItems = historyStore.get().items;
+				historyStore.subscribe((val) => { this.historyItems = val.items; });
+				
+				let timeout;
+				this.$watch("form", (val) => {
+					clearTimeout(timeout);
+					window.dispatchEvent(new CustomEvent("autosave:start"));
+					timeout = setTimeout(() => {
+						reportStore.set(JSON.parse(JSON.stringify(val)));
+						window.dispatchEvent(new CustomEvent("autosave:success"));
+					}, 800);
+				});
+				this.registerShortcuts();
+			},
+			registerShortcuts() {
+				window.addEventListener("shortcut:generate", () => this.generateLaporan());
+				window.addEventListener("shortcut:save", () => this.saveDraft());
+				window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
+			},
+			async generateLaporan() {
+				const validation = validateBeforeGenerate(this.form);
+				if (!validation.valid) { addToast("Data belum lengkap!", "error"); return; }
+				this.loading = true;
+				window.dispatchEvent(new CustomEvent("generate:start"));
+				try {
+					const result = await generateLaporan();
+					if (result.success && result.content) {
+						this.renderedHTML = await parseMarkdown(result.content);
+						this.form = reportStore.get();
+						window.dispatchEvent(new CustomEvent("generate:complete"));
+						saveToHistory();
+					} else {
+                        addToast(result.error || "Gagal generate", "error");
+                        window.dispatchEvent(new CustomEvent("generate:error"));
+                    }
+				} catch (error) { window.dispatchEvent(new CustomEvent("generate:error")); }
+				finally { this.loading = false; }
+			},
+            async handleUpload(event, field) {
+				const file = event.target.files?.[0];
+				if (file) {
+                    const result = await uploadFile(file, field.includes('instansi') ? 'LOGO_INSTANSI' : 'OTHER');
+                    if(result.success) {
+                        const path = field.split(".");
+						let target = this.form;
+						for (let i = 0; i < path.length - 1; i++) target = target[path[i]];
+						target[path[path.length - 1]] = result.url; // Use URL from backend
+                        addToast("Upload berhasil", "success");
+                    } else {
+                        addToast("Upload gagal: " + result.error, "error");
+                    }
+				}
+			},
+			async handleImportExcel(event) {
+				const file = event.target.files?.[0];
+				if (file) {
+					await importFromExcel(file);
+					this.form = reportStore.get();
+				}
+			},
+            handleLogout() { logout(); },
+			downloadTemplate() { downloadTemplate(); },
+			exportPDF() { exportToPDF(); },
+			exportDOCX() { exportToDOCX(); },
+			printDoc() { printDocument(); },
+			saveDraft() { saveToHistory(); addToast("Draft tersimpan", "success"); },
+			toggleHistory() { this.showHistory = !this.showHistory; },
+			loadHistoryItem(id) { if (loadFromHistory(id)) { this.form = reportStore.get(); this.showHistory = false; } },
+			getCurrentDate() { return new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }); },
+		}));
+	});
+</script>

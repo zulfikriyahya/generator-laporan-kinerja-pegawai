@@ -1,0 +1,40 @@
+<div
+	x-data="documentStats"
+	x-show="hasContent"
+	class="fixed top-20 right-8 z-20 no-print"
+	style="display: none;"
+>
+	<div class="glass-panel px-4 py-3 min-w-[200px]">
+		<h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Stats</h4>
+		<div class="space-y-2">
+			<div class="flex justify-between items-center">
+				<span class="text-xs text-slate-300">Words</span>
+				<span class="text-sm font-bold" x-text="wordCount"></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("documentStats", () => ({
+			wordCount: 0,
+			hasContent: false,
+			init() {
+				this.$watch("$store.appCore?.form?.output?.content", (content) => {
+					if (content) {
+						this.calculateStats(content);
+						this.hasContent = true;
+					} else {
+						this.hasContent = false;
+					}
+				});
+			},
+			calculateStats(content) {
+				if (!content) return;
+				const plainText = content.replace(/[#*_`~\[\]]/g, "");
+				this.wordCount = plainText.trim().split(/\s+/).filter((w) => w.length > 0).length;
+			},
+		}));
+	});
+</script>

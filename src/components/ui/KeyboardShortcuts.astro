@@ -1,0 +1,21 @@
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("keyboardShortcuts", () => ({
+			init() {
+				document.addEventListener("keydown", (e) => {
+					if (e.ctrlKey || e.metaKey) {
+						switch (e.key) {
+							case "Enter": e.preventDefault(); this.triggerGenerate(); break;
+							case "s": e.preventDefault(); this.triggerSave(); break;
+							case "p": e.preventDefault(); this.triggerExportPDF(); break;
+						}
+					}
+				});
+			},
+			triggerGenerate() { window.dispatchEvent(new CustomEvent("shortcut:generate")); },
+			triggerSave() { window.dispatchEvent(new CustomEvent("shortcut:save")); },
+			triggerExportPDF() { window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); },
+		}));
+	});
+</script>
+<div x-data="keyboardShortcuts"></div>

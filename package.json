@@ -1,0 +1,42 @@
+{
+  "name": "ekinerja-frontend",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/alpinejs": "^0.4.9",
+    "@lucide/astro": "^0.562.0",
+    "@nanostores/persistent": "^1.2.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@vite-pwa/astro": "^1.2.0",
+    "alpinejs": "^3.15.4",
+    "astro": "^5.16.14",
+    "axios": "^1.6.7",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.19",
+    "docx": "^8.5.0",
+    "dompurify": "3.3.1",
+    "file-saver": "^2.0.5",
+    "html-docx-js-typescript": "^0.1.5",
+    "html2pdf.js": "^0.14.0",
+    "marked": "17.0.1",
+    "nanostores": "^1.1.0",
+    "qrcode": "^1.5.4",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/dompurify": "3.2.0",
+    "@types/file-saver": "^2.0.7",
+    "@types/qrcode": "^1.5.6",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3"
+  }
+}

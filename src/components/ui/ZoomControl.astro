@@ -1,0 +1,25 @@
+<div x-data="zoomControl" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 no-print">
+	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10">
+		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer" />
+		<span class="text-xs font-medium text-white w-10 text-right" x-text="zoom + '%'"></span>
+		<button @click="resetZoom" class="px-3 py-1 text-xs font-medium hover:bg-white/10 rounded transition">Reset</button>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("alpine:init", () => {
+		Alpine.data("zoomControl", () => ({
+			zoom: 100,
+			init() {
+				this.$watch("zoom", (value) => {
+					const preview = document.getElementById("document-preview");
+					if (preview) {
+						preview.style.transform = `scale(${value / 100})`;
+						preview.style.transformOrigin = "top center";
+					}
+				});
+			},
+			resetZoom() { this.zoom = 100; },
+		}));
+	});
+</script>

@@ -7,6 +7,9 @@
 }
 
 @theme {
+  --color-blue-600: #2563eb;
+  --color-emerald-500: #10b981;
+  --color-red-500: #ef4444;
   --font-sans: "Lexend", system-ui, sans-serif;
 }
 
@@ -23,6 +26,7 @@
   .glass-panel {
     @apply bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl;
   }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }

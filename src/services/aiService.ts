@@ -1,53 +1,40 @@
 import api from "../utils/api";
-import {
-  reportStore,
-  updateStore,
-  generateNomorDokumen,
-} from "../stores/reportStore";
-import type { GenerateAIResult } from "../types/ReportTypes";
+import { reportStore, updateStore } from "../stores/reportStore";
+import { savePegawaiProfile } from "./pegawaiService";
+import type { GenerateAIResult, ReportDTO } from "../types/ReportTypes";
 
 export const generateLaporan = async (): Promise<GenerateAIResult> => {
   const store = reportStore.get();
 
-  const payload = {
+  // 1. Simpan Data Pegawai Terlebih Dahulu (Wajib agar backend bisa generate)
+  const profileSave = await savePegawaiProfile();
+  if (!profileSave.success) {
+    return {
+      success: false,
+      error: `Gagal menyimpan profil: ${profileSave.error}`,
+    };
+  }
+
+  // 2. Siapkan Payload untuk ReportsService
+  const payload: ReportDTO = {
     modelAI: store.config.modelAI,
     bulan: parseInt(store.config.bulan),
     tahun: parseInt(store.config.tahun),
+    tugasPokok: store.kinerja.tugasPokok,
+    tugasTambahan: store.kinerja.tugasTambahan,
+    targetTahunan: store.kinerja.targetTahunan,
+    hambatan: store.kinerja.hambatan,
+    solusi: store.kinerja.solusi,
     tokenLimit: store.config.tokenLimit,
     customInstruction: store.config.customInstruction,
-    pegawai: {
-      nama: store.pegawai.nama,
-      nip: store.pegawai.nip,
-      jabatan: store.pegawai.jabatan,
-      golongan: store.pegawai.golongan,
-      unitKerja: store.pegawai.unitKerja,
-      jenisPegawai: store.pegawai.jenis,
-      masaKerjaTahun: parseInt(store.pegawai.masaKerjaTahun),
-      masaKerjaBulan: parseInt(store.pegawai.masaKerjaBulan),
-    },
-    kinerja: {
-      tugasPokok: store.kinerja.tugasPokok,
-      tugasTambahan: store.kinerja.tugasTambahan,
-      targetTahunan: store.kinerja.targetTahunan,
-      hambatan: store.kinerja.hambatan,
-      solusi: store.kinerja.solusi,
-    },
-    akademik: {
-      kurikulum: store.akademik.kurikulum,
-      tahunPelajaran: store.akademik.tahunPelajaran,
-      semester: store.akademik.semester,
-      mapel: store.akademik.mapel,
-      kelas: store.akademik.kelas,
-      jamMengajar: parseInt(store.akademik.jamMengajar),
-      jumlahSiswa: parseInt(store.akademik.jumlahSiswa),
-      ekskul: store.akademik.ekskul,
-    },
   };
 
   try {
+    // 3. Panggil API Backend
     const response = await api.post("/reports/generate", payload);
     const data = response.data;
 
+    // 4. Update Store dengan Hasil AI
     if (data && data.content) {
       updateStore("output", {
         ...store.output,
@@ -55,7 +42,7 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
         lastUpdated: new Date().toISOString(),
         tte: {
           ...store.output.tte,
-          nomorDokumen: data.nomorDokumen || generateNomorDokumen(),
+          nomorDokumen: data.nomorDokumen,
           timestamp: new Date().toISOString(),
         },
       });
@@ -67,19 +54,13 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
       };
     }
 
-    return {
-      success: false,
-      error: "Invalid response from server",
-    };
+    return { success: false, error: "Respon server tidak valid" };
   } catch (error: any) {
     return {
       success: false,
-      error:
-        error.response?.data?.message || error.message || "Generation failed",
+      error: error.response?.data?.message || "Gagal generate laporan",
     };
   }
 };
 
-export const checkAPIKey = (model: string) => {
-  return true;
-};
+export const checkAPIKey = (model: string) => true; // API Key dikelola backend

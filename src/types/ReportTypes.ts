@@ -1,3 +1,39 @@
+export interface ReportDTO {
+  id?: string;
+  modelAI: string;
+  bulan: number;
+  tahun: number;
+  tugasPokok: string;
+  tugasTambahan?: string;
+  targetTahunan?: string;
+  hambatan?: string;
+  solusi?: string;
+  tokenLimit?: number;
+  customInstruction?: string;
+}
+
+export interface PegawaiDTO {
+  nama: string;
+  nip: string;
+  nuptk?: string;
+  nik?: string;
+  jenisPegawai: string;
+  statusPegawai: string;
+  golongan?: string;
+  jabatan: string;
+  unitKerja: string;
+  tempatLahir?: string;
+  tanggalLahir?: string;
+  gender: "L" | "P";
+  alamat?: string;
+  hp?: string;
+  email?: string;
+  pendidikan?: string;
+  masaKerjaTahun?: number;
+  masaKerjaBulan?: number;
+  fotoPegawai?: string;
+}
+
 export interface Pejabat {
   nama: string;
   nip: string;
@@ -139,3 +175,4 @@ export interface ExportResult {
   file?: Blob;
   error?: string;
 }
+export * from "./ReportTypes";

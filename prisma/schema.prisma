@@ -1,0 +1,375 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  password     String
+  name         String
+  role         UserRole  @default(USER)
+  isActive     Boolean   @default(true)
+  lastLogin    DateTime?
+  refreshToken String?   @db.Text
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relations
+  pegawai      Pegawai?
+  reports      Report[]
+  auditLogs    AuditLog[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+  GUEST
+}
+
+// ============================================================================
+// PEGAWAI (EMPLOYEE)
+// ============================================================================
+
+model Pegawai {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Identitas
+  nip             String   @unique
+  nuptk           String?  @unique
+  nik             String?  @unique
+  nama            String
+  tempatLahir     String?
+  tanggalLahir    DateTime?
+  gender          Gender
+  
+  // Kepegawaian
+  jenisPegawai    JenisPegawai
+  statusPegawai   StatusPegawai @default(AKTIF)
+  golongan        String?
+  jabatan         String
+  unitKerja       String
+  
+  // Kontak
+  alamat          String?  @db.Text
+  hp              String?
+  email           String?
+  
+  // Akademik
+  pendidikan      String?
+  masaKerjaTahun  Int      @default(0)
+  masaKerjaBulan  Int      @default(0)
+  
+  // Media
+  fotoPegawai     String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  reports         Report[]
+  akademik        AkademikData?
+  
+  @@index([nip])
+  @@index([nama])
+  @@map("pegawai")
+}
+
+enum Gender {
+  L
+  P
+}
+
+enum JenisPegawai {
+  PNS
+  PPPK
+  HONORER
+  GTT
+  PTT
+  GURU
+}
+
+enum StatusPegawai {
+  AKTIF
+  CUTI
+  TUGAS_BELAJAR
+  NON_AKTIF
+}
+
+// ============================================================================
+// AKADEMIK DATA (Khusus Guru)
+// ============================================================================
+
+model AkademikData {
+  id              String   @id @default(uuid())
+  pegawaiId       String   @unique
+  pegawai         Pegawai  @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  
+  kurikulum       Kurikulum
+  tahunPelajaran  String
+  semester        Semester
+  mapel           String
+  kelas           String
+  jamMengajar     Int
+  jumlahSiswa     Int
+  ekskul          String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("akademik_data")
+}
+
+enum Kurikulum {
+  K13
+  MERDEKA
+  KTSP
+}
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+// ============================================================================
+// INSTANSI (ORGANIZATION)
+// ============================================================================
+
+model Instansi {
+  id          String   @id @default(uuid())
+  
+  // Header Info
+  header1     String
+  header2     String
+  header3     String
+  alamat      String   @db.Text
+  telepon     String?
+  email       String?
+  website     String?
+  
+  // Logo
+  logoUtama   String?  @db.Text
+  logoInstansi String? @db.Text
+  
+  // Pejabat
+  namaKepala  String
+  nipKepala   String
+  pangkatKepala String
+  ttdKepala   String?  @db.Text
+  
+  titimangsa  String
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  reports     Report[]
+  
+  @@map("instansi")
+}
+
+// ============================================================================
+// REPORT (LAPORAN KINERJA)
+// ============================================================================
+
+model Report {
+  id              String      @id @default(uuid())
+  
+  // Relations
+  pegawaiId       String
+  pegawai         Pegawai     @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  
+  instansiId      String
+  instansi        Instansi    @relation(fields: [instansiId], references: [id])
+  
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  
+  // Periode
+  bulan           Int
+  tahun           Int
+  
+  // Kinerja Data
+  tugasPokok      String      @db.Text
+  tugasTambahan   String?     @db.Text
+  targetTahunan   String?     @db.Text
+  hambatan        String?     @db.Text
+  solusi          String?     @db.Text
+  
+  // AI Generated Content
+  content         String      @db.LongText
+  modelAI         String
+  tokensUsed      Int?
+  
+  // TTE (Tanda Tangan Elektronik)
+  nomorDokumen    String      @unique
+  hashDokumen     String?
+  qrCode          String?     @db.Text
+  ttdTimestamp    DateTime?
+  
+  // Status
+  status          ReportStatus @default(DRAFT)
+  publishedAt     DateTime?
+  
+  // Metadata
+  metadata        Json?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([pegawaiId])
+  @@index([userId])
+  @@index([bulan, tahun])
+  @@index([nomorDokumen])
+  @@index([status])
+  @@map("reports")
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+// ============================================================================
+// FILE UPLOAD
+// ============================================================================
+
+model FileUpload {
+  id          String      @id @default(uuid())
+  
+  filename    String
+  originalName String
+  mimetype    String
+  size        Int
+  path        String
+  url         String?
+  
+  uploadedBy  String
+  category    FileCategory
+  
+  metadata    Json?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([uploadedBy])
+  @@index([category])
+  @@map("file_uploads")
+}
+
+enum FileCategory {
+  FOTO_PEGAWAI
+  LOGO_INSTANSI
+  TTD
+  LAMPIRAN
+  DOKUMEN
+  OTHER
+}
+
+// ============================================================================
+// AUDIT LOG
+// ============================================================================
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  
+  action      String
+  entity      String
+  entityId    String?
+  
+  oldData     Json?
+  newData     Json?
+  
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// NOTIFICATION
+// ============================================================================
+
+model Notification {
+  id          String      @id @default(uuid())
+  
+  userId      String
+  
+  title       String
+  message     String      @db.Text
+  type        NotificationType
+  
+  isRead      Boolean     @default(false)
+  readAt      DateTime?
+  
+  metadata    Json?
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  REPORT_SUBMITTED
+  REPORT_APPROVED
+  REPORT_REJECTED
+}
+
+// ============================================================================
+// SETTINGS
+// ============================================================================
+
+model Setting {
+  id          String      @id @default(uuid())
+  
+  key         String      @unique
+  value       String      @db.Text
+  category    String
+  description String?
+  
+  isPublic    Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([key])
+  @@index([category])
+  @@map("settings")
+}

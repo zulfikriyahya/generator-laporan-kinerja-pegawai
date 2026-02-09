@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
 import { Reflector } from '@nestjs/core';
 import { AuditService } from './modules/audit/audit.service';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   // Winston Logger
@@ -39,6 +40,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger,
   });
+
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   const auditService = app.get(AuditService);
   const reflector = app.get(Reflector);

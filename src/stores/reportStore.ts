@@ -1,10 +1,9 @@
 import { persistentMap } from "@nanostores/persistent";
-import type { AppStore, HistoryStore, HistoryItem } from "../types/ReportTypes";
+import type { AppStore, HistoryStore } from "../types/ReportTypes";
 
 const defaultState: AppStore = {
   instansi: {
     logoUtama: "",
-    logoInstitusi: "",
     logoInstansi: "",
     header1: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
     header2: "KANTOR KABUPATEN PANDEGLANG",
@@ -19,12 +18,6 @@ const defaultState: AppStore = {
       pangkat: "Pembina/IV-a",
       ttd: "",
     },
-    kepalaTu: {
-      nama: "",
-      nip: "",
-      pangkat: "Penata/III-c",
-      ttd: "",
-    },
     titimangsa: "Pandeglang",
   },
   pegawai: {
@@ -33,7 +26,7 @@ const defaultState: AppStore = {
     nuptk: "",
     nik: "",
     jenis: "PNS",
-    status: "Aktif",
+    status: "AKTIF",
     golongan: "III/a",
     jabatan: "Guru Ahli Pertama",
     unitKerja: "MTsN 1 Pandeglang",
@@ -49,9 +42,9 @@ const defaultState: AppStore = {
     masaKerjaBulan: "0",
   },
   akademik: {
-    kurikulum: "Kurikulum Merdeka",
+    kurikulum: "MERDEKA",
     tahunPelajaran: `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
-    semester: "Ganjil",
+    semester: "GANJIL",
     mapel: "",
     kelas: "",
     jamMengajar: "24",
@@ -118,64 +111,6 @@ export const updateStore = <K extends keyof AppStore>(
   reportStore.set({ ...current, [key]: value });
 };
 
-export const saveToHistory = (title?: string) => {
-  const current = reportStore.get();
-  const history = historyStore.get();
-  const id = `history_${Date.now()}`;
-  const date = new Date().toISOString();
-
-  const namaBulan = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const autoTitle =
-    title ||
-    `Laporan ${current.pegawai.nama || "Tanpa Nama"} - ${namaBulan[parseInt(current.config.bulan) - 1] || ""} ${current.config.tahun}`;
-
-  const newItem: HistoryItem = {
-    id,
-    title: autoTitle,
-    date,
-    data: JSON.parse(JSON.stringify(current)),
-  };
-
-  const updatedHistory = {
-    items: [newItem, ...history.items].slice(0, 20),
-  };
-
-  historyStore.set(updatedHistory);
-  return id;
-};
-
-export const loadFromHistory = (id: string) => {
-  const history = historyStore.get();
-  const item = history.items.find((i) => i.id === id);
-  if (item) {
-    reportStore.set(JSON.parse(JSON.stringify(item.data)));
-    return true;
-  }
-  return false;
-};
-
-export const deleteHistory = (id: string) => {
-  const history = historyStore.get();
-  const updatedHistory = {
-    items: history.items.filter((i) => i.id !== id),
-  };
-  historyStore.set(updatedHistory);
-};
-
 export const validateBeforeGenerate = (
   data: AppStore,
 ): { valid: boolean; errors: string[] } => {
@@ -185,14 +120,20 @@ export const validateBeforeGenerate = (
   if (!data.pegawai.jabatan) errors.push("Jabatan harus diisi");
   if (!data.config.bulan) errors.push("Bulan laporan harus dipilih");
   if (!data.config.tahun) errors.push("Tahun laporan harus diisi");
-  return { valid: errors.length === 0, errors };
-};
 
-export const generateNomorDokumen = (): string => {
-  const current = reportStore.get();
-  const tahun = current.config.tahun;
-  const bulan = current.config.bulan.padStart(2, "0");
-  const random = Math.floor(Math.random() * 999) + 1;
-  const nomorUrut = random.toString().padStart(3, "0");
-  return `${nomorUrut}/LPKP/${bulan}/${tahun}`;
+  if (data.pegawai.email && data.pegawai.email.trim() !== "") {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.pegawai.email)) {
+      errors.push("Format email tidak valid");
+    }
+  }
+
+  const validStatus = ["AKTIF", "CUTI", "TUGAS_BELAJAR", "NON_AKTIF"];
+  if (!validStatus.includes(data.pegawai.status)) {
+    errors.push(
+      "Status pegawai tidak valid (Gunakan: AKTIF, CUTI, TUGAS_BELAJAR, NON_AKTIF)",
+    );
+  }
+
+  return { valid: errors.length === 0, errors };
 };

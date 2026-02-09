@@ -6,7 +6,6 @@ import type { GenerateAIResult, ReportDTO } from "../types/ReportTypes";
 export const generateLaporan = async (): Promise<GenerateAIResult> => {
   const store = reportStore.get();
 
-  // 1. Simpan Data Pegawai Terlebih Dahulu (Wajib agar backend bisa generate)
   const profileSave = await savePegawaiProfile();
   if (!profileSave.success) {
     return {
@@ -15,7 +14,6 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     };
   }
 
-  // 2. Siapkan Payload untuk ReportsService
   const payload: ReportDTO = {
     modelAI: store.config.modelAI,
     bulan: parseInt(store.config.bulan),
@@ -25,16 +23,14 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     targetTahunan: store.kinerja.targetTahunan,
     hambatan: store.kinerja.hambatan,
     solusi: store.kinerja.solusi,
-    tokenLimit: store.config.tokenLimit,
+    tokenLimit: parseInt(String(store.config.tokenLimit)) || 2000,
     customInstruction: store.config.customInstruction,
   };
 
   try {
-    // 3. Panggil API Backend
     const response = await api.post("/reports/generate", payload);
     const data = response.data;
 
-    // 4. Update Store dengan Hasil AI
     if (data && data.content) {
       updateStore("output", {
         ...store.output,
@@ -62,5 +58,3 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     };
   }
 };
-
-export const checkAPIKey = (model: string) => true; // API Key dikelola backend

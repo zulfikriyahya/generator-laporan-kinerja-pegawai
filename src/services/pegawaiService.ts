@@ -2,15 +2,14 @@ import api from "../utils/api";
 import { reportStore, updateStore } from "../stores/reportStore";
 import type { PegawaiDTO } from "../types/ReportTypes";
 
-// Ambil data pegawai saat login
 export const fetchPegawaiProfile = async () => {
   try {
     const response = await api.get("/pegawai/me");
     const data = response.data;
 
     if (data) {
-      // Mapping dari Backend DB ke Frontend Store
       updateStore("pegawai", {
+        id: data.id,
         nama: data.nama,
         nip: data.nip,
         nuptk: data.nuptk || "",
@@ -31,64 +30,90 @@ export const fetchPegawaiProfile = async () => {
         masaKerjaTahun: String(data.masaKerjaTahun || 0),
         masaKerjaBulan: String(data.masaKerjaBulan || 0),
       });
+
+      if (data.akademik) {
+        updateStore("akademik", {
+          kurikulum: data.akademik.kurikulum,
+          tahunPelajaran: data.akademik.tahunPelajaran,
+          semester: data.akademik.semester,
+          mapel: data.akademik.mapel || "",
+          kelas: data.akademik.kelas || "",
+          jamMengajar: String(data.akademik.jamMengajar || 0),
+          jumlahSiswa: String(data.akademik.jumlahSiswa || 0),
+          ekskul: data.akademik.ekskul || "",
+        });
+      }
       return true;
     }
-  } catch (error) {
-    console.warn("Belum ada data pegawai:", error);
+  } catch (error: any) {
+    // Jika 404, artinya user baru belum punya data pegawai.
+    // Jangan lempar error, return false saja agar UI tetap load form kosong.
+    if (error.response && error.response.status === 404) {
+      console.log("Profil pegawai belum ada, siap untuk input baru.");
+      return false;
+    }
+    console.warn("Gagal fetch pegawai:", error);
     return false;
   }
 };
 
-// Simpan/Update data pegawai
 export const savePegawaiProfile = async () => {
   const store = reportStore.get();
 
   const payload: PegawaiDTO = {
     nama: store.pegawai.nama,
     nip: store.pegawai.nip,
-    nuptk: store.pegawai.nuptk,
-    nik: store.pegawai.nik,
     jenisPegawai: store.pegawai.jenis,
-    statusPegawai: store.pegawai.status as any, // Sesuaikan enum
-    golongan: store.pegawai.golongan,
+    statusPegawai: store.pegawai.status,
     jabatan: store.pegawai.jabatan,
     unitKerja: store.pegawai.unitKerja,
-    tempatLahir: store.pegawai.tempatLahir,
+    gender: store.pegawai.gender,
+    golongan: store.pegawai.golongan || undefined,
+    nuptk: store.pegawai.nuptk || undefined,
+    nik: store.pegawai.nik || undefined,
+    tempatLahir: store.pegawai.tempatLahir || undefined,
     tanggalLahir: store.pegawai.tanggalLahir
       ? new Date(store.pegawai.tanggalLahir).toISOString()
       : undefined,
-    gender: store.pegawai.gender,
-    alamat: store.pegawai.alamat,
-    hp: store.pegawai.hp,
-    email: store.pegawai.email,
-    pendidikan: store.pegawai.pendidikan,
-    masaKerjaTahun: parseInt(store.pegawai.masaKerjaTahun),
-    masaKerjaBulan: parseInt(store.pegawai.masaKerjaBulan),
-    fotoPegawai: store.pegawai.fotoPegawai,
+    alamat: store.pegawai.alamat || undefined,
+    hp: store.pegawai.hp || undefined,
+    email: store.pegawai.email || undefined,
+    pendidikan: store.pegawai.pendidikan || undefined,
+    masaKerjaTahun: parseInt(store.pegawai.masaKerjaTahun) || 0,
+    masaKerjaBulan: parseInt(store.pegawai.masaKerjaBulan) || 0,
+    fotoPegawai: store.pegawai.fotoPegawai || undefined,
   };
 
   try {
-    // Cek dulu apakah create atau update
-    // Strategi simpel: Coba Create, jika error 400 (sudah ada), lakukan Update
-    // Tapi karena kita tidak simpan ID pegawai di store, kita coba fetch dulu atau try-catch
+    let response;
 
-    // Coba Update via endpoint PATCH (biasanya butuh ID, tapi kita pakai logic user-bound)
-    // Di backend PegawaiController, update butuh ID.
-    // Kita cek dulu endpoint getMe untuk dapat ID.
-
+    // Cek dulu apakah data sudah ada di backend
     const check = await api.get("/pegawai/me").catch(() => null);
 
-    if (check && check.data) {
-      await api.patch(`/pegawai/${check.data.id}`, payload);
+    if (check && check.data && check.data.id) {
+      // Jika ada, lakukan PATCH
+      response = await api.patch(`/pegawai/${check.data.id}`, payload);
+      if (store.pegawai.id !== check.data.id) {
+        updateStore("pegawai", { ...store.pegawai, id: check.data.id });
+      }
     } else {
-      await api.post("/pegawai", payload);
+      // Jika tidak ada (404), lakukan POST
+      response = await api.post("/pegawai", payload);
+      if (response.data && response.data.id) {
+        updateStore("pegawai", { ...store.pegawai, id: response.data.id });
+      }
     }
 
-    return { success: true };
+    return { success: true, data: response.data };
   } catch (error: any) {
+    // Tangkap error validasi backend (misal statusPegawai salah enum)
+    const errorMsg = Array.isArray(error.response?.data?.message)
+      ? error.response.data.message.join(", ")
+      : error.response?.data?.message || "Gagal menyimpan data pegawai";
+
     return {
       success: false,
-      error: error.response?.data?.message || "Gagal menyimpan data pegawai",
+      error: errorMsg,
     };
   }
 };

@@ -1,8 +1,14 @@
-<div x-data="zoomControl" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 no-print">
-	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10">
-		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer" />
-		<span class="text-xs font-medium text-white w-10 text-right" x-text="zoom + '%'"></span>
-		<button @click="resetZoom" class="px-3 py-1 text-xs font-medium hover:bg-white/10 rounded transition">Reset</button>
+<div x-data="zoomControl" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 no-print">
+	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10 rounded-full bg-slate-900/80 backdrop-blur">
+        <button @click="zoomOut" class="text-slate-400 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </button>
+		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+        <button @click="zoomIn" class="text-slate-400 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </button>
+		<span class="text-xs font-medium text-white w-10 text-right font-mono" x-text="zoom + '%'"></span>
+		<button @click="resetZoom" class="ml-2 px-2 py-1 text-[10px] font-medium bg-white/10 hover:bg-white/20 rounded transition text-slate-300">Reset</button>
 	</div>
 </div>
 
@@ -16,9 +22,13 @@
 					if (preview) {
 						preview.style.transform = `scale(${value / 100})`;
 						preview.style.transformOrigin = "top center";
+                        // Update margin bottom to prevent overlap
+                        preview.style.marginBottom = `${(value / 100) * 50}px`;
 					}
 				});
 			},
+            zoomIn() { if(this.zoom < 150) this.zoom = parseInt(this.zoom) + 10; },
+            zoomOut() { if(this.zoom > 50) this.zoom = parseInt(this.zoom) - 10; },
 			resetZoom() { this.zoom = 100; },
 		}));
 	});

@@ -7,6 +7,7 @@ export const generateHash = async (text: string): Promise<string> => {
 };
 
 export const sanitizeFilename = (name: string): string => {
+  if (!name) return "dokumen";
   return name
     .replace(/[^a-zA-Z0-9_\-]/g, "_")
     .replace(/_+/g, "_")
@@ -20,4 +21,25 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+};
+
+export const formatDateIndonesia = (dateString: string) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+export const debounce = (func: Function, wait: number) => {
+  let timeout: any;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 };

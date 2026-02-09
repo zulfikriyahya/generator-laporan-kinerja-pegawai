@@ -10,7 +10,6 @@ export const fetchHistory = async () => {
       id: report.id,
       title: `Laporan ${report.bulan}/${report.tahun}`,
       date: report.createdAt,
-      // Kita simpan referensi minimal, detail diambil saat load
       status: report.status,
     }));
 
@@ -24,8 +23,6 @@ export const loadReportDetail = async (id: string) => {
   try {
     const response = await api.get(`/reports/${id}`);
     const data = response.data;
-
-    // Masukkan data dari DB ke Form Frontend
     const current = reportStore.get();
 
     reportStore.set({
@@ -55,6 +52,25 @@ export const loadReportDetail = async (id: string) => {
       },
     });
 
+    if (data.pegawai) {
+      const p = data.pegawai;
+      const mappedPegawai = {
+        ...current.pegawai,
+        id: p.id,
+        nama: p.nama,
+        nip: p.nip,
+        jenis: p.jenisPegawai,
+        status: p.statusPegawai,
+        jabatan: p.jabatan,
+        unitKerja: p.unitKerja,
+        golongan: p.golongan || "",
+        masaKerjaTahun: String(p.masaKerjaTahun || 0),
+        masaKerjaBulan: String(p.masaKerjaBulan || 0),
+      };
+
+      reportStore.set({ ...reportStore.get(), pegawai: mappedPegawai });
+    }
+
     return true;
   } catch (error) {
     console.error("Gagal memuat laporan:", error);
@@ -65,7 +81,7 @@ export const loadReportDetail = async (id: string) => {
 export const deleteReport = async (id: string) => {
   try {
     await api.delete(`/reports/${id}`);
-    await fetchHistory(); // Refresh list
+    await fetchHistory();
     return true;
   } catch (error) {
     return false;

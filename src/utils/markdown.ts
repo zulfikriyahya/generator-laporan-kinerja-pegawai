@@ -21,6 +21,13 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     return `<h${level} id="${escapedText}" class="heading-${level}">${text}</h${level}>`;
   };
 
+  // Custom list renderer for better spacing
+  renderer.list = (body: string, ordered: boolean, start: number) => {
+    const type = ordered ? "ol" : "ul";
+    const startAttr = ordered && start !== 1 ? ` start="${start}"` : "";
+    return `<${type}${startAttr} class="report-list">${body}</${type}>`;
+  };
+
   marked.use({ renderer });
   const html = await marked.parse(text);
 
@@ -34,10 +41,14 @@ export const parseMarkdown = async (text: string): Promise<string> => {
       "h6",
       "p",
       "br",
+      "hr",
       "strong",
+      "b",
       "em",
+      "i",
       "u",
       "s",
+      "del",
       "ul",
       "ol",
       "li",
@@ -55,6 +66,16 @@ export const parseMarkdown = async (text: string): Promise<string> => {
       "div",
       "span",
     ],
-    ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "id"],
+    ALLOWED_ATTR: [
+      "href",
+      "src",
+      "alt",
+      "title",
+      "class",
+      "id",
+      "start",
+      "align",
+      "style",
+    ],
   });
 };

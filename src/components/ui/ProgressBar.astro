@@ -3,20 +3,27 @@
 	x-show="isGenerating"
 	class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
 	style="display: none;"
+    x-transition.opacity
 >
-	<div class="glass-panel p-6 max-w-md w-full mx-4">
+	<div class="glass-panel p-6 max-w-md w-full mx-4 border border-white/10 bg-slate-900 rounded-xl shadow-2xl">
 		<div class="flex items-center gap-3 mb-4">
 			<div class="flex-1">
-				<h3 class="text-white font-bold">Generating Report</h3>
-				<p class="text-xs text-slate-400" x-text="currentStep"></p>
+				<h3 class="text-white font-bold text-lg">Generating Report</h3>
+				<p class="text-xs text-slate-400" x-text="currentStep">Menghubungi AI...</p>
 			</div>
+            <div class="animate-spin text-blue-500">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
 		</div>
 		<div class="mb-4">
 			<div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500 ease-out" :style="`width: ${progress}%`"></div>
+				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
 			</div>
 		</div>
-		<button @click="cancel" class="mt-4 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition">Cancel</button>
+		<button @click="cancel" class="mt-2 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition hover:bg-slate-800">Batalkan</button>
 	</div>
 </div>
 
@@ -25,7 +32,7 @@
 		Alpine.data("progressBar", () => ({
 			isGenerating: false,
 			progress: 0,
-			currentStep: "",
+			currentStep: "Memulai...",
 			progressInterval: null,
 			init() {
 				window.addEventListener("generate:start", () => this.start());
@@ -34,18 +41,29 @@
 			},
 			start() {
 				this.isGenerating = true;
-				this.progress = 0;
+				this.progress = 5;
+                this.currentStep = "Mengirim data ke server...";
 				this.animateProgress();
 			},
 			animateProgress() {
 				this.progressInterval = setInterval(() => {
-					if (this.progress < 90) this.progress += Math.random() * 10;
+					if (this.progress < 30) {
+                        this.progress += Math.random() * 5;
+                        this.currentStep = "Memproses konteks data...";
+                    } else if (this.progress < 60) {
+                        this.progress += Math.random() * 2;
+                        this.currentStep = "AI sedang menyusun laporan...";
+                    } else if (this.progress < 90) {
+                        this.progress += Math.random();
+                        this.currentStep = "Finishing format dokumen...";
+                    }
 				}, 500);
 			},
 			complete() {
 				clearInterval(this.progressInterval);
 				this.progress = 100;
-				setTimeout(() => { this.isGenerating = false; }, 1000);
+                this.currentStep = "Selesai!";
+				setTimeout(() => { this.isGenerating = false; }, 800);
 			},
 			error() {
 				clearInterval(this.progressInterval);
@@ -54,7 +72,7 @@
 			cancel() {
 				clearInterval(this.progressInterval);
 				this.isGenerating = false;
-				window.dispatchEvent(new CustomEvent("generate:cancel"));
+				// Logic to cancel request if possible
 			},
 		}));
 	});

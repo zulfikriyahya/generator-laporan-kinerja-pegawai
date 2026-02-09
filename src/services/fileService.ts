@@ -11,9 +11,15 @@ export const uploadFile = async (file: File, category: string = "OTHER") => {
         "Content-Type": "multipart/form-data",
       },
     });
+
+    const baseUrl =
+      import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+      "http://localhost:3000";
+    const fullUrl = `${baseUrl}${response.data.url}`;
+
     return {
       success: true,
-      url: `${import.meta.env.PUBLIC_API_URL}${response.data.url}`,
+      url: fullUrl,
       data: response.data,
     };
   } catch (error: any) {

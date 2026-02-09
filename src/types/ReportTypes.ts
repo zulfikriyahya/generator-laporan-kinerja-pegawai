@@ -1,5 +1,4 @@
 export interface ReportDTO {
-  id?: string;
   modelAI: string;
   bulan: number;
   tahun: number;
@@ -38,12 +37,13 @@ export interface Pejabat {
   nama: string;
   nip: string;
   pangkat: string;
-  ttd: string;
+  ttd?: string;
 }
 
 export interface InstansiData {
+  id?: string;
   logoUtama: string;
-  logoInstitusi: string;
+  logoInstitusi?: string;
   logoInstansi: string;
   header1: string;
   header2: string;
@@ -53,17 +53,18 @@ export interface InstansiData {
   email: string;
   website: string;
   kepala: Pejabat;
-  kepalaTu: Pejabat;
+  kepalaTu?: Pejabat;
   titimangsa: string;
 }
 
 export interface PegawaiData {
+  id?: string;
   nama: string;
   nip: string;
   nuptk: string;
   nik: string;
-  jenis: "PNS" | "PPPK" | "Honorer" | "GTT" | "PTT" | "Guru";
-  status: "Aktif" | "Cuti" | "Tugas Belajar";
+  jenis: "PNS" | "PPPK" | "HONORER" | "GTT" | "PTT" | "GURU";
+  status: "AKTIF" | "CUTI" | "TUGAS_BELAJAR" | "NON_AKTIF";
   golongan: string;
   jabatan: string;
   unitKerja: string;
@@ -80,9 +81,9 @@ export interface PegawaiData {
 }
 
 export interface AkademikData {
-  kurikulum: "Kurikulum 2013" | "Kurikulum Merdeka" | "KTSP";
+  kurikulum: "K13" | "MERDEKA" | "KTSP";
   tahunPelajaran: string;
-  semester: "Ganjil" | "Genap";
+  semester: "GANJIL" | "GENAP";
   mapel: string;
   kelas: string;
   jamMengajar: string;
@@ -140,7 +141,8 @@ export interface HistoryItem {
   id: string;
   title: string;
   date: string;
-  data: AppStore;
+  status: string;
+  data?: any;
 }
 
 export interface HistoryStore {
@@ -163,16 +165,3 @@ export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
 }
-
-export interface ImportExcelResult {
-  success: boolean;
-  data?: AppStore;
-  errors?: ValidationError[];
-}
-
-export interface ExportResult {
-  success: boolean;
-  file?: Blob;
-  error?: string;
-}
-export * from "./ReportTypes";

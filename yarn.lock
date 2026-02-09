@@ -3666,6 +3666,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+lucide-astro@^0.556.0:
+  version "0.556.0"
+  resolved "https://registry.yarnpkg.com/lucide-astro/-/lucide-astro-0.556.0.tgz#6b78429df6df44f522ddb8a4d8083c3d9d4ff302"
+  integrity sha512-ugMjPb45AMfkLCaduNSbyy5NQEKvB1TxVVMmUS4S6L807PMESnX0Qp+DIKHjbyjJmPXOyLRbrzvR3YikTK7brg==
+
 magic-string@^0.25.0, magic-string@^0.25.7:
   version "0.25.9"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.25.9.tgz#de7f9faf91ef8a1c91d02c2e5314c8277dbcdd1c"

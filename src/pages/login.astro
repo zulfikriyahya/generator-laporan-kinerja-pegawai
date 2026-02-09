@@ -3,27 +3,40 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Login - E-Kinerja">
-  <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4" x-data="loginApp">
-    <div class="max-w-md w-full bg-slate-800 rounded-xl p-8 border border-white/10 shadow-2xl">
+  <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4 relative overflow-hidden" x-data="loginApp">
+    
+    <!-- Background Elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="max-w-md w-full bg-slate-800/80 backdrop-blur-md rounded-xl p-8 border border-white/10 shadow-2xl relative z-10 animate-fade-in-up">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-white mb-2">E-Kinerja AI</h1>
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 mb-4 ring-1 ring-blue-500/40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" /></svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
         <p class="text-slate-400 text-sm">Masuk untuk mengelola laporan kinerja</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-6">
+      <form @submit.prevent="handleLogin" class="space-y-5">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
-          <input type="email" x-model="email" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="email" x-model="email" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="nama@instansi.go.id" required />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
-          <input type="password" x-model="password" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="password" x-model="password" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="••••••••" required />
         </div>
 
-        <div x-show="error" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm" x-text="error"></div>
+        <div x-show="error" x-transition.opacity class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2">
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span x-text="error"></span>
+        </div>
 
-        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center">
+        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20">
           <span x-show="!loading">Masuk</span>
           <svg x-show="loading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -32,12 +45,22 @@ import Layout from "../layouts/Layout.astro";
         </button>
       </form>
 
-      <div class="mt-6 text-center text-sm text-slate-400">
-        Belum punya akun? <a href="/register" class="text-blue-400 hover:text-blue-300">Daftar sekarang</a>
+      <div class="mt-8 pt-6 border-t border-white/10 text-center text-sm text-slate-400">
+        Belum punya akun? <a href="/register" class="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-colors">Daftar sekarang</a>
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
 <script>
   import Alpine from 'alpinejs';
@@ -53,15 +76,15 @@ import Layout from "../layouts/Layout.astro";
       async handleLogin() {
         this.loading = true;
         this.error = '';
-        
+
         const result = await login({ email: this.email, password: this.password });
-        
+
         if (result.success) {
           window.location.href = '/';
         } else {
           this.error = result.error;
         }
-        
+
         this.loading = false;
       }
     }));

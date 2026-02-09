@@ -39,7 +39,9 @@ export const register = async (dto: RegisterDto) => {
   } catch (error: any) {
     return {
       success: false,
-      error: error.response?.data?.message || "Registration failed",
+      error: Array.isArray(error.response?.data?.message)
+        ? error.response.data.message.join(", ")
+        : error.response?.data?.message || "Registration failed",
     };
   }
 };
@@ -51,7 +53,9 @@ export const logout = () => {
     user: null,
     isAuthenticated: false,
   });
-  window.location.href = "/login";
+  if (window.location.pathname !== "/login") {
+    window.location.href = "/login";
+  }
 };
 
 export const getToken = () => {

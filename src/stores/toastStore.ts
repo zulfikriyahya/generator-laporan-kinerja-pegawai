@@ -12,9 +12,16 @@ export const $toasts = atom<Toast[]>([]);
 
 export const addToast = (message: string, type: ToastType = "info") => {
   const id = Date.now();
-  $toasts.set([...$toasts.get(), { id, message, type }]);
+  const currentToasts = $toasts.get();
+
+  // Prevent duplicate messages in short time
+  if (currentToasts.some((t) => t.message === message && t.type === type)) {
+    return;
+  }
+
+  $toasts.set([...currentToasts, { id, message, type }]);
 
   setTimeout(() => {
     $toasts.set($toasts.get().filter((t) => t.id !== id));
-  }, 3000);
+  }, 4000);
 };

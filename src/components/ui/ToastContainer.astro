@@ -1,13 +1,18 @@
-<div x-data="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+<div x-data="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
   <template x-for="toast in toasts" :key="toast.id">
     <div
-      class="pointer-events-auto px-4 py-3 rounded-lg shadow-lg border backdrop-blur-md flex items-center gap-3 animate-slide-in min-w-[300px]"
+      class="pointer-events-auto px-4 py-3 rounded-lg shadow-xl border backdrop-blur-md flex items-center gap-3 animate-slide-in min-w-[300px]"
       :class="{
-        'bg-emerald-500/10 border-emerald-500/20 text-emerald-400': toast.type === 'success',
-        'bg-red-500/10 border-red-500/20 text-red-400': toast.type === 'error',
-        'bg-blue-500/10 border-blue-500/20 text-blue-400': toast.type === 'info'
+        'bg-emerald-900/80 border-emerald-500/30 text-emerald-100': toast.type === 'success',
+        'bg-red-900/80 border-red-500/30 text-red-100': toast.type === 'error',
+        'bg-blue-900/80 border-blue-500/30 text-blue-100': toast.type === 'info'
       }"
     >
+      <div :class="{
+        'bg-emerald-500': toast.type === 'success',
+        'bg-red-500': toast.type === 'error',
+        'bg-blue-500': toast.type === 'info'
+      }" class="w-2 h-2 rounded-full"></div>
       <span x-text="toast.message" class="text-sm font-medium"></span>
     </div>
   </template>

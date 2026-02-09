@@ -9,23 +9,23 @@ export default defineConfig({
     AstroPWA({
       registerType: "autoUpdate",
       devOptions: {
-        enabled: false, // Matikan PWA saat mode dev untuk debugging
+        enabled: false,
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         navigateFallback: "/index.html",
-        // PENTING: Jangan cache/intercept request ke API
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly", // Paksa request ke jaringan, jangan cache
+            handler: "NetworkOnly",
           },
         ],
       },
       manifest: {
         name: "E-Kinerja AI",
         short_name: "E-Kinerja",
+        description: "Generator Laporan Kinerja Pegawai berbasis AI",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",
@@ -40,7 +40,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
     server: {
       proxy: {
-        // Opsional: Proxy agar tidak kena CORS di local
         "/api": {
           target: "http://localhost:3000",
           changeOrigin: true,

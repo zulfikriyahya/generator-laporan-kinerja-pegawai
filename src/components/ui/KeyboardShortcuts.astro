@@ -1,20 +1,49 @@
 <script>
+    import { addToast } from "../../stores/toastStore";
+
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("keyboardShortcuts", () => ({
 			init() {
 				document.addEventListener("keydown", (e) => {
+                    // Check for Ctrl/Cmd keys
 					if (e.ctrlKey || e.metaKey) {
-						switch (e.key) {
-							case "Enter": e.preventDefault(); this.triggerGenerate(); break;
-							case "s": e.preventDefault(); this.triggerSave(); break;
-							case "p": e.preventDefault(); this.triggerExportPDF(); break;
+						switch (e.key.toLowerCase()) {
+							case "enter": 
+                                e.preventDefault(); 
+                                this.triggerGenerate(); 
+                                break;
+							case "s": 
+                                e.preventDefault(); 
+                                this.triggerSave(); 
+                                break;
+							case "p": 
+                                e.preventDefault(); 
+                                this.triggerExportPDF(); 
+                                break;
+                            case "j":
+                                e.preventDefault();
+                                this.triggerExportDOCX();
+                                break;
 						}
 					}
 				});
 			},
-			triggerGenerate() { window.dispatchEvent(new CustomEvent("shortcut:generate")); },
-			triggerSave() { window.dispatchEvent(new CustomEvent("shortcut:save")); },
-			triggerExportPDF() { window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); },
+			triggerGenerate() { 
+                addToast("Shortcut: Generate Report", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:generate")); 
+            },
+			triggerSave() { 
+                addToast("Shortcut: Menyimpan...", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:save")); 
+            },
+			triggerExportPDF() { 
+                addToast("Shortcut: Export PDF", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); 
+            },
+            triggerExportDOCX() {
+                addToast("Shortcut: Export DOCX", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:export-docx")); // Pastikan listen event ini di index.astro
+            }
 		}));
 	});
 </script>

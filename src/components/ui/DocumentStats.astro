@@ -1,15 +1,26 @@
 <div
 	x-data="documentStats"
 	x-show="hasContent"
-	class="fixed top-20 right-8 z-20 no-print"
+	class="fixed top-24 right-8 z-20 no-print"
 	style="display: none;"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-x-4"
+    x-transition:enter-end="opacity-100 translate-x-0"
 >
-	<div class="glass-panel px-4 py-3 min-w-[200px]">
-		<h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Stats</h4>
+	<div class="glass-panel px-4 py-3 min-w-[180px] border border-white/5 bg-slate-900/50 backdrop-blur rounded-xl">
+		<h4 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">Statistik Dokumen</h4>
 		<div class="space-y-2">
 			<div class="flex justify-between items-center">
-				<span class="text-xs text-slate-300">Words</span>
-				<span class="text-sm font-bold" x-text="wordCount"></span>
+				<span class="text-xs text-slate-400">Kata</span>
+				<span class="text-sm font-bold text-slate-200" x-text="stats.words">0</span>
+			</div>
+            <div class="flex justify-between items-center">
+				<span class="text-xs text-slate-400">Karakter</span>
+				<span class="text-sm font-bold text-slate-200" x-text="stats.chars">0</span>
+			</div>
+            <div class="flex justify-between items-center">
+				<span class="text-xs text-slate-400">Token Estimasi</span>
+				<span class="text-sm font-bold text-blue-400" x-text="stats.tokens">0</span>
 			</div>
 		</div>
 	</div>
@@ -18,22 +29,27 @@
 <script>
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("documentStats", () => ({
-			wordCount: 0,
+			stats: { words: 0, chars: 0, tokens: 0 },
 			hasContent: false,
 			init() {
-				this.$watch("$store.appCore?.form?.output?.content", (content) => {
-					if (content) {
-						this.calculateStats(content);
-						this.hasContent = true;
-					} else {
-						this.hasContent = false;
-					}
-				});
+                // Subscribe to store changes indirectly via window event or watching local prop if bound
+				window.addEventListener("generate:complete", () => this.calculate());
+                // Also watch for manual edits if possible, or just re-calc periodically
+                setInterval(() => this.calculate(), 2000);
 			},
-			calculateStats(content) {
-				if (!content) return;
-				const plainText = content.replace(/[#*_`~\[\]]/g, "");
-				this.wordCount = plainText.trim().split(/\s+/).filter((w) => w.length > 0).length;
+			calculate() {
+                const preview = document.querySelector(".prose-report");
+                if (!preview || !preview.innerText.trim()) {
+                    this.hasContent = false;
+                    return;
+                }
+                
+                const text = preview.innerText;
+                this.hasContent = true;
+                this.stats.chars = text.length;
+                this.stats.words = text.trim().split(/\s+/).length;
+                // Rough estimate: 1 token ~= 4 chars or 0.75 words
+                this.stats.tokens = Math.ceil(text.length / 4);
 			},
 		}));
 	});

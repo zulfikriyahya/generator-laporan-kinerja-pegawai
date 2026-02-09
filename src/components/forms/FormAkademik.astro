@@ -9,8 +9,9 @@ import SelectGroup from "./SelectGroup.astro";
 		name="kur"
 		model="form.akademik.kurikulum"
 		options={[
-			{ val: "Kurikulum Merdeka", label: "Kurikulum Merdeka" },
-			{ val: "Kurikulum 2013", label: "Kurikulum 2013" },
+			{ val: "MERDEKA", label: "Kurikulum Merdeka" },
+			{ val: "K13", label: "Kurikulum 2013" },
+			{ val: "KTSP", label: "KTSP" },
 		]}
 	/>
 	<div class="grid grid-cols-2 gap-3">
@@ -19,7 +20,7 @@ import SelectGroup from "./SelectGroup.astro";
 			label="Semester"
 			name="sem"
 			model="form.akademik.semester"
-			options={[{ val: "Ganjil", label: "Ganjil" }, { val: "Genap", label: "Genap" }]}
+			options={[{ val: "GANJIL", label: "GANJIL" }, { val: "GENAP", label: "GENAP" }]}
 		/>
 	</div>
 	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />

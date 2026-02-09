@@ -13,17 +13,26 @@ const { title } = Astro.props;
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
-		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <meta name="description" content="Aplikasi Generator Laporan Kinerja Pegawai Berbasis AI untuk ASN, PPPK, dan Guru. Cepat, Mudah, dan Akurat.">
+        <meta name="theme-color" content="#0f172a">
 	</head>
-	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200">
 		<slot />
         <script>
             import { checkAuth } from "../services/authService";
-            const path = window.location.pathname;
-            const publicPages = ['/login', '/register'];
             
-            if (!publicPages.includes(path) && !checkAuth()) {
+            // Client-side route protection
+            const path = window.location.pathname;
+            const publicPages = ['/login', '/register', '/forgot-password'];
+            const isPublicPage = publicPages.some(p => path.startsWith(p));
+
+            if (!isPublicPage && !checkAuth()) {
+                // Redirect to login if not authenticated
                 window.location.href = '/login';
+            } else if (isPublicPage && checkAuth()) {
+                // Redirect to dashboard if already logged in
+                window.location.href = '/';
             }
         </script>
 	</body>

@@ -16,7 +16,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 ---
 
 <Layout title="Generator Laporan Kinerja Pegawai AI">
-  <!-- UI Components -->
   <ToastContainer />
   <AutoSaveIndicator />
   <KeyboardShortcuts />
@@ -25,44 +24,41 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   <DocumentStats />
 
   <main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
-    <!-- Header -->
     <header class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print">
       <div class="flex items-center gap-3">
         <div class="bg-blue-600 p-2 rounded-lg"><Bot class="text-white w-5 h-5" /></div>
-        <h1 class="text-sm font-bold text-white">E-KINERJA AI</h1>
+        <h1 class="text-sm font-bold text-white hidden md:block">E-KINERJA AI</h1>
       </div>
-      <div class="flex items-center gap-2">
-        <button @click="downloadTemplate" class="btn-icon"><Download class="w-3.5 h-3.5" /> Template</button>
-        <label class="btn-icon cursor-pointer">
+      <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <button @click="downloadTemplate" class="btn-icon whitespace-nowrap"><Download class="w-3.5 h-3.5" /> Template</button>
+        <label class="btn-icon cursor-pointer whitespace-nowrap">
           Import <input type="file" class="hidden" accept=".xlsx" @change="handleImportExcel" />
         </label>
-        <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20"><FileText class="w-3.5 h-3.5" /> PDF</button>
-        <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20"><FileText class="w-3.5 h-3.5" /> DOCX</button>
-        <button @click="saveDraft" class="text-slate-400 hover:text-white" title="Simpan Draft"><Save class="w-5 h-5" /></button>
-        <button @click="toggleHistory" class="text-slate-400 hover:text-white" title="Riwayat"><History class="w-5 h-5" /></button>
+        <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> PDF</button>
+        <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> DOCX</button>
+        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft"><Save class="w-5 h-5" /></button>
+        <button @click="toggleHistory" class="text-slate-400 hover:text-white p-2" title="Riwayat"><History class="w-5 h-5" /></button>
         <div class="w-px h-6 bg-white/10 mx-2"></div>
-        <button @click="handleLogout" class="text-red-400 hover:text-red-300" title="Logout"><LogOut class="w-5 h-5" /></button>
+        <button @click="handleLogout" class="text-red-400 hover:text-red-300 p-2" title="Logout"><LogOut class="w-5 h-5" /></button>
       </div>
     </header>
 
     <div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
-      <!-- Sidebar Form -->
-      <aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30">
+      <aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shrink-0 transition-all duration-300" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'">
         <div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
           <div class="grid grid-cols-2 gap-2">
             <SelectGroup label="Bulan" name="bln" model="form.config.bulan" options={Array.from({length: 12}, (_, i) => ({val: String(i+1), label: String(i+1)}))} />
             <InputGroup label="Tahun" name="thn" model="form.config.tahun" type="number" />
           </div>
-          <!-- Model list disesuaikan dengan backend -->
-          <SelectGroup label="Model AI" name="ai" model="form.config.modelAI" 
+          <SelectGroup label="Model AI" name="ai" model="form.config.modelAI"
             options={[
-              {val: "gemini", label: "Gemini 2.0 (Fast)"}, 
-              {val: "groq", label: "Groq Llama 3 (Ultra Fast)"}, 
-              {val: "claude", label: "Claude Sonnet (Smart)"}, 
+              {val: "gemini", label: "Gemini 2.0 (Fast)"},
+              {val: "groq", label: "Groq Llama 3 (Ultra Fast)"},
+              {val: "claude", label: "Claude Sonnet (Smart)"},
               {val: "gpt", label: "GPT-4o Mini"},
               {val: "deepseek", label: "DeepSeek (Economical)"},
               {val: "together", label: "Together AI"}
-            ]} 
+            ]}
           />
           <InputGroup label="Token Limit" name="tkn" model="form.config.tokenLimit" type="number" />
         </div>
@@ -74,27 +70,30 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         </div>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-          <div x-show="activeTab === 'instansi'"><FormInstansi /></div>
-          <div x-show="activeTab === 'pegawai'"><FormPegawai /></div>
-          <div x-show="activeTab === 'akademik'"><FormAkademik /></div>
-          <div x-show="activeTab === 'kinerja'"><FormKinerja /></div>
+          <div x-show="activeTab === 'instansi'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormInstansi /></div>
+          <div x-show="activeTab === 'pegawai'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormPegawai /></div>
+          <div x-show="activeTab === 'akademik'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormAkademik /></div>
+          <div x-show="activeTab === 'kinerja'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormKinerja /></div>
         </div>
 
         <div class="p-4 border-t border-white/10 bg-slate-900 z-50">
-          <button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50">
+          <button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50 shadow-lg hover:shadow-blue-500/20">
             <RefreshCw :class="loading && 'animate-spin'" class="w-4 h-4" /> GENERATE & SAVE
           </button>
         </div>
       </aside>
 
-      <!-- Document Preview -->
-      <section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar">
+      <!-- Toggle Sidebar Mobile -->
+      <button @click="sidebarOpen = !sidebarOpen" class="md:hidden fixed bottom-6 left-6 z-50 p-3 bg-blue-600 text-white rounded-full shadow-xl no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+      </button>
+
+      <section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar w-full">
         <div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
-          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700"><Printer class="w-6 h-6" /></button>
+          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700 transition hover:scale-105 tooltip" title="Print"><Printer class="w-6 h-6" /></button>
         </div>
 
         <div id="document-preview" class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300">
-          <!-- Kop Surat -->
           <header class="mb-6 pb-2 border-b-4 border-black">
             <div class="grid grid-cols-[80px_1fr_80px] gap-4 items-center mb-2">
               <div class="h-20 flex items-center justify-center">
@@ -119,7 +118,11 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
           </div>
 
           <div x-show="!form.output.content" class="text-center py-20 text-gray-400">
+             <div class="mb-4 flex justify-center text-slate-300">
+                <FileText class="w-16 h-16" />
+             </div>
             <p>Konten laporan akan muncul di sini setelah di-generate.</p>
+            <p class="text-xs mt-2">Pastikan data di formulir sebelah kiri sudah lengkap.</p>
           </div>
 
           <article class="prose-report text-justify leading-relaxed font-serif" x-html="renderedHTML"></article>
@@ -137,30 +140,32 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       </section>
     </div>
 
-    <!-- History Sidebar -->
-    <div x-show="showHistory" @click.away="showHistory = false" 
+    <div x-show="showHistory" @click.away="showHistory = false"
       x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
       class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print shadow-2xl p-4">
-      
+
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-white font-bold flex items-center gap-2"><History class="w-4 h-4" /> Riwayat Cloud</h3>
-        <button @click="refreshHistory" class="text-xs text-blue-400 hover:text-blue-300">Refresh</button>
+        <button @click="refreshHistory" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"><RefreshCw class="w-3 h-3" /> Refresh</button>
       </div>
 
       <div class="space-y-2">
         <template x-if="historyItems.length === 0">
-          <div class="text-center text-slate-500 text-xs py-4">Belum ada riwayat</div>
+          <div class="text-center text-slate-500 text-xs py-10 flex flex-col items-center">
+             <History class="w-8 h-8 mb-2 opacity-50" />
+             <span>Belum ada riwayat laporan</span>
+          </div>
         </template>
         <template x-for="item in historyItems" :key="item.id">
-          <div class="p-3 rounded-lg bg-white/5 hover:border-white/20 border border-transparent transition group">
+          <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition group cursor-pointer relative" @click="loadItem(item.id)">
             <div class="flex justify-between items-start mb-1">
-              <span class="text-[10px] text-blue-400" x-text="formatDate(item.date)"></span>
-              <button @click="deleteItem(item.id)" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition">✕</button>
+              <span class="text-[10px] text-blue-400 font-mono" x-text="formatDate(item.date)"></span>
+              <button @click.stop="deleteItem(item.id)" class="text-slate-500 hover:text-red-400 p-1 hover:bg-red-500/10 rounded transition absolute top-2 right-2">✕</button>
             </div>
-            <div class="text-sm font-medium text-slate-200 mb-2 truncate" x-text="item.title"></div>
-            <div class="flex justify-between items-center">
-               <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400" x-text="item.status || 'DRAFT'"></span>
-               <button @click="loadItem(item.id)" class="text-xs text-blue-400 hover:text-blue-300">Buka</button>
+            <div class="text-sm font-medium text-slate-200 mb-2 truncate pr-6" x-text="item.title"></div>
+            <div class="flex justify-between items-center mt-2">
+               <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700" x-text="item.status || 'DRAFT'"></span>
+               <span class="text-[10px] text-slate-500">Klik untuk buka</span>
             </div>
           </div>
         </template>
@@ -172,10 +177,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 <style>
   @reference "../styles/global.css";
   .btn-icon {
-    @apply px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2 items-center border border-slate-700 hover:bg-slate-700 transition text-slate-300 cursor-pointer;
+    @apply px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2 items-center border border-slate-700 hover:bg-slate-700 transition text-slate-300 cursor-pointer hover:border-slate-500 hover:text-white shadow-sm;
   }
 </style>
-
 <script>
   import { reportStore, historyStore, validateBeforeGenerate } from "../stores/reportStore";
   import { generateLaporan } from "../services/aiService";
@@ -184,6 +188,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   import { logout } from "../services/authService";
   import { uploadFile } from "../services/fileService";
   import { fetchPegawaiProfile, savePegawaiProfile } from "../services/pegawaiService";
+  import { fetchActiveInstansi, createManualInstansi } from "../services/instansiService";
   import { fetchHistory, loadReportDetail, deleteReport } from "../services/historyService";
   import { parseMarkdown } from "../utils/markdown";
   import { addToast } from "../stores/toastStore";
@@ -196,25 +201,32 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       loading: false,
       renderedHTML: "",
       showHistory: false,
+      sidebarOpen: true,
       historyItems: [],
 
       async init() {
-        // 1. Render konten jika ada di local state
+        // Render existing content
         if (this.form.output.content) {
             this.renderedHTML = await parseMarkdown(this.form.output.content);
         }
 
-        // 2. Ambil Profil Pegawai dari Backend
-        await fetchPegawaiProfile();
-        this.form = reportStore.get(); // Refresh UI
-
-        // 3. Ambil Riwayat dari Backend
-        await this.refreshHistory();
-
-        // 4. Subscribe ke perubahan store history
-        historyStore.subscribe((val) => { this.historyItems = val.items; });
+        // Fetch data tanpa blocking UI jika error (404)
+        try {
+            await fetchPegawaiProfile();
+            await fetchActiveInstansi();
+        } catch (e) {
+            // Error network/auth, biarkan silent di console
+        }
         
-        // 5. Setup Autosave ke Store Lokal (UI responsiveness)
+        // Refresh store UI setelah fetch
+        this.form = reportStore.get();
+        
+        // Load history
+        this.refreshHistory();
+
+        historyStore.subscribe((val) => { this.historyItems = val.items; });
+
+        // Autosave logic
         let timeout;
         this.$watch("form", (val) => {
           clearTimeout(timeout);
@@ -232,55 +244,71 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         window.addEventListener("shortcut:generate", () => this.generateLaporan());
         window.addEventListener("shortcut:save", () => this.saveDraft());
         window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
+        window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
       },
 
       async generateLaporan() {
         const validation = validateBeforeGenerate(this.form);
-        if (!validation.valid) { 
-            addToast("Data belum lengkap: " + validation.errors[0], "error"); 
-            return; 
+        if (!validation.valid) {
+            addToast("Data belum lengkap: " + validation.errors[0], "error");
+            return;
         }
-        
+
+        // Auto-save instansi jika belum ada ID
+        if (!this.form.instansi.id) {
+             addToast("Menyimpan data instansi baru...", "info");
+             const saved = await createManualInstansi();
+             if (!saved) return; 
+        }
+
         this.loading = true;
         window.dispatchEvent(new CustomEvent("generate:start"));
-        
+
         try {
           const result = await generateLaporan();
-          
+
           if (result.success && result.content) {
             this.renderedHTML = await parseMarkdown(result.content);
-            this.form = reportStore.get(); // Refresh UI dengan hasil terbaru
+            this.form = reportStore.get();
             window.dispatchEvent(new CustomEvent("generate:complete"));
-            addToast(`Sukses! ${result.tokensUsed} token digunakan.`, "success");
-            await this.refreshHistory(); // Refresh list riwayat
+            addToast(`Sukses! ${result.tokensUsed || 0} token digunakan.`, "success");
+            await this.refreshHistory();
+            
+            if (window.innerWidth < 768) {
+                this.sidebarOpen = false;
+                document.getElementById('document-preview')?.scrollIntoView({ behavior: 'smooth' });
+            }
           } else {
             addToast(result.error || "Gagal generate laporan", "error");
             window.dispatchEvent(new CustomEvent("generate:error"));
           }
         } catch (error) {
           window.dispatchEvent(new CustomEvent("generate:error"));
-          addToast("Terjadi kesalahan sistem", "error");
+          addToast("Terjadi kesalahan sistem saat generate", "error");
         } finally {
           this.loading = false;
         }
       },
 
-      // Upload Handler (General)
       async handleUpload(event, field) {
         const file = event.target.files?.[0];
         if (file) {
+          // Client side limit check (misal 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+              addToast("Ukuran file maksimal 5MB", "error");
+              return;
+          }
+          
           addToast("Mengupload...", "info");
           const category = field.includes('instansi') ? 'LOGO_INSTANSI' : 'FOTO_PEGAWAI';
           const result = await uploadFile(file, category);
-          
+
           if(result.success) {
-            // Update deep nested property
             const path = field.split(".");
             let target = this.form;
             for (let i = 0; i < path.length - 1; i++) target = target[path[i]];
             target[path[path.length - 1]] = result.url;
-            
-            // Trigger update store
+
             reportStore.set({...this.form});
             addToast("Upload berhasil", "success");
           } else {
@@ -292,17 +320,24 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       async handleImportExcel(event) {
         const file = event.target.files?.[0];
         if (file) {
-          await importFromExcel(file);
-          this.form = reportStore.get();
-          addToast("Data diimport dari Excel", "success");
+          try {
+            await importFromExcel(file);
+            this.form = reportStore.get();
+            addToast("Data diimport dari Excel", "success");
+          } catch (e) {
+            addToast("Gagal import Excel", "error");
+          }
         }
       },
 
       async saveDraft() {
-        // Simpan hanya profil pegawai ke backend sebagai draft dasar
         const result = await savePegawaiProfile();
         if(result.success) {
-            addToast("Profil pegawai tersimpan di server", "success");
+            addToast("Data tersimpan di server", "success");
+            // Cek juga instansi
+            if(!this.form.instansi.id) {
+                await createManualInstansi();
+            }
         } else {
             addToast("Gagal menyimpan: " + result.error, "error");
         }
@@ -342,11 +377,11 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       exportDOCX() { exportToDOCX(); },
       printDoc() { printDocument(); },
       toggleHistory() { this.showHistory = !this.showHistory; },
-      
-      getCurrentDate() { 
-        return new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }); 
+
+      getCurrentDate() {
+        return new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
       },
-      
+
       formatDate(isoString) {
         if(!isoString) return '-';
         return new Date(isoString).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: '2-digit' });

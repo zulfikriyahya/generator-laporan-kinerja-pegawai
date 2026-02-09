@@ -1,3 +1,64 @@
+# Project Files
+
+.
+├── astro.config.mjs
+├── draft.md
+├── generate.sh
+├── package.json
+├── src
+│   ├── components
+│   │   ├── forms
+│   │   │   ├── FormAkademik.astro
+│   │   │   ├── FormInstansi.astro
+│   │   │   ├── FormKinerja.astro
+│   │   │   ├── FormPegawai.astro
+│   │   │   ├── SelectGroup.astro
+│   │   │   └── TabNavigation.astro
+│   │   ├── InputGroup.astro
+│   │   ├── TextAreaGroup.astro
+│   │   └── ui
+│   │       ├── AutoSaveIndicator.astro
+│   │       ├── DocumentStats.astro
+│   │       ├── KeyboardShortcuts.astro
+│   │       ├── ProgressBar.astro
+│   │       ├── ToastContainer.astro
+│   │       └── ZoomControl.astro
+│   ├── config
+│   │   └── constants.ts
+│   ├── env.d.ts
+│   ├── layouts
+│   │   └── Layout.astro
+│   ├── pages
+│   │   ├── index.astro
+│   │   ├── login.astro
+│   │   └── register.astro
+│   ├── services
+│   │   ├── aiService.ts
+│   │   ├── authService.ts
+│   │   ├── excelService.ts
+│   │   ├── exportService.ts
+│   │   ├── fileService.ts
+│   │   ├── historyService.ts
+│   │   ├── instansiService.ts
+│   │   └── pegawaiService.ts
+│   ├── stores
+│   │   ├── authStore.ts
+│   │   ├── reportStore.ts
+│   │   └── toastStore.ts
+│   ├── styles
+│   │   └── global.css
+│   ├── types
+│   │   ├── AuthTypes.ts
+│   │   └── ReportTypes.ts
+│   └── utils
+│       ├── api.ts
+│       ├── helpers.ts
+│       └── markdown.ts
+├── tsconfig.json
+└── yarn.lock
+
+13 directories, 43 files
+
 # File Contents
 
 ## astro.config.mjs
@@ -14,23 +75,23 @@ export default defineConfig({
     AstroPWA({
       registerType: "autoUpdate",
       devOptions: {
-        enabled: false, // Matikan PWA saat mode dev untuk debugging
+        enabled: false,
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         navigateFallback: "/index.html",
-        // PENTING: Jangan cache/intercept request ke API
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith("/api"),
-            handler: "NetworkOnly", // Paksa request ke jaringan, jangan cache
+            handler: "NetworkOnly",
           },
         ],
       },
       manifest: {
         name: "E-Kinerja AI",
         short_name: "E-Kinerja",
+        description: "Generator Laporan Kinerja Pegawai berbasis AI",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",
@@ -45,7 +106,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
     server: {
       proxy: {
-        // Opsional: Proxy agar tidak kena CORS di local
         "/api": {
           target: "http://localhost:3000",
           changeOrigin: true,
@@ -87,6 +147,7 @@ export default defineConfig({
     "file-saver": "^2.0.5",
     "html-docx-js-typescript": "^0.1.5",
     "html2pdf.js": "^0.14.0",
+    "lucide-astro": "^0.556.0",
     "marked": "17.0.1",
     "nanostores": "^1.1.0",
     "qrcode": "^1.5.4",
@@ -121,7 +182,7 @@ export default defineConfig({
 
 ## src/components/InputGroup.astro
 
-````astro
+```astro
 ---
 interface Props {
 	label: string;
@@ -152,11 +213,17 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 ## src/components/ui/ZoomControl.astro
 
 ```astro
-<div x-data="zoomControl" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 no-print">
-	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10">
-		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer" />
-		<span class="text-xs font-medium text-white w-10 text-right" x-text="zoom + '%'"></span>
-		<button @click="resetZoom" class="px-3 py-1 text-xs font-medium hover:bg-white/10 rounded transition">Reset</button>
+<div x-data="zoomControl" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 no-print">
+	<div class="glass-panel px-4 py-2 flex items-center gap-3 shadow-xl border border-white/10 rounded-full bg-slate-900/80 backdrop-blur">
+        <button @click="zoomOut" class="text-slate-400 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </button>
+		<input type="range" x-model="zoom" min="50" max="150" step="10" class="w-24 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+        <button @click="zoomIn" class="text-slate-400 hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </button>
+		<span class="text-xs font-medium text-white w-10 text-right font-mono" x-text="zoom + '%'"></span>
+		<button @click="resetZoom" class="ml-2 px-2 py-1 text-[10px] font-medium bg-white/10 hover:bg-white/20 rounded transition text-slate-300">Reset</button>
 	</div>
 </div>
 
@@ -170,9 +237,13 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 					if (preview) {
 						preview.style.transform = `scale(${value / 100})`;
 						preview.style.transformOrigin = "top center";
+                        // Update margin bottom to prevent overlap
+                        preview.style.marginBottom = `${(value / 100) * 50}px`;
 					}
 				});
 			},
+            zoomIn() { if(this.zoom < 150) this.zoom = parseInt(this.zoom) + 10; },
+            zoomOut() { if(this.zoom > 50) this.zoom = parseInt(this.zoom) - 10; },
 			resetZoom() { this.zoom = 100; },
 		}));
 	});
@@ -183,16 +254,21 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 ## src/components/ui/ToastContainer.astro
 
 ```astro
-<div x-data="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+<div x-data="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
   <template x-for="toast in toasts" :key="toast.id">
     <div
-      class="pointer-events-auto px-4 py-3 rounded-lg shadow-lg border backdrop-blur-md flex items-center gap-3 animate-slide-in min-w-[300px]"
+      class="pointer-events-auto px-4 py-3 rounded-lg shadow-xl border backdrop-blur-md flex items-center gap-3 animate-slide-in min-w-[300px]"
       :class="{
-        'bg-emerald-500/10 border-emerald-500/20 text-emerald-400': toast.type === 'success',
-        'bg-red-500/10 border-red-500/20 text-red-400': toast.type === 'error',
-        'bg-blue-500/10 border-blue-500/20 text-blue-400': toast.type === 'info'
+        'bg-emerald-900/80 border-emerald-500/30 text-emerald-100': toast.type === 'success',
+        'bg-red-900/80 border-red-500/30 text-red-100': toast.type === 'error',
+        'bg-blue-900/80 border-blue-500/30 text-blue-100': toast.type === 'info'
       }"
     >
+      <div :class="{
+        'bg-emerald-500': toast.type === 'success',
+        'bg-red-500': toast.type === 'error',
+        'bg-blue-500': toast.type === 'info'
+      }" class="w-2 h-2 rounded-full"></div>
       <span x-text="toast.message" class="text-sm font-medium"></span>
     </div>
   </template>
@@ -224,22 +300,32 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 	x-data="autoSaveIndicator"
 	x-show="visible"
 	x-transition:enter="transition ease-out duration-300"
-	x-transition:enter-start="opacity-0 translate-y-2"
+	x-transition:enter-start="opacity-0 translate-y-4"
 	x-transition:enter-end="opacity-100 translate-y-0"
 	x-transition:leave="transition ease-in duration-200"
 	x-transition:leave-start="opacity-100 translate-y-0"
-	x-transition:leave-end="opacity-0 translate-y-2"
-	class="fixed bottom-4 right-4 z-50 no-print"
+	x-transition:leave-end="opacity-0 translate-y-4"
+	class="fixed bottom-6 right-6 z-50 no-print"
+    style="display: none;"
 >
 	<div
-		class="flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg border backdrop-blur-md"
+		class="flex items-center gap-2 px-3 py-2 rounded-full shadow-lg border backdrop-blur-md transition-colors duration-300"
 		:class="{
 			'bg-emerald-500/10 border-emerald-500/20 text-emerald-400': status === 'saved',
 			'bg-blue-500/10 border-blue-500/20 text-blue-400': status === 'saving',
 			'bg-red-500/10 border-red-500/20 text-red-400': status === 'error'
 		}"
 	>
-		<span class="text-xs font-medium" x-text="message"></span>
+        <template x-if="status === 'saving'">
+             <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </template>
+        <template x-if="status === 'saved'">
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </template>
+        <template x-if="status === 'error'">
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </template>
+		<span class="text-[10px] font-bold uppercase tracking-wide" x-text="message"></span>
 	</div>
 </div>
 
@@ -276,15 +362,26 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 <div
 	x-data="documentStats"
 	x-show="hasContent"
-	class="fixed top-20 right-8 z-20 no-print"
+	class="fixed top-24 right-8 z-20 no-print"
 	style="display: none;"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-x-4"
+    x-transition:enter-end="opacity-100 translate-x-0"
 >
-	<div class="glass-panel px-4 py-3 min-w-[200px]">
-		<h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Stats</h4>
+	<div class="glass-panel px-4 py-3 min-w-[180px] border border-white/5 bg-slate-900/50 backdrop-blur rounded-xl">
+		<h4 class="text-[10px] font-bold text-slate-500 uppercase mb-3 tracking-widest">Statistik Dokumen</h4>
 		<div class="space-y-2">
 			<div class="flex justify-between items-center">
-				<span class="text-xs text-slate-300">Words</span>
-				<span class="text-sm font-bold" x-text="wordCount"></span>
+				<span class="text-xs text-slate-400">Kata</span>
+				<span class="text-sm font-bold text-slate-200" x-text="stats.words">0</span>
+			</div>
+            <div class="flex justify-between items-center">
+				<span class="text-xs text-slate-400">Karakter</span>
+				<span class="text-sm font-bold text-slate-200" x-text="stats.chars">0</span>
+			</div>
+            <div class="flex justify-between items-center">
+				<span class="text-xs text-slate-400">Token Estimasi</span>
+				<span class="text-sm font-bold text-blue-400" x-text="stats.tokens">0</span>
 			</div>
 		</div>
 	</div>
@@ -293,22 +390,27 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 <script>
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("documentStats", () => ({
-			wordCount: 0,
+			stats: { words: 0, chars: 0, tokens: 0 },
 			hasContent: false,
 			init() {
-				this.$watch("$store.appCore?.form?.output?.content", (content) => {
-					if (content) {
-						this.calculateStats(content);
-						this.hasContent = true;
-					} else {
-						this.hasContent = false;
-					}
-				});
+                // Subscribe to store changes indirectly via window event or watching local prop if bound
+				window.addEventListener("generate:complete", () => this.calculate());
+                // Also watch for manual edits if possible, or just re-calc periodically
+                setInterval(() => this.calculate(), 2000);
 			},
-			calculateStats(content) {
-				if (!content) return;
-				const plainText = content.replace(/[#*_`~\[\]]/g, "");
-				this.wordCount = plainText.trim().split(/\s+/).filter((w) => w.length > 0).length;
+			calculate() {
+                const preview = document.querySelector(".prose-report");
+                if (!preview || !preview.innerText.trim()) {
+                    this.hasContent = false;
+                    return;
+                }
+                
+                const text = preview.innerText;
+                this.hasContent = true;
+                this.stats.chars = text.length;
+                this.stats.words = text.trim().split(/\s+/).length;
+                // Rough estimate: 1 token ~= 4 chars or 0.75 words
+                this.stats.tokens = Math.ceil(text.length / 4);
 			},
 		}));
 	});
@@ -324,20 +426,27 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 	x-show="isGenerating"
 	class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
 	style="display: none;"
+    x-transition.opacity
 >
-	<div class="glass-panel p-6 max-w-md w-full mx-4">
+	<div class="glass-panel p-6 max-w-md w-full mx-4 border border-white/10 bg-slate-900 rounded-xl shadow-2xl">
 		<div class="flex items-center gap-3 mb-4">
 			<div class="flex-1">
-				<h3 class="text-white font-bold">Generating Report</h3>
-				<p class="text-xs text-slate-400" x-text="currentStep"></p>
+				<h3 class="text-white font-bold text-lg">Generating Report</h3>
+				<p class="text-xs text-slate-400" x-text="currentStep">Menghubungi AI...</p>
 			</div>
+            <div class="animate-spin text-blue-500">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
 		</div>
 		<div class="mb-4">
 			<div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500 ease-out" :style="`width: ${progress}%`"></div>
+				<div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
 			</div>
 		</div>
-		<button @click="cancel" class="mt-4 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition">Cancel</button>
+		<button @click="cancel" class="mt-2 w-full py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 rounded-lg transition hover:bg-slate-800">Batalkan</button>
 	</div>
 </div>
 
@@ -346,7 +455,7 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 		Alpine.data("progressBar", () => ({
 			isGenerating: false,
 			progress: 0,
-			currentStep: "",
+			currentStep: "Memulai...",
 			progressInterval: null,
 			init() {
 				window.addEventListener("generate:start", () => this.start());
@@ -355,18 +464,29 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 			},
 			start() {
 				this.isGenerating = true;
-				this.progress = 0;
+				this.progress = 5;
+                this.currentStep = "Mengirim data ke server...";
 				this.animateProgress();
 			},
 			animateProgress() {
 				this.progressInterval = setInterval(() => {
-					if (this.progress < 90) this.progress += Math.random() * 10;
+					if (this.progress < 30) {
+                        this.progress += Math.random() * 5;
+                        this.currentStep = "Memproses konteks data...";
+                    } else if (this.progress < 60) {
+                        this.progress += Math.random() * 2;
+                        this.currentStep = "AI sedang menyusun laporan...";
+                    } else if (this.progress < 90) {
+                        this.progress += Math.random();
+                        this.currentStep = "Finishing format dokumen...";
+                    }
 				}, 500);
 			},
 			complete() {
 				clearInterval(this.progressInterval);
 				this.progress = 100;
-				setTimeout(() => { this.isGenerating = false; }, 1000);
+                this.currentStep = "Selesai!";
+				setTimeout(() => { this.isGenerating = false; }, 800);
 			},
 			error() {
 				clearInterval(this.progressInterval);
@@ -375,7 +495,7 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 			cancel() {
 				clearInterval(this.progressInterval);
 				this.isGenerating = false;
-				window.dispatchEvent(new CustomEvent("generate:cancel"));
+				// Logic to cancel request if possible
 			},
 		}));
 	});
@@ -387,22 +507,51 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ```astro
 <script>
+    import { addToast } from "../../stores/toastStore";
+
 	document.addEventListener("alpine:init", () => {
 		Alpine.data("keyboardShortcuts", () => ({
 			init() {
 				document.addEventListener("keydown", (e) => {
+                    // Check for Ctrl/Cmd keys
 					if (e.ctrlKey || e.metaKey) {
-						switch (e.key) {
-							case "Enter": e.preventDefault(); this.triggerGenerate(); break;
-							case "s": e.preventDefault(); this.triggerSave(); break;
-							case "p": e.preventDefault(); this.triggerExportPDF(); break;
+						switch (e.key.toLowerCase()) {
+							case "enter": 
+                                e.preventDefault(); 
+                                this.triggerGenerate(); 
+                                break;
+							case "s": 
+                                e.preventDefault(); 
+                                this.triggerSave(); 
+                                break;
+							case "p": 
+                                e.preventDefault(); 
+                                this.triggerExportPDF(); 
+                                break;
+                            case "j":
+                                e.preventDefault();
+                                this.triggerExportDOCX();
+                                break;
 						}
 					}
 				});
 			},
-			triggerGenerate() { window.dispatchEvent(new CustomEvent("shortcut:generate")); },
-			triggerSave() { window.dispatchEvent(new CustomEvent("shortcut:save")); },
-			triggerExportPDF() { window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); },
+			triggerGenerate() { 
+                addToast("Shortcut: Generate Report", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:generate")); 
+            },
+			triggerSave() { 
+                addToast("Shortcut: Menyimpan...", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:save")); 
+            },
+			triggerExportPDF() { 
+                addToast("Shortcut: Export PDF", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:export-pdf")); 
+            },
+            triggerExportDOCX() {
+                addToast("Shortcut: Export DOCX", "info");
+                window.dispatchEvent(new CustomEvent("shortcut:export-docx")); // Pastikan listen event ini di index.astro
+            }
 		}));
 	});
 </script>
@@ -434,6 +583,9 @@ const { label, name, model, options } = Astro.props;
 		>
 			{options.map((opt) => <option value={opt.val}>{opt.label}</option>)}
 		</select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+        </div>
 	</div>
 </div>```
 
@@ -447,13 +599,13 @@ import TextAreaGroup from "../TextAreaGroup.astro";
 ---
 
 <div class="space-y-4 animate-fade-in">
-	<TextAreaGroup label="Tugas Pokok" name="tp" model="form.kinerja.tugasPokok" rows="3" />
-	<TextAreaGroup label="Tugas Tambahan" name="tt" model="form.kinerja.tugasTambahan" rows="2" />
+	<TextAreaGroup label="Tugas Pokok" name="tp" model="form.kinerja.tugasPokok" rows="4" placeholder="Deskripsikan tugas utama..." />
+	<TextAreaGroup label="Tugas Tambahan" name="tt" model="form.kinerja.tugasTambahan" rows="2" placeholder="Wali kelas, pembina ekskul..." />
 	<div class="pt-4 border-t border-white/5">
-		<h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Analisis</h4>
-		<TextAreaGroup label="Target Tahunan" name="iku" model="form.kinerja.targetTahunan" rows="2" />
-		<TextAreaGroup label="Hambatan" name="hambat" model="form.kinerja.hambatan" rows="2" />
-		<TextAreaGroup label="Solusi" name="solusi" model="form.kinerja.solusi" rows="2" />
+		<h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Target & Evaluasi</h4>
+		<TextAreaGroup label="Target Tahunan" name="iku" model="form.kinerja.targetTahunan" rows="2" placeholder="Target IKU atau SKP..." />
+		<TextAreaGroup label="Hambatan / Kendala" name="hambat" model="form.kinerja.hambatan" rows="2" placeholder="Kendala yang dihadapi bulan ini..." />
+		<TextAreaGroup label="Solusi / Tindak Lanjut" name="solusi" model="form.kinerja.solusi" rows="2" placeholder="Solusi atas kendala..." />
 	</div>
 </div>```
 
@@ -473,8 +625,9 @@ import SelectGroup from "./SelectGroup.astro";
 		name="kur"
 		model="form.akademik.kurikulum"
 		options={[
-			{ val: "Kurikulum Merdeka", label: "Kurikulum Merdeka" },
-			{ val: "Kurikulum 2013", label: "Kurikulum 2013" },
+			{ val: "MERDEKA", label: "Kurikulum Merdeka" },
+			{ val: "K13", label: "Kurikulum 2013" },
+			{ val: "KTSP", label: "KTSP" },
 		]}
 	/>
 	<div class="grid grid-cols-2 gap-3">
@@ -483,7 +636,7 @@ import SelectGroup from "./SelectGroup.astro";
 			label="Semester"
 			name="sem"
 			model="form.akademik.semester"
-			options={[{ val: "Ganjil", label: "Ganjil" }, { val: "Genap", label: "Genap" }]}
+			options={[{ val: "GANJIL", label: "GANJIL" }, { val: "GENAP", label: "GENAP" }]}
 		/>
 	</div>
 	<InputGroup label="Mata Pelajaran" name="mapel" model="form.akademik.mapel" />
@@ -516,11 +669,30 @@ import SelectGroup from "./SelectGroup.astro";
 ```astro
 ---
 import InputGroup from "../InputGroup.astro";
+import { Info } from "lucide-astro";
 ---
 
-<div class="space-y-6 animate-fade-in pb-10">
-	<div class="space-y-3">
-		<h3 class="text-xs font-bold text-blue-400 uppercase border-b border-white/10 pb-1">Identitas Instansi</h3>
+<div class="space-y-6 animate-fade-in pb-10" x-data="{ editing: false }">
+    <div x-show="!form.instansi.id && !editing" class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex gap-3 items-start">
+        <Info class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+        <div>
+            <h4 class="text-sm font-bold text-yellow-500 mb-1">Data Instansi Belum Diatur</h4>
+            <p class="text-xs text-yellow-200/80 mb-3">
+                Anda belum terhubung dengan data instansi aktif. Silakan hubungi admin atau isi data manual sementara.
+            </p>
+            <button @click="editing = true" class="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1.5 rounded transition">
+                Isi Manual
+            </button>
+        </div>
+    </div>
+
+	<div class="space-y-3" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+        <div class="flex justify-between items-center border-b border-white/10 pb-1">
+		    <h3 class="text-xs font-bold text-blue-400 uppercase">Identitas Instansi</h3>
+            <button x-show="form.instansi.id && !editing" @click="editing = true" class="text-[10px] text-slate-400 hover:text-white">Edit</button>
+            <button x-show="editing" @click="editing = false" class="text-[10px] text-red-400 hover:text-red-300">Batal</button>
+        </div>
+
 		<InputGroup label="Header 1" name="h1" model="form.instansi.header1" placeholder="KEMENTERIAN..." />
 		<InputGroup label="Header 2" name="h2" model="form.instansi.header2" placeholder="KANTOR..." />
 		<InputGroup label="Header 3" name="h3" model="form.instansi.header3" placeholder="MADRASAH..." />
@@ -530,23 +702,42 @@ import InputGroup from "../InputGroup.astro";
 			<InputGroup label="Email" name="mail" model="form.instansi.email" />
 		</div>
 	</div>
-	<div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
+
+	<div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4" x-show="editing || !form.instansi.id">
 		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kiri</span>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px]" />
+			<span class="text-xs text-slate-400 block mb-2">Logo Kiri (Utama)</span>
+            <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+                <template x-if="form.instansi.logoUtama">
+                    <img :src="form.instansi.logoUtama" class="h-full object-contain" />
+                </template>
+                <template x-if="!form.instansi.logoUtama">
+                    <span class="text-[10px] text-slate-600">No Logo</span>
+                </template>
+            </div>
+			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoUtama')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
 		</div>
 		<div class="bg-slate-800 p-3 rounded text-center">
-			<span class="text-xs text-slate-400 block mb-2">Logo Kanan</span>
-			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px]" />
+			<span class="text-xs text-slate-400 block mb-2">Logo Kanan (Instansi)</span>
+             <div class="h-16 mb-2 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+                <template x-if="form.instansi.logoInstansi">
+                    <img :src="form.instansi.logoInstansi" class="h-full object-contain" />
+                </template>
+                <template x-if="!form.instansi.logoInstansi">
+                    <span class="text-[10px] text-slate-600">No Logo</span>
+                </template>
+            </div>
+			<input type="file" accept="image/*" @change="handleUpload($event, 'instansi.logoInstansi')" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
 		</div>
 	</div>
-	<div class="space-y-3 pt-4 border-t border-white/10">
-		<InputGroup label="Titimangsa" name="titimangsa" model="form.instansi.titimangsa" />
+
+	<div class="space-y-3 pt-4 border-t border-white/10" :class="{ 'opacity-50 pointer-events-none': form.instansi.id && !editing }">
+		<h3 class="text-xs font-bold text-blue-400 uppercase">Pejabat Penilai</h3>
+		<InputGroup label="Titimangsa (Tempat)" name="titimangsa" model="form.instansi.titimangsa" />
 		<div class="p-3 bg-white/5 rounded-lg border border-white/5">
 			<InputGroup label="Nama Kepala" name="k_nama" model="form.instansi.kepala.nama" />
 			<div class="grid grid-cols-2 gap-2 mt-2">
-				<InputGroup label="NIP" name="k_nip" model="form.instansi.kepala.nip" />
-				<InputGroup label="Pangkat" name="k_pgkt" model="form.instansi.kepala.pangkat" />
+				<InputGroup label="NIP Kepala" name="k_nip" model="form.instansi.kepala.nip" />
+				<InputGroup label="Pangkat/Gol" name="k_pgkt" model="form.instansi.kepala.pangkat" />
 			</div>
 		</div>
 	</div>
@@ -577,14 +768,37 @@ import SelectGroup from "./SelectGroup.astro";
 			options={[
 				{ val: "PNS", label: "PNS" },
 				{ val: "PPPK", label: "PPPK" },
-				{ val: "Honorer", label: "Honorer" },
-				{ val: "Guru", label: "Guru" },
+				{ val: "HONORER", label: "HONORER" },
+				{ val: "GURU", label: "GURU" },
 			]}
 		/>
-		<InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
+        <SelectGroup
+			label="Status Pegawai"
+			name="stts_peg"
+			model="form.pegawai.status"
+			options={[
+				{ val: "AKTIF", label: "AKTIF" },
+				{ val: "CUTI", label: "CUTI" },
+				{ val: "TUGAS_BELAJAR", label: "TUGAS BELAJAR" },
+				{ val: "NON_AKTIF", label: "NON AKTIF" },
+			]}
+		/>
 	</div>
+    <div class="grid grid-cols-2 gap-3">
+        <SelectGroup
+			label="Gender"
+			name="gender"
+			model="form.pegawai.gender"
+			options={[
+				{ val: "L", label: "Laki-laki" },
+				{ val: "P", label: "Perempuan" },
+			]}
+		/>
+        <InputGroup label="Golongan" name="gol" model="form.pegawai.golongan" />
+    </div>
 	<InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
 	<InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+    <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
 	<div class="grid grid-cols-2 gap-3">
 		<InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
 		<InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
@@ -657,7 +871,7 @@ export const MODEL_CONFIGS = {
     temperature: 0.7,
   },
 };
-````
+```
 
 ---
 
@@ -686,14 +900,14 @@ interface ImportMeta {
 
 ## src/pages/register.astro
 
-````astro
+```astro
 ---
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Register - E-Kinerja">
   <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4" x-data="registerApp">
-    <div class="max-w-md w-full bg-slate-800 rounded-xl p-8 border border-white/10 shadow-2xl">
+    <div class="max-w-md w-full bg-slate-800 rounded-xl p-8 border border-white/10 shadow-2xl animate-fade-in-up">
       <div class="text-center mb-8">
         <h1 class="text-2xl font-bold text-white mb-2">Buat Akun</h1>
         <p class="text-slate-400 text-sm">Daftar untuk mulai membuat laporan</p>
@@ -702,22 +916,25 @@ import Layout from "../layouts/Layout.astro";
       <form @submit.prevent="handleRegister" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap</label>
-          <input type="text" x-model="name" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="text" x-model="name" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="Contoh: Ahmad Dahlan" required />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
-          <input type="email" x-model="email" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="email" x-model="email" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="email@instansi.go.id" required />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
-          <input type="password" x-model="password" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required minlength="8" />
+          <input type="password" x-model="password" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-950" placeholder="Minimal 8 karakter" required minlength="8" />
         </div>
 
-        <div x-show="error" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm" x-text="error"></div>
+        <div x-show="error" x-transition.opacity class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2">
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span x-text="error"></span>
+        </div>
 
-        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center">
+        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20">
           <span x-show="!loading">Daftar</span>
           <svg x-show="loading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -727,11 +944,21 @@ import Layout from "../layouts/Layout.astro";
       </form>
 
       <div class="mt-6 text-center text-sm text-slate-400">
-        Sudah punya akun? <a href="/login" class="text-blue-400 hover:text-blue-300">Login disini</a>
+        Sudah punya akun? <a href="/login" class="text-blue-400 hover:text-blue-300 font-medium hover:underline">Login disini</a>
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
 <script>
   import Alpine from 'alpinejs';
@@ -777,27 +1004,40 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Login - E-Kinerja">
-  <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4" x-data="loginApp">
-    <div class="max-w-md w-full bg-slate-800 rounded-xl p-8 border border-white/10 shadow-2xl">
+  <div class="min-h-screen flex items-center justify-center bg-slate-900 px-4 relative overflow-hidden" x-data="loginApp">
+    
+    <!-- Background Elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="max-w-md w-full bg-slate-800/80 backdrop-blur-md rounded-xl p-8 border border-white/10 shadow-2xl relative z-10 animate-fade-in-up">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-white mb-2">E-Kinerja AI</h1>
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 mb-4 ring-1 ring-blue-500/40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" /></svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
         <p class="text-slate-400 text-sm">Masuk untuk mengelola laporan kinerja</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-6">
+      <form @submit.prevent="handleLogin" class="space-y-5">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
-          <input type="email" x-model="email" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="email" x-model="email" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="nama@instansi.go.id" required />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
-          <input type="password" x-model="password" class="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          <input type="password" x-model="password" class="w-full bg-slate-900/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 transition-all focus:bg-slate-900" placeholder="••••••••" required />
         </div>
 
-        <div x-show="error" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm" x-text="error"></div>
+        <div x-show="error" x-transition.opacity class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2">
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span x-text="error"></span>
+        </div>
 
-        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center">
+        <button type="submit" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 flex justify-center items-center shadow-lg hover:shadow-blue-500/20">
           <span x-show="!loading">Masuk</span>
           <svg x-show="loading" class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -806,12 +1046,22 @@ import Layout from "../layouts/Layout.astro";
         </button>
       </form>
 
-      <div class="mt-6 text-center text-sm text-slate-400">
-        Belum punya akun? <a href="/register" class="text-blue-400 hover:text-blue-300">Daftar sekarang</a>
+      <div class="mt-8 pt-6 border-t border-white/10 text-center text-sm text-slate-400">
+        Belum punya akun? <a href="/register" class="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-colors">Daftar sekarang</a>
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
 <script>
   import Alpine from 'alpinejs';
@@ -865,7 +1115,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 ---
 
 <Layout title="Generator Laporan Kinerja Pegawai AI">
-  <!-- UI Components -->
   <ToastContainer />
   <AutoSaveIndicator />
   <KeyboardShortcuts />
@@ -874,35 +1123,32 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   <DocumentStats />
 
   <main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
-    <!-- Header -->
     <header class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print">
       <div class="flex items-center gap-3">
         <div class="bg-blue-600 p-2 rounded-lg"><Bot class="text-white w-5 h-5" /></div>
-        <h1 class="text-sm font-bold text-white">E-KINERJA AI</h1>
+        <h1 class="text-sm font-bold text-white hidden md:block">E-KINERJA AI</h1>
       </div>
-      <div class="flex items-center gap-2">
-        <button @click="downloadTemplate" class="btn-icon"><Download class="w-3.5 h-3.5" /> Template</button>
-        <label class="btn-icon cursor-pointer">
+      <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <button @click="downloadTemplate" class="btn-icon whitespace-nowrap"><Download class="w-3.5 h-3.5" /> Template</button>
+        <label class="btn-icon cursor-pointer whitespace-nowrap">
           Import <input type="file" class="hidden" accept=".xlsx" @change="handleImportExcel" />
         </label>
-        <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20"><FileText class="w-3.5 h-3.5" /> PDF</button>
-        <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20"><FileText class="w-3.5 h-3.5" /> DOCX</button>
-        <button @click="saveDraft" class="text-slate-400 hover:text-white" title="Simpan Draft"><Save class="w-5 h-5" /></button>
-        <button @click="toggleHistory" class="text-slate-400 hover:text-white" title="Riwayat"><History class="w-5 h-5" /></button>
+        <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> PDF</button>
+        <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> DOCX</button>
+        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft"><Save class="w-5 h-5" /></button>
+        <button @click="toggleHistory" class="text-slate-400 hover:text-white p-2" title="Riwayat"><History class="w-5 h-5" /></button>
         <div class="w-px h-6 bg-white/10 mx-2"></div>
-        <button @click="handleLogout" class="text-red-400 hover:text-red-300" title="Logout"><LogOut class="w-5 h-5" /></button>
+        <button @click="handleLogout" class="text-red-400 hover:text-red-300 p-2" title="Logout"><LogOut class="w-5 h-5" /></button>
       </div>
     </header>
 
     <div class="flex-1 mt-16 flex overflow-hidden h-[calc(100vh-64px)]">
-      <!-- Sidebar Form -->
-      <aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30">
+      <aside class="w-[420px] flex flex-col border-r border-white/10 bg-slate-900 overflow-hidden no-print z-30 shrink-0 transition-all duration-300" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full absolute md:relative md:translate-x-0'">
         <div class="p-4 bg-slate-800/50 border-b border-white/5 space-y-3">
           <div class="grid grid-cols-2 gap-2">
             <SelectGroup label="Bulan" name="bln" model="form.config.bulan" options={Array.from({length: 12}, (_, i) => ({val: String(i+1), label: String(i+1)}))} />
             <InputGroup label="Tahun" name="thn" model="form.config.tahun" type="number" />
           </div>
-          <!-- Model list disesuaikan dengan backend -->
           <SelectGroup label="Model AI" name="ai" model="form.config.modelAI"
             options={[
               {val: "gemini", label: "Gemini 2.0 (Fast)"},
@@ -923,27 +1169,30 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         </div>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-          <div x-show="activeTab === 'instansi'"><FormInstansi /></div>
-          <div x-show="activeTab === 'pegawai'"><FormPegawai /></div>
-          <div x-show="activeTab === 'akademik'"><FormAkademik /></div>
-          <div x-show="activeTab === 'kinerja'"><FormKinerja /></div>
+          <div x-show="activeTab === 'instansi'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormInstansi /></div>
+          <div x-show="activeTab === 'pegawai'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormPegawai /></div>
+          <div x-show="activeTab === 'akademik'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormAkademik /></div>
+          <div x-show="activeTab === 'kinerja'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"><FormKinerja /></div>
         </div>
 
         <div class="p-4 border-t border-white/10 bg-slate-900 z-50">
-          <button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50">
+          <button @click="generateLaporan" :disabled="loading" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm flex justify-center items-center gap-2 transition disabled:opacity-50 shadow-lg hover:shadow-blue-500/20">
             <RefreshCw :class="loading && 'animate-spin'" class="w-4 h-4" /> GENERATE & SAVE
           </button>
         </div>
       </aside>
 
-      <!-- Document Preview -->
-      <section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar">
+      <!-- Toggle Sidebar Mobile -->
+      <button @click="sidebarOpen = !sidebarOpen" class="md:hidden fixed bottom-6 left-6 z-50 p-3 bg-blue-600 text-white rounded-full shadow-xl no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+      </button>
+
+      <section class="flex-1 bg-slate-200 overflow-y-auto relative flex flex-col items-center py-10 print:p-0 print:bg-white custom-scrollbar w-full">
         <div class="fixed top-24 right-8 z-20 flex flex-col gap-3 no-print">
-          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700"><Printer class="w-6 h-6" /></button>
+          <button @click="printDoc" class="p-3 bg-slate-800 text-white rounded-full shadow-xl hover:bg-slate-700 transition hover:scale-105 tooltip" title="Print"><Printer class="w-6 h-6" /></button>
         </div>
 
         <div id="document-preview" class="w-[210mm] min-h-[297mm] bg-white shadow-2xl print:shadow-none p-[2cm] text-black relative origin-top transition-transform duration-300">
-          <!-- Kop Surat -->
           <header class="mb-6 pb-2 border-b-4 border-black">
             <div class="grid grid-cols-[80px_1fr_80px] gap-4 items-center mb-2">
               <div class="h-20 flex items-center justify-center">
@@ -968,7 +1217,11 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
           </div>
 
           <div x-show="!form.output.content" class="text-center py-20 text-gray-400">
+             <div class="mb-4 flex justify-center text-slate-300">
+                <FileText class="w-16 h-16" />
+             </div>
             <p>Konten laporan akan muncul di sini setelah di-generate.</p>
+            <p class="text-xs mt-2">Pastikan data di formulir sebelah kiri sudah lengkap.</p>
           </div>
 
           <article class="prose-report text-justify leading-relaxed font-serif" x-html="renderedHTML"></article>
@@ -986,30 +1239,32 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       </section>
     </div>
 
-    <!-- History Sidebar -->
     <div x-show="showHistory" @click.away="showHistory = false"
       x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
       class="fixed right-0 top-16 bottom-0 w-80 bg-slate-900 border-l border-white/10 z-30 overflow-y-auto no-print shadow-2xl p-4">
 
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-white font-bold flex items-center gap-2"><History class="w-4 h-4" /> Riwayat Cloud</h3>
-        <button @click="refreshHistory" class="text-xs text-blue-400 hover:text-blue-300">Refresh</button>
+        <button @click="refreshHistory" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"><RefreshCw class="w-3 h-3" /> Refresh</button>
       </div>
 
       <div class="space-y-2">
         <template x-if="historyItems.length === 0">
-          <div class="text-center text-slate-500 text-xs py-4">Belum ada riwayat</div>
+          <div class="text-center text-slate-500 text-xs py-10 flex flex-col items-center">
+             <History class="w-8 h-8 mb-2 opacity-50" />
+             <span>Belum ada riwayat laporan</span>
+          </div>
         </template>
         <template x-for="item in historyItems" :key="item.id">
-          <div class="p-3 rounded-lg bg-white/5 hover:border-white/20 border border-transparent transition group">
+          <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20 transition group cursor-pointer relative" @click="loadItem(item.id)">
             <div class="flex justify-between items-start mb-1">
-              <span class="text-[10px] text-blue-400" x-text="formatDate(item.date)"></span>
-              <button @click="deleteItem(item.id)" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition">✕</button>
+              <span class="text-[10px] text-blue-400 font-mono" x-text="formatDate(item.date)"></span>
+              <button @click.stop="deleteItem(item.id)" class="text-slate-500 hover:text-red-400 p-1 hover:bg-red-500/10 rounded transition absolute top-2 right-2">✕</button>
             </div>
-            <div class="text-sm font-medium text-slate-200 mb-2 truncate" x-text="item.title"></div>
-            <div class="flex justify-between items-center">
-               <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400" x-text="item.status || 'DRAFT'"></span>
-               <button @click="loadItem(item.id)" class="text-xs text-blue-400 hover:text-blue-300">Buka</button>
+            <div class="text-sm font-medium text-slate-200 mb-2 truncate pr-6" x-text="item.title"></div>
+            <div class="flex justify-between items-center mt-2">
+               <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700" x-text="item.status || 'DRAFT'"></span>
+               <span class="text-[10px] text-slate-500">Klik untuk buka</span>
             </div>
           </div>
         </template>
@@ -1021,10 +1276,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 <style>
   @reference "../styles/global.css";
   .btn-icon {
-    @apply px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2 items-center border border-slate-700 hover:bg-slate-700 transition text-slate-300 cursor-pointer;
+    @apply px-3 py-1.5 bg-slate-800 rounded-md text-xs flex gap-2 items-center border border-slate-700 hover:bg-slate-700 transition text-slate-300 cursor-pointer hover:border-slate-500 hover:text-white shadow-sm;
   }
 </style>
-
 <script>
   import { reportStore, historyStore, validateBeforeGenerate } from "../stores/reportStore";
   import { generateLaporan } from "../services/aiService";
@@ -1033,6 +1287,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   import { logout } from "../services/authService";
   import { uploadFile } from "../services/fileService";
   import { fetchPegawaiProfile, savePegawaiProfile } from "../services/pegawaiService";
+  import { fetchActiveInstansi, createManualInstansi } from "../services/instansiService";
   import { fetchHistory, loadReportDetail, deleteReport } from "../services/historyService";
   import { parseMarkdown } from "../utils/markdown";
   import { addToast } from "../stores/toastStore";
@@ -1045,25 +1300,32 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       loading: false,
       renderedHTML: "",
       showHistory: false,
+      sidebarOpen: true,
       historyItems: [],
 
       async init() {
-        // 1. Render konten jika ada di local state
+        // Render existing content
         if (this.form.output.content) {
             this.renderedHTML = await parseMarkdown(this.form.output.content);
         }
 
-        // 2. Ambil Profil Pegawai dari Backend
-        await fetchPegawaiProfile();
-        this.form = reportStore.get(); // Refresh UI
+        // Fetch data tanpa blocking UI jika error (404)
+        try {
+            await fetchPegawaiProfile();
+            await fetchActiveInstansi();
+        } catch (e) {
+            // Error network/auth, biarkan silent di console
+        }
+        
+        // Refresh store UI setelah fetch
+        this.form = reportStore.get();
+        
+        // Load history
+        this.refreshHistory();
 
-        // 3. Ambil Riwayat dari Backend
-        await this.refreshHistory();
-
-        // 4. Subscribe ke perubahan store history
         historyStore.subscribe((val) => { this.historyItems = val.items; });
 
-        // 5. Setup Autosave ke Store Lokal (UI responsiveness)
+        // Autosave logic
         let timeout;
         this.$watch("form", (val) => {
           clearTimeout(timeout);
@@ -1081,6 +1343,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         window.addEventListener("shortcut:generate", () => this.generateLaporan());
         window.addEventListener("shortcut:save", () => this.saveDraft());
         window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
+        window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
       },
 
       async generateLaporan() {
@@ -1088,6 +1351,13 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         if (!validation.valid) {
             addToast("Data belum lengkap: " + validation.errors[0], "error");
             return;
+        }
+
+        // Auto-save instansi jika belum ada ID
+        if (!this.form.instansi.id) {
+             addToast("Menyimpan data instansi baru...", "info");
+             const saved = await createManualInstansi();
+             if (!saved) return; 
         }
 
         this.loading = true;
@@ -1098,38 +1368,46 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
           if (result.success && result.content) {
             this.renderedHTML = await parseMarkdown(result.content);
-            this.form = reportStore.get(); // Refresh UI dengan hasil terbaru
+            this.form = reportStore.get();
             window.dispatchEvent(new CustomEvent("generate:complete"));
-            addToast(`Sukses! ${result.tokensUsed} token digunakan.`, "success");
-            await this.refreshHistory(); // Refresh list riwayat
+            addToast(`Sukses! ${result.tokensUsed || 0} token digunakan.`, "success");
+            await this.refreshHistory();
+            
+            if (window.innerWidth < 768) {
+                this.sidebarOpen = false;
+                document.getElementById('document-preview')?.scrollIntoView({ behavior: 'smooth' });
+            }
           } else {
             addToast(result.error || "Gagal generate laporan", "error");
             window.dispatchEvent(new CustomEvent("generate:error"));
           }
         } catch (error) {
           window.dispatchEvent(new CustomEvent("generate:error"));
-          addToast("Terjadi kesalahan sistem", "error");
+          addToast("Terjadi kesalahan sistem saat generate", "error");
         } finally {
           this.loading = false;
         }
       },
 
-      // Upload Handler (General)
       async handleUpload(event, field) {
         const file = event.target.files?.[0];
         if (file) {
+          // Client side limit check (misal 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+              addToast("Ukuran file maksimal 5MB", "error");
+              return;
+          }
+          
           addToast("Mengupload...", "info");
           const category = field.includes('instansi') ? 'LOGO_INSTANSI' : 'FOTO_PEGAWAI';
           const result = await uploadFile(file, category);
 
           if(result.success) {
-            // Update deep nested property
             const path = field.split(".");
             let target = this.form;
             for (let i = 0; i < path.length - 1; i++) target = target[path[i]];
             target[path[path.length - 1]] = result.url;
 
-            // Trigger update store
             reportStore.set({...this.form});
             addToast("Upload berhasil", "success");
           } else {
@@ -1141,17 +1419,24 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       async handleImportExcel(event) {
         const file = event.target.files?.[0];
         if (file) {
-          await importFromExcel(file);
-          this.form = reportStore.get();
-          addToast("Data diimport dari Excel", "success");
+          try {
+            await importFromExcel(file);
+            this.form = reportStore.get();
+            addToast("Data diimport dari Excel", "success");
+          } catch (e) {
+            addToast("Gagal import Excel", "error");
+          }
         }
       },
 
       async saveDraft() {
-        // Simpan hanya profil pegawai ke backend sebagai draft dasar
         const result = await savePegawaiProfile();
         if(result.success) {
-            addToast("Profil pegawai tersimpan di server", "success");
+            addToast("Data tersimpan di server", "success");
+            // Cek juga instansi
+            if(!this.form.instansi.id) {
+                await createManualInstansi();
+            }
         } else {
             addToast("Gagal menyimpan: " + result.error, "error");
         }
@@ -1222,14 +1507,15 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   --color-emerald-500: #10b981;
   --color-red-500: #ef4444;
   --font-sans: "Lexend", system-ui, sans-serif;
+  --font-serif: "Times New Roman", Times, serif;
 }
 
 @layer base {
   body {
-    @apply bg-slate-900 text-slate-100 min-h-screen;
+    @apply bg-slate-900 text-slate-100 min-h-screen font-sans antialiased;
     background-image:
-      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
   }
 }
 
@@ -1240,49 +1526,91 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
 @layer utilities {
   .prose-report {
-    font-family: "Times New Roman", Times, serif;
+    font-family: var(--font-serif);
     color: #000000 !important;
-    line-height: 1.4;
+    line-height: 1.5;
     font-size: 12pt;
+  }
+  .prose-report p {
+    margin-bottom: 0.8em;
   }
   .prose-report table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0.8rem 0;
+    margin: 1rem 0;
     font-size: 11pt;
   }
   .prose-report th,
   .prose-report td {
     border: 1px solid #000000;
-    padding: 4px 6px;
+    padding: 6px 8px;
     vertical-align: top;
   }
   .prose-report th {
-    background-color: #e5e7eb !important;
+    background-color: #f3f4f6 !important;
     font-weight: bold;
     text-align: center;
     print-color-adjust: exact;
   }
-  .prose-report h1,
-  .prose-report h2,
-  .prose-report h3 {
-    color: #000000 !important;
+  .prose-report h1 {
+    font-size: 14pt;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+    text-transform: uppercase;
+  }
+  .prose-report h2 {
+    font-size: 13pt;
     font-weight: bold;
     margin-top: 1.2rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
+    border-bottom: 1px solid transparent; /* Fix spacing */
+  }
+  .prose-report h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .prose-report ul,
+  .prose-report ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-report ul {
+    list-style-type: disc;
+  }
+  .prose-report ol {
+    list-style-type: decimal;
+  }
+  .prose-report li {
+    margin-bottom: 0.2em;
   }
 }
 
@@ -1294,7 +1622,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   body {
     background: white !important;
     color: black !important;
-    visibility: hidden;
+  }
+  .no-print {
+    display: none !important;
   }
   #document-preview {
     visibility: visible;
@@ -1306,13 +1636,42 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
     padding: 0;
     box-shadow: none !important;
     transform: none !important;
+    background: white !important;
   }
   img {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 }
-````
+```
+
+---
+
+## src/types/AuthTypes.ts
+
+```typescript
+export interface LoginDto {
+  email: string;
+  password: string;
+}
+
+export interface RegisterDto {
+  email: string;
+  password: string;
+  name: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
+}
+```
 
 ---
 
@@ -1320,7 +1679,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
 ```typescript
 export interface ReportDTO {
-  id?: string;
   modelAI: string;
   bulan: number;
   tahun: number;
@@ -1359,12 +1717,13 @@ export interface Pejabat {
   nama: string;
   nip: string;
   pangkat: string;
-  ttd: string;
+  ttd?: string;
 }
 
 export interface InstansiData {
+  id?: string;
   logoUtama: string;
-  logoInstitusi: string;
+  logoInstitusi?: string;
   logoInstansi: string;
   header1: string;
   header2: string;
@@ -1374,17 +1733,18 @@ export interface InstansiData {
   email: string;
   website: string;
   kepala: Pejabat;
-  kepalaTu: Pejabat;
+  kepalaTu?: Pejabat;
   titimangsa: string;
 }
 
 export interface PegawaiData {
+  id?: string;
   nama: string;
   nip: string;
   nuptk: string;
   nik: string;
-  jenis: "PNS" | "PPPK" | "Honorer" | "GTT" | "PTT" | "Guru";
-  status: "Aktif" | "Cuti" | "Tugas Belajar";
+  jenis: "PNS" | "PPPK" | "HONORER" | "GTT" | "PTT" | "GURU";
+  status: "AKTIF" | "CUTI" | "TUGAS_BELAJAR" | "NON_AKTIF";
   golongan: string;
   jabatan: string;
   unitKerja: string;
@@ -1401,9 +1761,9 @@ export interface PegawaiData {
 }
 
 export interface AkademikData {
-  kurikulum: "Kurikulum 2013" | "Kurikulum Merdeka" | "KTSP";
+  kurikulum: "K13" | "MERDEKA" | "KTSP";
   tahunPelajaran: string;
-  semester: "Ganjil" | "Genap";
+  semester: "GANJIL" | "GENAP";
   mapel: string;
   kelas: string;
   jamMengajar: string;
@@ -1461,7 +1821,8 @@ export interface HistoryItem {
   id: string;
   title: string;
   date: string;
-  data: AppStore;
+  status: string;
+  data?: any;
 }
 
 export interface HistoryStore {
@@ -1484,19 +1845,6 @@ export interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
 }
-
-export interface ImportExcelResult {
-  success: boolean;
-  data?: AppStore;
-  errors?: ValidationError[];
-}
-
-export interface ExportResult {
-  success: boolean;
-  file?: Blob;
-  error?: string;
-}
-export * from "./ReportTypes";
 ```
 
 ---
@@ -1505,12 +1853,11 @@ export * from "./ReportTypes";
 
 ```typescript
 import { persistentMap } from "@nanostores/persistent";
-import type { AppStore, HistoryStore, HistoryItem } from "../types/ReportTypes";
+import type { AppStore, HistoryStore } from "../types/ReportTypes";
 
 const defaultState: AppStore = {
   instansi: {
     logoUtama: "",
-    logoInstitusi: "",
     logoInstansi: "",
     header1: "KEMENTERIAN AGAMA REPUBLIK INDONESIA",
     header2: "KANTOR KABUPATEN PANDEGLANG",
@@ -1525,12 +1872,6 @@ const defaultState: AppStore = {
       pangkat: "Pembina/IV-a",
       ttd: "",
     },
-    kepalaTu: {
-      nama: "",
-      nip: "",
-      pangkat: "Penata/III-c",
-      ttd: "",
-    },
     titimangsa: "Pandeglang",
   },
   pegawai: {
@@ -1539,7 +1880,7 @@ const defaultState: AppStore = {
     nuptk: "",
     nik: "",
     jenis: "PNS",
-    status: "Aktif",
+    status: "AKTIF",
     golongan: "III/a",
     jabatan: "Guru Ahli Pertama",
     unitKerja: "MTsN 1 Pandeglang",
@@ -1555,9 +1896,9 @@ const defaultState: AppStore = {
     masaKerjaBulan: "0",
   },
   akademik: {
-    kurikulum: "Kurikulum Merdeka",
+    kurikulum: "MERDEKA",
     tahunPelajaran: `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
-    semester: "Ganjil",
+    semester: "GANJIL",
     mapel: "",
     kelas: "",
     jamMengajar: "24",
@@ -1624,64 +1965,6 @@ export const updateStore = <K extends keyof AppStore>(
   reportStore.set({ ...current, [key]: value });
 };
 
-export const saveToHistory = (title?: string) => {
-  const current = reportStore.get();
-  const history = historyStore.get();
-  const id = `history_${Date.now()}`;
-  const date = new Date().toISOString();
-
-  const namaBulan = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const autoTitle =
-    title ||
-    `Laporan ${current.pegawai.nama || "Tanpa Nama"} - ${namaBulan[parseInt(current.config.bulan) - 1] || ""} ${current.config.tahun}`;
-
-  const newItem: HistoryItem = {
-    id,
-    title: autoTitle,
-    date,
-    data: JSON.parse(JSON.stringify(current)),
-  };
-
-  const updatedHistory = {
-    items: [newItem, ...history.items].slice(0, 20),
-  };
-
-  historyStore.set(updatedHistory);
-  return id;
-};
-
-export const loadFromHistory = (id: string) => {
-  const history = historyStore.get();
-  const item = history.items.find((i) => i.id === id);
-  if (item) {
-    reportStore.set(JSON.parse(JSON.stringify(item.data)));
-    return true;
-  }
-  return false;
-};
-
-export const deleteHistory = (id: string) => {
-  const history = historyStore.get();
-  const updatedHistory = {
-    items: history.items.filter((i) => i.id !== id),
-  };
-  historyStore.set(updatedHistory);
-};
-
 export const validateBeforeGenerate = (
   data: AppStore,
 ): { valid: boolean; errors: string[] } => {
@@ -1691,16 +1974,22 @@ export const validateBeforeGenerate = (
   if (!data.pegawai.jabatan) errors.push("Jabatan harus diisi");
   if (!data.config.bulan) errors.push("Bulan laporan harus dipilih");
   if (!data.config.tahun) errors.push("Tahun laporan harus diisi");
-  return { valid: errors.length === 0, errors };
-};
 
-export const generateNomorDokumen = (): string => {
-  const current = reportStore.get();
-  const tahun = current.config.tahun;
-  const bulan = current.config.bulan.padStart(2, "0");
-  const random = Math.floor(Math.random() * 999) + 1;
-  const nomorUrut = random.toString().padStart(3, "0");
-  return `${nomorUrut}/LPKP/${bulan}/${tahun}`;
+  if (data.pegawai.email && data.pegawai.email.trim() !== "") {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.pegawai.email)) {
+      errors.push("Format email tidak valid");
+    }
+  }
+
+  const validStatus = ["AKTIF", "CUTI", "TUGAS_BELAJAR", "NON_AKTIF"];
+  if (!validStatus.includes(data.pegawai.status)) {
+    errors.push(
+      "Status pegawai tidak valid (Gunakan: AKTIF, CUTI, TUGAS_BELAJAR, NON_AKTIF)",
+    );
+  }
+
+  return { valid: errors.length === 0, errors };
 };
 ```
 
@@ -1759,11 +2048,18 @@ export const $toasts = atom<Toast[]>([]);
 
 export const addToast = (message: string, type: ToastType = "info") => {
   const id = Date.now();
-  $toasts.set([...$toasts.get(), { id, message, type }]);
+  const currentToasts = $toasts.get();
+
+  // Prevent duplicate messages in short time
+  if (currentToasts.some((t) => t.message === message && t.type === type)) {
+    return;
+  }
+
+  $toasts.set([...currentToasts, { id, message, type }]);
 
   setTimeout(() => {
     $toasts.set($toasts.get().filter((t) => t.id !== id));
-  }, 3000);
+  }, 4000);
 };
 ```
 
@@ -1791,7 +2087,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => Promise.reject(error),
@@ -1800,7 +2095,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("[API Error]", error.response?.data || error.message);
     if (error.response && error.response.status === 401) {
       logout();
     }
@@ -1825,6 +2119,7 @@ export const generateHash = async (text: string): Promise<string> => {
 };
 
 export const sanitizeFilename = (name: string): string => {
+  if (!name) return "dokumen";
   return name
     .replace(/[^a-zA-Z0-9_\-]/g, "_")
     .replace(/_+/g, "_")
@@ -1838,6 +2133,27 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+};
+
+export const formatDateIndonesia = (dateString: string) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+export const debounce = (func: Function, wait: number) => {
+  let timeout: any;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 };
 ```
 
@@ -1869,6 +2185,13 @@ export const parseMarkdown = async (text: string): Promise<string> => {
     return `<h${level} id="${escapedText}" class="heading-${level}">${text}</h${level}>`;
   };
 
+  // Custom list renderer for better spacing
+  renderer.list = (body: string, ordered: boolean, start: number) => {
+    const type = ordered ? "ol" : "ul";
+    const startAttr = ordered && start !== 1 ? ` start="${start}"` : "";
+    return `<${type}${startAttr} class="report-list">${body}</${type}>`;
+  };
+
   marked.use({ renderer });
   const html = await marked.parse(text);
 
@@ -1882,10 +2205,14 @@ export const parseMarkdown = async (text: string): Promise<string> => {
       "h6",
       "p",
       "br",
+      "hr",
       "strong",
+      "b",
       "em",
+      "i",
       "u",
       "s",
+      "del",
       "ul",
       "ol",
       "li",
@@ -1903,7 +2230,17 @@ export const parseMarkdown = async (text: string): Promise<string> => {
       "div",
       "span",
     ],
-    ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "id"],
+    ALLOWED_ATTR: [
+      "href",
+      "src",
+      "alt",
+      "title",
+      "class",
+      "id",
+      "start",
+      "align",
+      "style",
+    ],
   });
 };
 ```
@@ -1912,7 +2249,7 @@ export const parseMarkdown = async (text: string): Promise<string> => {
 
 ## src/layouts/Layout.astro
 
-````astro
+```astro
 ---
 import "../styles/global.css";
 interface Props {
@@ -1928,17 +2265,26 @@ const { title } = Astro.props;
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
-		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <meta name="description" content="Aplikasi Generator Laporan Kinerja Pegawai Berbasis AI untuk ASN, PPPK, dan Guru. Cepat, Mudah, dan Akurat.">
+        <meta name="theme-color" content="#0f172a">
 	</head>
-	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+	<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200">
 		<slot />
         <script>
             import { checkAuth } from "../services/authService";
+            
+            // Client-side route protection
             const path = window.location.pathname;
-            const publicPages = ['/login', '/register'];
+            const publicPages = ['/login', '/register', '/forgot-password'];
+            const isPublicPage = publicPages.some(p => path.startsWith(p));
 
-            if (!publicPages.includes(path) && !checkAuth()) {
+            if (!isPublicPage && !checkAuth()) {
+                // Redirect to login if not authenticated
                 window.location.href = '/login';
+            } else if (isPublicPage && checkAuth()) {
+                // Redirect to dashboard if already logged in
+                window.location.href = '/';
             }
         </script>
 	</body>
@@ -1951,14 +2297,19 @@ const { title } = Astro.props;
 ```typescript
 import * as XLSX from "xlsx";
 import { reportStore } from "../stores/reportStore";
+import type { AppStore } from "../types/ReportTypes";
 
 export const downloadTemplate = () => {
   const ws = XLSX.utils.json_to_sheet([
     {
       "Nama Lengkap": "Ahmad Dahlan",
-      NIP: "1985...",
-      Jabatan: "Guru",
-      "Tugas Pokok": "Mengajar...",
+      NIP: "198501012010011001",
+      Jabatan: "Guru Ahli Pertama",
+      "Status Pegawai": "AKTIF",
+      "Jenis Pegawai": "PNS",
+      "Tugas Pokok": "Melaksanakan pembelajaran...",
+      "Tugas Tambahan": "Wali Kelas",
+      "Target Tahunan": "Lulus 100%",
     },
   ]);
   const wb = XLSX.utils.book_new();
@@ -1979,19 +2330,42 @@ export const importFromExcel = async (file: File) => {
         if (jsonData.length > 0) {
           const row: any = jsonData[0];
           const current = reportStore.get();
-          reportStore.set({
+
+          const normalizeStatus = (val: string): any => {
+            const v = val?.toString().toUpperCase().replace(" ", "_");
+            if (["AKTIF", "CUTI", "TUGAS_BELAJAR", "NON_AKTIF"].includes(v))
+              return v;
+            return "AKTIF";
+          };
+
+          const normalizeJenis = (val: string): any => {
+            const v = val?.toString().toUpperCase();
+            if (["PNS", "PPPK", "HONORER", "GTT", "PTT", "GURU"].includes(v))
+              return v;
+            return "PNS";
+          };
+
+          const updated: AppStore = {
             ...current,
             pegawai: {
               ...current.pegawai,
               nama: row["Nama Lengkap"] || current.pegawai.nama,
               nip: String(row["NIP"] || current.pegawai.nip),
               jabatan: row["Jabatan"] || current.pegawai.jabatan,
+              status: normalizeStatus(row["Status Pegawai"]),
+              jenis: normalizeJenis(row["Jenis Pegawai"]),
             },
             kinerja: {
               ...current.kinerja,
               tugasPokok: row["Tugas Pokok"] || current.kinerja.tugasPokok,
+              tugasTambahan:
+                row["Tugas Tambahan"] || current.kinerja.tugasTambahan,
+              targetTahunan:
+                row["Target Tahunan"] || current.kinerja.targetTahunan,
             },
-          });
+          };
+
+          reportStore.set(updated);
         }
         resolve(true);
       } catch (err) {
@@ -2001,7 +2375,7 @@ export const importFromExcel = async (file: File) => {
     reader.readAsArrayBuffer(file);
   });
 };
-````
+```
 
 ---
 
@@ -2021,9 +2395,15 @@ export const uploadFile = async (file: File, category: string = "OTHER") => {
         "Content-Type": "multipart/form-data",
       },
     });
+
+    const baseUrl =
+      import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+      "http://localhost:3000";
+    const fullUrl = `${baseUrl}${response.data.url}`;
+
     return {
       success: true,
-      url: `${import.meta.env.PUBLIC_API_URL}${response.data.url}`,
+      url: fullUrl,
       data: response.data,
     };
   } catch (error: any) {
@@ -2050,18 +2430,21 @@ export const exportToPDF = async () => {
 
     const html2pdf = (await import("html2pdf.js")).default;
     const store = reportStore.get();
+    const filename = `Laporan_${store.config.bulan}_${store.config.tahun}_${sanitizeFilename(store.pegawai.nama)}.pdf`;
 
     const opt = {
       margin: [1.5, 2, 1.5, 2],
-      filename: `Laporan_${sanitizeFilename(store.pegawai.nama)}.pdf`,
+      filename: filename,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "cm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     };
 
     await html2pdf().set(opt).from(element).save();
     return { success: true };
   } catch (error: any) {
+    console.error(error);
     return { success: false, error: error.message };
   }
 };
@@ -2069,7 +2452,14 @@ export const exportToPDF = async () => {
 export const exportToDOCX = async () => {
   try {
     const store = reportStore.get();
-    const { Document, Packer, Paragraph, TextRun } = await import("docx");
+    const {
+      Document,
+      Packer,
+      Paragraph,
+      TextRun,
+      AlignmentType,
+      HeadingLevel,
+    } = await import("docx");
     const { saveAs } = await import("file-saver");
 
     const doc = new Document({
@@ -2077,15 +2467,69 @@ export const exportToDOCX = async () => {
         {
           properties: {},
           children: [
-            new Paragraph({ children: [new TextRun(store.instansi.header1)] }),
-            new Paragraph({ text: store.output.content }),
+            new Paragraph({
+              text: store.instansi.header1,
+              heading: HeadingLevel.HEADING_2,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: store.instansi.header2,
+              heading: HeadingLevel.HEADING_2,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: store.instansi.header3,
+              heading: HeadingLevel.HEADING_1,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: store.instansi.alamat,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              text: "LAPORAN KINERJA PEGAWAI",
+              heading: HeadingLevel.HEADING_1,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: `Periode: ${store.config.bulan}/${store.config.tahun}`,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({ text: "" }),
+            ...store.output.content
+              .split("\n")
+              .map((line) => new Paragraph({ text: line })),
+            new Paragraph({ text: "" }),
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              text: `${store.instansi.titimangsa}, ${new Date().toLocaleDateString("id-ID")}`,
+              alignment: AlignmentType.RIGHT,
+            }),
+            new Paragraph({
+              text: "Pejabat Penilai,",
+              alignment: AlignmentType.RIGHT,
+            }),
+            new Paragraph({ text: "" }),
+            new Paragraph({ text: "" }),
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              text: store.instansi.kepala.nama,
+              bold: true,
+              alignment: AlignmentType.RIGHT,
+            }),
+            new Paragraph({
+              text: "NIP. " + store.instansi.kepala.nip,
+              alignment: AlignmentType.RIGHT,
+            }),
           ],
         },
       ],
     });
 
     const blob = await Packer.toBlob(doc);
-    saveAs(blob, `Laporan_${sanitizeFilename(store.pegawai.nama)}.docx`);
+    const filename = `Laporan_${store.config.bulan}_${store.config.tahun}_${sanitizeFilename(store.pegawai.nama)}.docx`;
+    saveAs(blob, filename);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -2143,7 +2587,9 @@ export const register = async (dto: RegisterDto) => {
   } catch (error: any) {
     return {
       success: false,
-      error: error.response?.data?.message || "Registration failed",
+      error: Array.isArray(error.response?.data?.message)
+        ? error.response.data.message.join(", ")
+        : error.response?.data?.message || "Registration failed",
     };
   }
 };
@@ -2155,7 +2601,9 @@ export const logout = () => {
     user: null,
     isAuthenticated: false,
   });
-  window.location.href = "/login";
+  if (window.location.pathname !== "/login") {
+    window.location.href = "/login";
+  }
 };
 
 export const getToken = () => {
@@ -2176,15 +2624,14 @@ import api from "../utils/api";
 import { reportStore, updateStore } from "../stores/reportStore";
 import type { PegawaiDTO } from "../types/ReportTypes";
 
-// Ambil data pegawai saat login
 export const fetchPegawaiProfile = async () => {
   try {
     const response = await api.get("/pegawai/me");
     const data = response.data;
 
     if (data) {
-      // Mapping dari Backend DB ke Frontend Store
       updateStore("pegawai", {
+        id: data.id,
         nama: data.nama,
         nip: data.nip,
         nuptk: data.nuptk || "",
@@ -2205,64 +2652,90 @@ export const fetchPegawaiProfile = async () => {
         masaKerjaTahun: String(data.masaKerjaTahun || 0),
         masaKerjaBulan: String(data.masaKerjaBulan || 0),
       });
+
+      if (data.akademik) {
+        updateStore("akademik", {
+          kurikulum: data.akademik.kurikulum,
+          tahunPelajaran: data.akademik.tahunPelajaran,
+          semester: data.akademik.semester,
+          mapel: data.akademik.mapel || "",
+          kelas: data.akademik.kelas || "",
+          jamMengajar: String(data.akademik.jamMengajar || 0),
+          jumlahSiswa: String(data.akademik.jumlahSiswa || 0),
+          ekskul: data.akademik.ekskul || "",
+        });
+      }
       return true;
     }
-  } catch (error) {
-    console.warn("Belum ada data pegawai:", error);
+  } catch (error: any) {
+    // Jika 404, artinya user baru belum punya data pegawai.
+    // Jangan lempar error, return false saja agar UI tetap load form kosong.
+    if (error.response && error.response.status === 404) {
+      console.log("Profil pegawai belum ada, siap untuk input baru.");
+      return false;
+    }
+    console.warn("Gagal fetch pegawai:", error);
     return false;
   }
 };
 
-// Simpan/Update data pegawai
 export const savePegawaiProfile = async () => {
   const store = reportStore.get();
 
   const payload: PegawaiDTO = {
     nama: store.pegawai.nama,
     nip: store.pegawai.nip,
-    nuptk: store.pegawai.nuptk,
-    nik: store.pegawai.nik,
     jenisPegawai: store.pegawai.jenis,
-    statusPegawai: store.pegawai.status as any, // Sesuaikan enum
-    golongan: store.pegawai.golongan,
+    statusPegawai: store.pegawai.status,
     jabatan: store.pegawai.jabatan,
     unitKerja: store.pegawai.unitKerja,
-    tempatLahir: store.pegawai.tempatLahir,
+    gender: store.pegawai.gender,
+    golongan: store.pegawai.golongan || undefined,
+    nuptk: store.pegawai.nuptk || undefined,
+    nik: store.pegawai.nik || undefined,
+    tempatLahir: store.pegawai.tempatLahir || undefined,
     tanggalLahir: store.pegawai.tanggalLahir
       ? new Date(store.pegawai.tanggalLahir).toISOString()
       : undefined,
-    gender: store.pegawai.gender,
-    alamat: store.pegawai.alamat,
-    hp: store.pegawai.hp,
-    email: store.pegawai.email,
-    pendidikan: store.pegawai.pendidikan,
-    masaKerjaTahun: parseInt(store.pegawai.masaKerjaTahun),
-    masaKerjaBulan: parseInt(store.pegawai.masaKerjaBulan),
-    fotoPegawai: store.pegawai.fotoPegawai,
+    alamat: store.pegawai.alamat || undefined,
+    hp: store.pegawai.hp || undefined,
+    email: store.pegawai.email || undefined,
+    pendidikan: store.pegawai.pendidikan || undefined,
+    masaKerjaTahun: parseInt(store.pegawai.masaKerjaTahun) || 0,
+    masaKerjaBulan: parseInt(store.pegawai.masaKerjaBulan) || 0,
+    fotoPegawai: store.pegawai.fotoPegawai || undefined,
   };
 
   try {
-    // Cek dulu apakah create atau update
-    // Strategi simpel: Coba Create, jika error 400 (sudah ada), lakukan Update
-    // Tapi karena kita tidak simpan ID pegawai di store, kita coba fetch dulu atau try-catch
+    let response;
 
-    // Coba Update via endpoint PATCH (biasanya butuh ID, tapi kita pakai logic user-bound)
-    // Di backend PegawaiController, update butuh ID.
-    // Kita cek dulu endpoint getMe untuk dapat ID.
-
+    // Cek dulu apakah data sudah ada di backend
     const check = await api.get("/pegawai/me").catch(() => null);
 
-    if (check && check.data) {
-      await api.patch(`/pegawai/${check.data.id}`, payload);
+    if (check && check.data && check.data.id) {
+      // Jika ada, lakukan PATCH
+      response = await api.patch(`/pegawai/${check.data.id}`, payload);
+      if (store.pegawai.id !== check.data.id) {
+        updateStore("pegawai", { ...store.pegawai, id: check.data.id });
+      }
     } else {
-      await api.post("/pegawai", payload);
+      // Jika tidak ada (404), lakukan POST
+      response = await api.post("/pegawai", payload);
+      if (response.data && response.data.id) {
+        updateStore("pegawai", { ...store.pegawai, id: response.data.id });
+      }
     }
 
-    return { success: true };
+    return { success: true, data: response.data };
   } catch (error: any) {
+    // Tangkap error validasi backend (misal statusPegawai salah enum)
+    const errorMsg = Array.isArray(error.response?.data?.message)
+      ? error.response.data.message.join(", ")
+      : error.response?.data?.message || "Gagal menyimpan data pegawai";
+
     return {
       success: false,
-      error: error.response?.data?.message || "Gagal menyimpan data pegawai",
+      error: errorMsg,
     };
   }
 };
@@ -2281,7 +2754,6 @@ import type { GenerateAIResult, ReportDTO } from "../types/ReportTypes";
 export const generateLaporan = async (): Promise<GenerateAIResult> => {
   const store = reportStore.get();
 
-  // 1. Simpan Data Pegawai Terlebih Dahulu (Wajib agar backend bisa generate)
   const profileSave = await savePegawaiProfile();
   if (!profileSave.success) {
     return {
@@ -2290,7 +2762,6 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     };
   }
 
-  // 2. Siapkan Payload untuk ReportsService
   const payload: ReportDTO = {
     modelAI: store.config.modelAI,
     bulan: parseInt(store.config.bulan),
@@ -2300,16 +2771,14 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     targetTahunan: store.kinerja.targetTahunan,
     hambatan: store.kinerja.hambatan,
     solusi: store.kinerja.solusi,
-    tokenLimit: store.config.tokenLimit,
+    tokenLimit: parseInt(String(store.config.tokenLimit)) || 2000,
     customInstruction: store.config.customInstruction,
   };
 
   try {
-    // 3. Panggil API Backend
     const response = await api.post("/reports/generate", payload);
     const data = response.data;
 
-    // 4. Update Store dengan Hasil AI
     if (data && data.content) {
       updateStore("output", {
         ...store.output,
@@ -2337,8 +2806,6 @@ export const generateLaporan = async (): Promise<GenerateAIResult> => {
     };
   }
 };
-
-export const checkAPIKey = (model: string) => true; // API Key dikelola backend
 ```
 
 ---
@@ -2358,7 +2825,6 @@ export const fetchHistory = async () => {
       id: report.id,
       title: `Laporan ${report.bulan}/${report.tahun}`,
       date: report.createdAt,
-      // Kita simpan referensi minimal, detail diambil saat load
       status: report.status,
     }));
 
@@ -2372,8 +2838,6 @@ export const loadReportDetail = async (id: string) => {
   try {
     const response = await api.get(`/reports/${id}`);
     const data = response.data;
-
-    // Masukkan data dari DB ke Form Frontend
     const current = reportStore.get();
 
     reportStore.set({
@@ -2403,6 +2867,25 @@ export const loadReportDetail = async (id: string) => {
       },
     });
 
+    if (data.pegawai) {
+      const p = data.pegawai;
+      const mappedPegawai = {
+        ...current.pegawai,
+        id: p.id,
+        nama: p.nama,
+        nip: p.nip,
+        jenis: p.jenisPegawai,
+        status: p.statusPegawai,
+        jabatan: p.jabatan,
+        unitKerja: p.unitKerja,
+        golongan: p.golongan || "",
+        masaKerjaTahun: String(p.masaKerjaTahun || 0),
+        masaKerjaBulan: String(p.masaKerjaBulan || 0),
+      };
+
+      reportStore.set({ ...reportStore.get(), pegawai: mappedPegawai });
+    }
+
     return true;
   } catch (error) {
     console.error("Gagal memuat laporan:", error);
@@ -2413,7 +2896,7 @@ export const loadReportDetail = async (id: string) => {
 export const deleteReport = async (id: string) => {
   try {
     await api.delete(`/reports/${id}`);
-    await fetchHistory(); // Refresh list
+    await fetchHistory();
     return true;
   } catch (error) {
     return false;
@@ -2423,9 +2906,103 @@ export const deleteReport = async (id: string) => {
 
 ---
 
+## src/services/instansiService.ts
+
+```typescript
+import api from "../utils/api";
+import { reportStore, updateStore } from "../stores/reportStore";
+import { addToast } from "../stores/toastStore";
+
+export const fetchActiveInstansi = async () => {
+  try {
+    // Suppress console error untuk 404
+    const response = await api.get("/instansi/active").catch((err) => {
+      if (err.response && err.response.status === 404) return null;
+      throw err;
+    });
+
+    if (response && response.data) {
+      const data = response.data;
+      updateStore("instansi", {
+        id: data.id,
+        header1: data.header1,
+        header2: data.header2,
+        header3: data.header3,
+        alamat: data.alamat,
+        telepon: data.telepon || "",
+        email: data.email || "",
+        website: data.website || "",
+        logoUtama: data.logoUtama || "",
+        logoInstansi: data.logoInstansi || "",
+        logoInstitusi: "",
+        titimangsa: data.titimangsa,
+        kepala: {
+          nama: data.namaKepala,
+          nip: data.nipKepala,
+          pangkat: data.pangkatKepala,
+          ttd: data.ttdKepala || "",
+        },
+        kepalaTu: {
+          nama: "",
+          nip: "",
+          pangkat: "",
+          ttd: "",
+        },
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.warn("Gagal mengambil data instansi:", error);
+    return false;
+  }
+};
+
+export const createManualInstansi = async () => {
+  const store = reportStore.get();
+
+  // Pastikan payload bersih
+  const payload = {
+    header1: store.instansi.header1 || "HEADER 1",
+    header2: store.instansi.header2 || "HEADER 2",
+    header3: store.instansi.header3 || "NAMA INSTANSI",
+    alamat: store.instansi.alamat || "Alamat Instansi",
+    telepon: store.instansi.telepon,
+    email: store.instansi.email,
+    website: store.instansi.website,
+    // Pastikan ini mengirim URL jika sudah diupload, bukan base64 raksasa
+    logoUtama: store.instansi.logoUtama,
+    logoInstansi: store.instansi.logoInstansi,
+    namaKepala: store.instansi.kepala.nama || "Nama Kepala",
+    nipKepala: store.instansi.kepala.nip || "NIP Kepala",
+    pangkatKepala: store.instansi.kepala.pangkat || "Pangkat",
+    titimangsa: store.instansi.titimangsa || "Kota",
+    isActive: true,
+  };
+
+  try {
+    const res = await api.post("/instansi", payload);
+    if (res.data) {
+      updateStore("instansi", { ...store.instansi, id: res.data.id });
+      addToast("Instansi berhasil disimpan ke server", "success");
+      return true;
+    }
+  } catch (e: any) {
+    addToast(
+      "Gagal menyimpan instansi: " + (e.response?.data?.message || e.message),
+      "error",
+    );
+    return false;
+  }
+  return false;
+};
+```
+
+---
+
 ## .env
 
-````
+```
 PUBLIC_API_URL=http://localhost:3000/api/v1```
 
 ---
@@ -2441,241 +3018,211 @@ PUBLIC_API_URL=http://localhost:3000/api/v1```
 
 ```typescript
 /// <reference types="astro/client" />
-````
+```
 
 ---
 
 ## .astro/content.d.ts
 
 ```typescript
-declare module "astro:content" {
-  export interface RenderResult {
-    Content: import("astro/runtime/server/index.js").AstroComponentFactory;
-    headings: import("astro").MarkdownHeading[];
-    remarkPluginFrontmatter: Record<string, any>;
-  }
-  interface Render {
-    ".md": Promise<RenderResult>;
-  }
+declare module 'astro:content' {
+	export interface RenderResult {
+		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
+		headings: import('astro').MarkdownHeading[];
+		remarkPluginFrontmatter: Record<string, any>;
+	}
+	interface Render {
+		'.md': Promise<RenderResult>;
+	}
 
-  export interface RenderedContent {
-    html: string;
-    metadata?: {
-      imagePaths: Array<string>;
-      [key: string]: unknown;
-    };
-  }
+	export interface RenderedContent {
+		html: string;
+		metadata?: {
+			imagePaths: Array<string>;
+			[key: string]: unknown;
+		};
+	}
 }
 
-declare module "astro:content" {
-  type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
+declare module 'astro:content' {
+	type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
 
-  export type CollectionKey = keyof AnyEntryMap;
-  export type CollectionEntry<C extends CollectionKey> = Flatten<
-    AnyEntryMap[C]
-  >;
+	export type CollectionKey = keyof AnyEntryMap;
+	export type CollectionEntry<C extends CollectionKey> = Flatten<AnyEntryMap[C]>;
 
-  export type ContentCollectionKey = keyof ContentEntryMap;
-  export type DataCollectionKey = keyof DataEntryMap;
+	export type ContentCollectionKey = keyof ContentEntryMap;
+	export type DataCollectionKey = keyof DataEntryMap;
 
-  type AllValuesOf<T> = T extends any ? T[keyof T] : never;
-  type ValidContentEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<
-    ContentEntryMap[C]
-  >["slug"];
+	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
+	type ValidContentEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<
+		ContentEntryMap[C]
+	>['slug'];
 
-  export type ReferenceDataEntry<
-    C extends CollectionKey,
-    E extends keyof DataEntryMap[C] = string,
-  > = {
-    collection: C;
-    id: E;
-  };
-  export type ReferenceContentEntry<
-    C extends keyof ContentEntryMap,
-    E extends ValidContentEntrySlug<C> | (string & {}) = string,
-  > = {
-    collection: C;
-    slug: E;
-  };
-  export type ReferenceLiveEntry<
-    C extends keyof LiveContentConfig["collections"],
-  > = {
-    collection: C;
-    id: string;
-  };
+	export type ReferenceDataEntry<
+		C extends CollectionKey,
+		E extends keyof DataEntryMap[C] = string,
+	> = {
+		collection: C;
+		id: E;
+	};
+	export type ReferenceContentEntry<
+		C extends keyof ContentEntryMap,
+		E extends ValidContentEntrySlug<C> | (string & {}) = string,
+	> = {
+		collection: C;
+		slug: E;
+	};
+	export type ReferenceLiveEntry<C extends keyof LiveContentConfig['collections']> = {
+		collection: C;
+		id: string;
+	};
 
-  /** @deprecated Use `getEntry` instead. */
-  export function getEntryBySlug<
-    C extends keyof ContentEntryMap,
-    E extends ValidContentEntrySlug<C> | (string & {}),
-  >(
-    collection: C,
-    // Note that this has to accept a regular string too, for SSR
-    entrySlug: E,
-  ): E extends ValidContentEntrySlug<C>
-    ? Promise<CollectionEntry<C>>
-    : Promise<CollectionEntry<C> | undefined>;
+	/** @deprecated Use `getEntry` instead. */
+	export function getEntryBySlug<
+		C extends keyof ContentEntryMap,
+		E extends ValidContentEntrySlug<C> | (string & {}),
+	>(
+		collection: C,
+		// Note that this has to accept a regular string too, for SSR
+		entrySlug: E,
+	): E extends ValidContentEntrySlug<C>
+		? Promise<CollectionEntry<C>>
+		: Promise<CollectionEntry<C> | undefined>;
 
-  /** @deprecated Use `getEntry` instead. */
-  export function getDataEntryById<
-    C extends keyof DataEntryMap,
-    E extends keyof DataEntryMap[C],
-  >(collection: C, entryId: E): Promise<CollectionEntry<C>>;
+	/** @deprecated Use `getEntry` instead. */
+	export function getDataEntryById<C extends keyof DataEntryMap, E extends keyof DataEntryMap[C]>(
+		collection: C,
+		entryId: E,
+	): Promise<CollectionEntry<C>>;
 
-  export function getCollection<
-    C extends keyof AnyEntryMap,
-    E extends CollectionEntry<C>,
-  >(
-    collection: C,
-    filter?: (entry: CollectionEntry<C>) => entry is E,
-  ): Promise<E[]>;
-  export function getCollection<C extends keyof AnyEntryMap>(
-    collection: C,
-    filter?: (entry: CollectionEntry<C>) => unknown,
-  ): Promise<CollectionEntry<C>[]>;
+	export function getCollection<C extends keyof AnyEntryMap, E extends CollectionEntry<C>>(
+		collection: C,
+		filter?: (entry: CollectionEntry<C>) => entry is E,
+	): Promise<E[]>;
+	export function getCollection<C extends keyof AnyEntryMap>(
+		collection: C,
+		filter?: (entry: CollectionEntry<C>) => unknown,
+	): Promise<CollectionEntry<C>[]>;
 
-  export function getLiveCollection<
-    C extends keyof LiveContentConfig["collections"],
-  >(
-    collection: C,
-    filter?: LiveLoaderCollectionFilterType<C>,
-  ): Promise<
-    import("astro").LiveDataCollectionResult<
-      LiveLoaderDataType<C>,
-      LiveLoaderErrorType<C>
-    >
-  >;
+	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
+		collection: C,
+		filter?: LiveLoaderCollectionFilterType<C>,
+	): Promise<
+		import('astro').LiveDataCollectionResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>
+	>;
 
-  export function getEntry<
-    C extends keyof ContentEntryMap,
-    E extends ValidContentEntrySlug<C> | (string & {}),
-  >(
-    entry: ReferenceContentEntry<C, E>,
-  ): E extends ValidContentEntrySlug<C>
-    ? Promise<CollectionEntry<C>>
-    : Promise<CollectionEntry<C> | undefined>;
-  export function getEntry<
-    C extends keyof DataEntryMap,
-    E extends keyof DataEntryMap[C] | (string & {}),
-  >(
-    entry: ReferenceDataEntry<C, E>,
-  ): E extends keyof DataEntryMap[C]
-    ? Promise<DataEntryMap[C][E]>
-    : Promise<CollectionEntry<C> | undefined>;
-  export function getEntry<
-    C extends keyof ContentEntryMap,
-    E extends ValidContentEntrySlug<C> | (string & {}),
-  >(
-    collection: C,
-    slug: E,
-  ): E extends ValidContentEntrySlug<C>
-    ? Promise<CollectionEntry<C>>
-    : Promise<CollectionEntry<C> | undefined>;
-  export function getEntry<
-    C extends keyof DataEntryMap,
-    E extends keyof DataEntryMap[C] | (string & {}),
-  >(
-    collection: C,
-    id: E,
-  ): E extends keyof DataEntryMap[C]
-    ? string extends keyof DataEntryMap[C]
-      ? Promise<DataEntryMap[C][E]> | undefined
-      : Promise<DataEntryMap[C][E]>
-    : Promise<CollectionEntry<C> | undefined>;
-  export function getLiveEntry<
-    C extends keyof LiveContentConfig["collections"],
-  >(
-    collection: C,
-    filter: string | LiveLoaderEntryFilterType<C>,
-  ): Promise<
-    import("astro").LiveDataEntryResult<
-      LiveLoaderDataType<C>,
-      LiveLoaderErrorType<C>
-    >
-  >;
+	export function getEntry<
+		C extends keyof ContentEntryMap,
+		E extends ValidContentEntrySlug<C> | (string & {}),
+	>(
+		entry: ReferenceContentEntry<C, E>,
+	): E extends ValidContentEntrySlug<C>
+		? Promise<CollectionEntry<C>>
+		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {}),
+	>(
+		entry: ReferenceDataEntry<C, E>,
+	): E extends keyof DataEntryMap[C]
+		? Promise<DataEntryMap[C][E]>
+		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+		C extends keyof ContentEntryMap,
+		E extends ValidContentEntrySlug<C> | (string & {}),
+	>(
+		collection: C,
+		slug: E,
+	): E extends ValidContentEntrySlug<C>
+		? Promise<CollectionEntry<C>>
+		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {}),
+	>(
+		collection: C,
+		id: E,
+	): E extends keyof DataEntryMap[C]
+		? string extends keyof DataEntryMap[C]
+			? Promise<DataEntryMap[C][E]> | undefined
+			: Promise<DataEntryMap[C][E]>
+		: Promise<CollectionEntry<C> | undefined>;
+	export function getLiveEntry<C extends keyof LiveContentConfig['collections']>(
+		collection: C,
+		filter: string | LiveLoaderEntryFilterType<C>,
+	): Promise<import('astro').LiveDataEntryResult<LiveLoaderDataType<C>, LiveLoaderErrorType<C>>>;
 
-  /** Resolve an array of entry references from the same collection */
-  export function getEntries<C extends keyof ContentEntryMap>(
-    entries: ReferenceContentEntry<C, ValidContentEntrySlug<C>>[],
-  ): Promise<CollectionEntry<C>[]>;
-  export function getEntries<C extends keyof DataEntryMap>(
-    entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[],
-  ): Promise<CollectionEntry<C>[]>;
+	/** Resolve an array of entry references from the same collection */
+	export function getEntries<C extends keyof ContentEntryMap>(
+		entries: ReferenceContentEntry<C, ValidContentEntrySlug<C>>[],
+	): Promise<CollectionEntry<C>[]>;
+	export function getEntries<C extends keyof DataEntryMap>(
+		entries: ReferenceDataEntry<C, keyof DataEntryMap[C]>[],
+	): Promise<CollectionEntry<C>[]>;
 
-  export function render<C extends keyof AnyEntryMap>(
-    entry: AnyEntryMap[C][string],
-  ): Promise<RenderResult>;
+	export function render<C extends keyof AnyEntryMap>(
+		entry: AnyEntryMap[C][string],
+	): Promise<RenderResult>;
 
-  export function reference<C extends keyof AnyEntryMap>(
-    collection: C,
-  ): import("astro/zod").ZodEffects<
-    import("astro/zod").ZodString,
-    C extends keyof ContentEntryMap
-      ? ReferenceContentEntry<C, ValidContentEntrySlug<C>>
-      : ReferenceDataEntry<C, keyof DataEntryMap[C]>
-  >;
-  // Allow generic `string` to avoid excessive type errors in the config
-  // if `dev` is not running to update as you edit.
-  // Invalid collection names will be caught at build time.
-  export function reference<C extends string>(
-    collection: C,
-  ): import("astro/zod").ZodEffects<import("astro/zod").ZodString, never>;
+	export function reference<C extends keyof AnyEntryMap>(
+		collection: C,
+	): import('astro/zod').ZodEffects<
+		import('astro/zod').ZodString,
+		C extends keyof ContentEntryMap
+			? ReferenceContentEntry<C, ValidContentEntrySlug<C>>
+			: ReferenceDataEntry<C, keyof DataEntryMap[C]>
+	>;
+	// Allow generic `string` to avoid excessive type errors in the config
+	// if `dev` is not running to update as you edit.
+	// Invalid collection names will be caught at build time.
+	export function reference<C extends string>(
+		collection: C,
+	): import('astro/zod').ZodEffects<import('astro/zod').ZodString, never>;
 
-  type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
-  type InferEntrySchema<C extends keyof AnyEntryMap> =
-    import("astro/zod").infer<
-      ReturnTypeOrOriginal<Required<ContentConfig["collections"][C]>["schema"]>
-    >;
+	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
+	type InferEntrySchema<C extends keyof AnyEntryMap> = import('astro/zod').infer<
+		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
+	>;
 
-  type ContentEntryMap = {};
+	type ContentEntryMap = {
+		
+	};
 
-  type DataEntryMap = {};
+	type DataEntryMap = {
+		
+	};
 
-  type AnyEntryMap = ContentEntryMap & DataEntryMap;
+	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-  type ExtractLoaderTypes<T> = T extends import("astro/loaders").LiveLoader<
-    infer TData,
-    infer TEntryFilter,
-    infer TCollectionFilter,
-    infer TError
-  >
-    ? {
-        data: TData;
-        entryFilter: TEntryFilter;
-        collectionFilter: TCollectionFilter;
-        error: TError;
-      }
-    : {
-        data: never;
-        entryFilter: never;
-        collectionFilter: never;
-        error: never;
-      };
-  type ExtractDataType<T> = ExtractLoaderTypes<T>["data"];
-  type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>["entryFilter"];
-  type ExtractCollectionFilterType<T> =
-    ExtractLoaderTypes<T>["collectionFilter"];
-  type ExtractErrorType<T> = ExtractLoaderTypes<T>["error"];
+	type ExtractLoaderTypes<T> = T extends import('astro/loaders').LiveLoader<
+		infer TData,
+		infer TEntryFilter,
+		infer TCollectionFilter,
+		infer TError
+	>
+		? { data: TData; entryFilter: TEntryFilter; collectionFilter: TCollectionFilter; error: TError }
+		: { data: never; entryFilter: never; collectionFilter: never; error: never };
+	type ExtractDataType<T> = ExtractLoaderTypes<T>['data'];
+	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>['entryFilter'];
+	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>['collectionFilter'];
+	type ExtractErrorType<T> = ExtractLoaderTypes<T>['error'];
 
-  type LiveLoaderDataType<C extends keyof LiveContentConfig["collections"]> =
-    LiveContentConfig["collections"][C]["schema"] extends undefined
-      ? ExtractDataType<LiveContentConfig["collections"][C]["loader"]>
-      : import("astro/zod").infer<
-          Exclude<LiveContentConfig["collections"][C]["schema"], undefined>
-        >;
-  type LiveLoaderEntryFilterType<
-    C extends keyof LiveContentConfig["collections"],
-  > = ExtractEntryFilterType<LiveContentConfig["collections"][C]["loader"]>;
-  type LiveLoaderCollectionFilterType<
-    C extends keyof LiveContentConfig["collections"],
-  > = ExtractCollectionFilterType<
-    LiveContentConfig["collections"][C]["loader"]
-  >;
-  type LiveLoaderErrorType<C extends keyof LiveContentConfig["collections"]> =
-    ExtractErrorType<LiveContentConfig["collections"][C]["loader"]>;
+	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
+		LiveContentConfig['collections'][C]['schema'] extends undefined
+			? ExtractDataType<LiveContentConfig['collections'][C]['loader']>
+			: import('astro/zod').infer<
+					Exclude<LiveContentConfig['collections'][C]['schema'], undefined>
+				>;
+	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig['collections']> =
+		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
+	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =
+		ExtractCollectionFilterType<LiveContentConfig['collections'][C]['loader']>;
+	type LiveLoaderErrorType<C extends keyof LiveContentConfig['collections']> = ExtractErrorType<
+		LiveContentConfig['collections'][C]['loader']
+	>;
 
-  export type ContentConfig = typeof import("../src/content.config.mjs");
-  export type LiveContentConfig = never;
+	export type ContentConfig = typeof import("../src/content.config.mjs");
+	export type LiveContentConfig = never;
 }
 ```
 
@@ -2683,7 +3230,7 @@ declare module "astro:content" {
 
 ## .astro/content-assets.mjs
 
-````javascript
+```javascript
 export default new Map();```
 
 ---
@@ -2708,10 +3255,8 @@ export default new Map();```
 
 ## .prettierrc
 
-````
-
+```
 ```
 
 ---
 
-```

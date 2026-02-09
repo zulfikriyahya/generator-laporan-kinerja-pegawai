@@ -57,6 +57,20 @@ export const fetchPegawaiProfile = async () => {
 export const savePegawaiProfile = async () => {
   const store = reportStore.get();
 
+  const formatDateToISO = (
+    dateString: string | undefined,
+  ): string | undefined => {
+    if (!dateString || dateString.trim() === "") return undefined;
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return undefined;
+      return date.toISOString();
+    } catch {
+      return undefined;
+    }
+  };
+
   const payload: PegawaiDTO = {
     nama: store.pegawai.nama,
     nip: store.pegawai.nip,
@@ -69,7 +83,7 @@ export const savePegawaiProfile = async () => {
     nuptk: store.pegawai.nuptk || undefined,
     nik: store.pegawai.nik || undefined,
     tempatLahir: store.pegawai.tempatLahir || undefined,
-    tanggalLahir: store.pegawai.tanggalLahir || undefined,
+    tanggalLahir: formatDateToISO(store.pegawai.tanggalLahir),
     alamat: store.pegawai.alamat || undefined,
     hp: store.pegawai.hp || undefined,
     email: store.pegawai.email || undefined,

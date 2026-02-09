@@ -21,8 +21,12 @@
 │   │       ├── AutoSaveIndicator.astro
 │   │       ├── DocumentStats.astro
 │   │       ├── KeyboardShortcuts.astro
+│   │       ├── NotificationPanel.astro
 │   │       ├── ProgressBar.astro
+│   │       ├── SearchModal.astro
+│   │       ├── ShortcutsHelp.astro
 │   │       ├── ToastContainer.astro
+│   │       ├── UserProfileModal.astro
 │   │       └── ZoomControl.astro
 │   ├── config
 │   │   └── constants.ts
@@ -41,7 +45,11 @@
 │   │   ├── fileService.ts
 │   │   ├── historyService.ts
 │   │   ├── instansiService.ts
-│   │   └── pegawaiService.ts
+│   │   ├── notificationService.ts
+│   │   ├── pegawaiService.ts
+│   │   ├── reportService.ts
+│   │   ├── userService.ts
+│   │   └── websocketService.ts
 │   ├── stores
 │   │   ├── authStore.ts
 │   │   ├── reportStore.ts
@@ -58,7 +66,7 @@
 ├── tsconfig.json
 └── yarn.lock
 
-13 directories, 44 files
+13 directories, 52 files
 
 # File Contents
 
@@ -143,6 +151,7 @@ export default defineConfig({
     "marked": "17.0.1",
     "nanostores": "^1.1.0",
     "qrcode": "^1.5.4",
+    "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "xlsx": "^0.18.5"
@@ -315,6 +324,238 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
 
 ---
 
+## src/components/ui/UserProfileModal.astro
+
+```astro
+<div
+  x-data="userProfileModal"
+  x-show="isOpen"
+  @click.self="close"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+  style="display: none;"
+>
+  <div
+    class="bg-slate-900 rounded-xl w-full max-w-md mx-4 border border-white/10 shadow-2xl"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+  >
+    <div class="p-6 border-b border-white/10">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold text-white">Profil Pengguna</h3>
+        <button @click="close" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <template x-if="activeView === 'profile'">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Nama</label>
+            <input
+              type="text"
+              x-model="profile.name"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <input
+              type="email"
+              x-model="profile.email"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Role</label>
+            <input
+              type="text"
+              :value="profile.role"
+              disabled
+              class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-2 text-slate-400 cursor-not-allowed"
+            />
+          </div>
+
+          <div class="flex gap-2 pt-4">
+            <button
+              @click="saveProfile"
+              :disabled="saving"
+              class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition disabled:opacity-50"
+            >
+              <span x-show="!saving">Simpan Perubahan</span>
+              <span x-show="saving">Menyimpan...</span>
+            </button>
+            <button
+              @click="activeView = 'password'"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition"
+            >
+              Ganti Password
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="activeView === 'password'">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Password Lama</label>
+            <input
+              type="password"
+              x-model="passwordForm.oldPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Password Baru</label>
+            <input
+              type="password"
+              x-model="passwordForm.newPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Konfirmasi Password Baru</label>
+            <input
+              type="password"
+              x-model="passwordForm.confirmPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div x-show="passwordError" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm" x-text="passwordError"></div>
+
+          <div class="flex gap-2 pt-4">
+            <button
+              @click="activeView = 'profile'"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition"
+            >
+              Kembali
+            </button>
+            <button
+              @click="changePassword"
+              :disabled="saving"
+              class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition disabled:opacity-50"
+            >
+              <span x-show="!saving">Ganti Password</span>
+              <span x-show="saving">Mengubah...</span>
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fetchUserProfile, updateUserProfile, changePassword } from "../../services/userService";
+  import { addToast } from "../../stores/toastStore";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("userProfileModal", () => ({
+      isOpen: false,
+      activeView: "profile",
+      saving: false,
+      profile: {
+        name: "",
+        email: "",
+        role: "",
+      },
+      passwordForm: {
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      },
+      passwordError: "",
+
+      init() {
+        window.addEventListener("open:user-profile", () => {
+          this.open();
+        });
+      },
+
+      async open() {
+        this.isOpen = true;
+        this.activeView = "profile";
+        await this.loadProfile();
+      },
+
+      close() {
+        this.isOpen = false;
+        this.passwordForm = {
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        };
+        this.passwordError = "";
+      },
+
+      async loadProfile() {
+        const result = await fetchUserProfile();
+        if (result.success) {
+          this.profile = {
+            name: result.data.name,
+            email: result.data.email,
+            role: result.data.role,
+          };
+        }
+      },
+
+      async saveProfile() {
+        this.saving = true;
+        const result = await updateUserProfile({
+          name: this.profile.name,
+          email: this.profile.email,
+        });
+
+        if (result.success) {
+          addToast("Profil berhasil diupdate", "success");
+          this.close();
+        } else {
+          addToast(result.error, "error");
+        }
+        this.saving = false;
+      },
+
+      async changePassword() {
+        this.passwordError = "";
+
+        if (this.passwordForm.newPassword.length < 8) {
+          this.passwordError = "Password baru minimal 8 karakter";
+          return;
+        }
+
+        if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
+          this.passwordError = "Konfirmasi password tidak cocok";
+          return;
+        }
+
+        this.saving = true;
+        const result = await changePassword(
+          this.passwordForm.oldPassword,
+          this.passwordForm.newPassword
+        );
+
+        if (result.success) {
+          addToast("Password berhasil diubah", "success");
+          this.close();
+        } else {
+          this.passwordError = result.error;
+        }
+        this.saving = false;
+      },
+    }));
+  });
+</script>```
+
+---
+
 ## src/components/ui/AutoSaveIndicator.astro
 
 ```astro
@@ -390,6 +631,314 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
         this.timeout = setTimeout(() => {
           this.visible = false;
         }, delay);
+      },
+    }));
+  });
+</script>```
+
+---
+
+## src/components/ui/ShortcutsHelp.astro
+
+```astro
+<div
+  x-data="shortcutsHelp"
+  x-show="isOpen"
+  @keydown.escape.window="close"
+  @click.self="close"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+  style="display: none;"
+>
+  <div
+    class="bg-slate-900 rounded-xl w-full max-w-lg mx-4 border border-white/10 shadow-2xl"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+  >
+    <div class="p-6 border-b border-white/10">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold text-white">Keyboard Shortcuts</h3>
+        <button @click="close" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Umum</h4>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Cari Laporan</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">Ctrl + K</kbd>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Bantuan Shortcut</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">?</kbd>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Aksi</h4>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Generate Laporan</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">Ctrl + Enter</kbd>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Simpan Draft</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">Ctrl + S</kbd>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Export PDF</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">Ctrl + P</kbd>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-white/5">
+          <span class="text-sm text-slate-300">Export DOCX</span>
+          <kbd class="px-2 py-1 text-xs bg-slate-800 border border-white/10 rounded">Ctrl + J</kbd>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-white/10 bg-slate-800/50 text-center text-xs text-slate-400">
+      Tekan <kbd class="px-1.5 py-0.5 bg-slate-700 border border-white/10 rounded mx-1">ESC</kbd> untuk menutup
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("shortcutsHelp", () => ({
+      isOpen: false,
+
+      init() {
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "?" && !e.ctrlKey && !e.metaKey) {
+            const target = e.target as HTMLElement;
+            if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") {
+              e.preventDefault();
+              this.open();
+            }
+          }
+        });
+
+        window.addEventListener("open:shortcuts-help", () => {
+          this.open();
+        });
+      },
+
+      open() {
+        this.isOpen = true;
+      },
+
+      close() {
+        this.isOpen = false;
+      },
+    }));
+  });
+</script>```
+
+---
+
+## src/components/ui/SearchModal.astro
+
+```astro
+<div
+  x-data="searchModal"
+  x-show="isOpen"
+  @keydown.escape.window="close"
+  @click.self="close"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-20 no-print"
+  style="display: none;"
+>
+  <div
+    class="bg-slate-900 rounded-xl w-full max-w-2xl mx-4 border border-white/10 shadow-2xl"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 scale-95 -translate-y-4"
+    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+  >
+    <div class="p-4 border-b border-white/10">
+      <div class="relative">
+        <input
+          type="text"
+          x-model="query"
+          @input="search"
+          placeholder="Cari laporan berdasarkan nama, bulan, tahun, NIP..."
+          class="w-full bg-slate-800 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-500"
+          autofocus
+        />
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="max-h-96 overflow-y-auto custom-scrollbar">
+      <template x-if="loading">
+        <div class="p-8 text-center">
+          <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      </template>
+
+      <template x-if="!loading && results.length === 0 && query">
+        <div class="p-8 text-center text-slate-400">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p>Tidak ada hasil untuk "<span x-text="query"></span>"</p>
+        </div>
+      </template>
+
+      <template x-if="!loading && results.length === 0 && !query">
+        <div class="p-8 text-center text-slate-400">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p>Ketik untuk mencari laporan...</p>
+        </div>
+      </template>
+
+      <template x-if="!loading && results.length > 0">
+        <div class="p-2">
+          <template x-for="result in results" :key="result.id">
+            <button
+              @click="selectResult(result.id)"
+              class="w-full p-3 hover:bg-slate-800 rounded-lg transition text-left group"
+            >
+              <div class="flex items-start justify-between mb-2">
+                <h4 class="font-medium text-white group-hover:text-blue-400 transition" x-text="result.title"></h4>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full shrink-0 ml-2"
+                  :class="{
+                    'bg-green-500/20 text-green-400': result.status === 'APPROVED',
+                    'bg-blue-500/20 text-blue-400': result.status === 'SUBMITTED',
+                    'bg-slate-500/20 text-slate-400': result.status === 'DRAFT',
+                    'bg-red-500/20 text-red-400': result.status === 'REJECTED'
+                  }"
+                  x-text="result.status"
+                ></span>
+              </div>
+              <div class="flex items-center gap-4 text-xs text-slate-400">
+                <span x-text="result.pegawai?.nama"></span>
+                <span x-text="result.pegawai?.nip"></span>
+                <span x-text="formatDate(result.createdAt)"></span>
+              </div>
+            </button>
+          </template>
+        </div>
+      </template>
+    </div>
+
+    <div class="p-3 border-t border-white/10 bg-slate-800/50">
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span>ESC untuk tutup</span>
+        <span x-show="results.length > 0"><span x-text="results.length"></span> hasil ditemukan</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fetchMyReports } from "../../services/reportService";
+  import { loadReportDetail } from "../../services/historyService";
+  import { reportStore } from "../../stores/reportStore";
+  import { parseMarkdown } from "../../utils/markdown";
+  import { addToast } from "../../stores/toastStore";
+  import { debounce } from "../../utils/helpers";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("searchModal", () => ({
+      isOpen: false,
+      query: "",
+      loading: false,
+      results: [],
+      allReports: [],
+
+      init() {
+        window.addEventListener("keydown", (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+            e.preventDefault();
+            this.open();
+          }
+        });
+
+        window.addEventListener("open:search", () => {
+          this.open();
+        });
+
+        this.search = debounce(this.performSearch.bind(this), 300);
+      },
+
+      async open() {
+        this.isOpen = true;
+        this.query = "";
+        this.results = [];
+        await this.loadAllReports();
+      },
+
+      close() {
+        this.isOpen = false;
+      },
+
+      async loadAllReports() {
+        this.loading = true;
+        const result = await fetchMyReports(1, 100);
+        if (result.success) {
+          this.allReports = result.data;
+        }
+        this.loading = false;
+      },
+
+      performSearch() {
+        if (!this.query.trim()) {
+          this.results = [];
+          return;
+        }
+
+        const q = this.query.toLowerCase();
+        this.results = this.allReports.filter((report) => {
+          return (
+            report.pegawai?.nama?.toLowerCase().includes(q) ||
+            report.pegawai?.nip?.toLowerCase().includes(q) ||
+            report.bulan?.toString().includes(q) ||
+            report.tahun?.toString().includes(q) ||
+            report.nomorDokumen?.toLowerCase().includes(q) ||
+            report.status?.toLowerCase().includes(q)
+          );
+        });
+      },
+
+      async selectResult(id) {
+        this.close();
+        const success = await loadReportDetail(id);
+        if (success) {
+          const store = reportStore.get();
+          if (store.output.content) {
+            const html = await parseMarkdown(store.output.content);
+            window.dispatchEvent(new CustomEvent("report:loaded", { detail: { html } }));
+          }
+          addToast("Laporan dimuat", "success");
+        } else {
+          addToast("Gagal memuat laporan", "error");
+        }
+      },
+
+      formatDate(isoString) {
+        if (!isoString) return "-";
+        return new Date(isoString).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
       },
     }));
   });
@@ -537,6 +1086,180 @@ const { label, name, type = "text", placeholder, model } = Astro.props;
       cancel() {
         clearInterval(this.progressInterval);
         this.isGenerating = false;
+      },
+    }));
+  });
+</script>```
+
+---
+
+## src/components/ui/NotificationPanel.astro
+
+```astro
+<div
+  x-data="notificationPanel"
+  x-show="isOpen"
+  @click.away="isOpen = false"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="translate-x-full"
+  x-transition:enter-end="translate-x-0"
+  class="fixed right-0 top-16 bottom-0 w-96 bg-slate-900 border-l border-white/10 z-40 overflow-y-auto no-print shadow-2xl"
+  style="display: none;"
+>
+  <div class="p-4 border-b border-white/10 bg-slate-800/50 sticky top-0 z-10">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="text-white font-bold flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        Notifikasi
+      </h3>
+      <button @click="isOpen = false" class="text-slate-400 hover:text-white p-1">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="flex gap-2">
+      <button @click="loadNotifications" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+        <svg class="w-3 h-3" :class="loading && 'animate-spin'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+      <button @click="markAllRead" class="text-xs text-green-400 hover:text-green-300">Tandai Semua Dibaca</button>
+    </div>
+  </div>
+
+  <div class="p-4 space-y-2">
+    <template x-if="notifications.length === 0 && !loading">
+      <div class="text-center text-slate-500 text-sm py-10 flex flex-col items-center">
+        <svg class="w-12 h-12 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+        <span>Tidak ada notifikasi</span>
+      </div>
+    </template>
+
+    <template x-for="notif in notifications" :key="notif.id">
+      <div
+        class="p-3 rounded-lg transition group cursor-pointer relative"
+        :class="notif.isRead ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20'"
+        @click="markRead(notif.id)"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-2 h-2 rounded-full mt-1.5 shrink-0"
+            :class="notif.isRead ? 'bg-slate-600' : 'bg-blue-500'"
+          ></div>
+          <div class="flex-1">
+            <h4 class="text-sm font-medium text-slate-200 mb-1" x-text="notif.title"></h4>
+            <p class="text-xs text-slate-400 mb-2" x-text="notif.message"></p>
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full"
+                :class="{
+                  'bg-blue-500/20 text-blue-400': notif.type === 'INFO',
+                  'bg-green-500/20 text-green-400': notif.type === 'SUCCESS',
+                  'bg-yellow-500/20 text-yellow-400': notif.type === 'WARNING',
+                  'bg-red-500/20 text-red-400': notif.type === 'ERROR'
+                }"
+                x-text="notif.type"
+              ></span>
+              <span class="text-[10px] text-slate-500" x-text="formatDate(notif.createdAt)"></span>
+            </div>
+          </div>
+          <button
+            @click.stop="deleteNotif(notif.id)"
+            class="text-slate-500 hover:text-red-400 p-1 hover:bg-red-500/10 rounded transition opacity-0 group-hover:opacity-100"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="loading">
+      <div class="text-center py-4">
+        <svg class="animate-spin h-6 w-6 text-blue-500 mx-auto" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    </template>
+  </div>
+</div>
+
+<script>
+  import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification } from "../../services/notificationService";
+  import { addToast } from "../../stores/toastStore";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("notificationPanel", () => ({
+      isOpen: false,
+      notifications: [],
+      loading: false,
+
+      init() {
+        this.loadNotifications();
+
+        window.addEventListener("toggle:notifications", () => {
+          this.isOpen = !this.isOpen;
+          if (this.isOpen) {
+            this.loadNotifications();
+          }
+        });
+
+        window.addEventListener("ws:notification", (e: any) => {
+          this.notifications.unshift(e.detail);
+          addToast(e.detail.title, e.detail.type.toLowerCase());
+        });
+      },
+
+      async loadNotifications() {
+        this.loading = true;
+        const result = await fetchNotifications(1, 50);
+        if (result.success) {
+          this.notifications = result.data;
+        }
+        this.loading = false;
+      },
+
+      async markRead(id: string) {
+        await markAsRead(id);
+        const notif = this.notifications.find((n: any) => n.id === id);
+        if (notif) {
+          notif.isRead = true;
+        }
+      },
+
+      async markAllRead() {
+        const result = await markAllAsRead();
+        if (result.success) {
+          this.notifications.forEach((n: any) => (n.isRead = true));
+          addToast("Semua notifikasi ditandai dibaca", "success");
+        }
+      },
+
+      async deleteNotif(id: string) {
+        const result = await deleteNotification(id);
+        if (result.success) {
+          this.notifications = this.notifications.filter((n: any) => n.id !== id);
+          addToast("Notifikasi dihapus", "success");
+        }
+      },
+
+      formatDate(isoString: string) {
+        if (!isoString) return "-";
+        return new Date(isoString).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
       },
     }));
   });
@@ -801,7 +1524,12 @@ import SelectGroup from "./SelectGroup.astro";
   <InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
   <div class="grid grid-cols-2 gap-3">
     <InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
-    <InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
+    <InputGroup label="NUPTK" name="nuptk" model="form.pegawai.nuptk" />
+  </div>
+  <InputGroup label="NIK" name="nik" model="form.pegawai.nik" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Tempat Lahir" name="tempat_lahir" model="form.pegawai.tempatLahir" />
+    <InputGroup label="Tanggal Lahir" name="tanggal_lahir" model="form.pegawai.tanggalLahir" type="date" />
   </div>
   <div class="grid grid-cols-2 gap-3">
     <SelectGroup
@@ -812,6 +1540,8 @@ import SelectGroup from "./SelectGroup.astro";
         { val: "PNS", label: "PNS" },
         { val: "PPPK", label: "PPPK" },
         { val: "HONORER", label: "HONORER" },
+        { val: "GTT", label: "GTT" },
+        { val: "PTT", label: "PTT" },
         { val: "GURU", label: "GURU" },
       ]}
     />
@@ -841,10 +1571,25 @@ import SelectGroup from "./SelectGroup.astro";
   </div>
   <InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
   <InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+  <InputGroup label="Alamat" name="alamat" model="form.pegawai.alamat" />
+  <InputGroup label="No HP" name="hp" model="form.pegawai.hp" />
   <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
+  <InputGroup label="Pendidikan" name="pendidikan" model="form.pegawai.pendidikan" />
   <div class="grid grid-cols-2 gap-3">
     <InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
     <InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
+  </div>
+  <div class="mt-4 p-3 bg-slate-800 rounded-lg">
+    <label class="text-xs text-slate-400 block mb-2">Foto Pegawai</label>
+    <div class="h-32 mb-3 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+      <template x-if="form.pegawai.fotoPegawai">
+        <img :src="form.pegawai.fotoPegawai" class="h-full object-contain" />
+      </template>
+      <template x-if="!form.pegawai.fotoPegawai">
+        <span class="text-xs text-slate-600">Belum ada foto</span>
+      </template>
+    </div>
+    <input type="file" accept="image/*" @change="handleUpload($event, 'pegawai.fotoPegawai')" class="w-full text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
   </div>
 </div>```
 
@@ -1204,7 +1949,11 @@ import KeyboardShortcuts from "../components/ui/KeyboardShortcuts.astro";
 import ZoomControl from "../components/ui/ZoomControl.astro";
 import ProgressBar from "../components/ui/ProgressBar.astro";
 import DocumentStats from "../components/ui/DocumentStats.astro";
-import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } from "@lucide/astro";
+import NotificationPanel from "../components/ui/NotificationPanel.astro";
+import UserProfileModal from "../components/ui/UserProfileModal.astro";
+import SearchModal from "../components/ui/SearchModal.astro";
+import ShortcutsHelp from "../components/ui/ShortcutsHelp.astro";
+import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bell, User, Search, HelpCircle } from "@lucide/astro";
 ---
 
 <Layout title="Generator Laporan Kinerja Pegawai AI">
@@ -1214,6 +1963,10 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   <ZoomControl />
   <ProgressBar />
   <DocumentStats />
+  <NotificationPanel />
+  <UserProfileModal />
+  <SearchModal />
+  <ShortcutsHelp />
 
   <main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
     <header class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print">
@@ -1222,15 +1975,22 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         <h1 class="text-sm font-bold text-white hidden md:block">E-KINERJA AI</h1>
       </div>
       <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <button @click="openSearch" class="btn-icon whitespace-nowrap" title="Cari (Ctrl+K)"><Search class="w-3.5 h-3.5" /> Cari</button>
         <button @click="downloadTemplate" class="btn-icon whitespace-nowrap"><Download class="w-3.5 h-3.5" /> Template</button>
         <label class="btn-icon cursor-pointer whitespace-nowrap">
           Import <input type="file" class="hidden" accept=".xlsx" @change="handleImportExcel" />
         </label>
         <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> PDF</button>
         <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> DOCX</button>
-        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft"><Save class="w-5 h-5" /></button>
+        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft (Ctrl+S)"><Save class="w-5 h-5" /></button>
         <button @click="toggleHistory" class="text-slate-400 hover:text-white p-2" title="Riwayat"><History class="w-5 h-5" /></button>
+        <button @click="toggleNotifications" class="relative text-slate-400 hover:text-white p-2" title="Notifikasi">
+          <Bell class="w-5 h-5" />
+          <span x-show="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center" x-text="unreadCount"></span>
+        </button>
         <div class="w-px h-6 bg-white/10 mx-2"></div>
+        <button @click="openUserProfile" class="text-slate-400 hover:text-white p-2" title="Profil"><User class="w-5 h-5" /></button>
+        <button @click="openShortcutsHelp" class="text-slate-400 hover:text-white p-2" title="Bantuan (?)"><HelpCircle class="w-5 h-5" /></button>
         <button @click="handleLogout" class="text-red-400 hover:text-red-300 p-2" title="Logout"><LogOut class="w-5 h-5" /></button>
       </div>
     </header>
@@ -1404,7 +2164,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 </style>
 
 <script>
-
   import { reportStore, historyStore, validateBeforeGenerate } from "../stores/reportStore";
   import { generateLaporan } from "../services/aiService";
   import { importFromExcel, downloadTemplate } from "../services/excelService";
@@ -1414,6 +2173,8 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   import { fetchPegawaiProfile, savePegawaiProfile } from "../services/pegawaiService";
   import { fetchActiveInstansi, updateInstansi } from "../services/instansiService";
   import { fetchHistory, loadReportDetail, deleteReport } from "../services/historyService";
+  import { getUnreadCount } from "../services/notificationService";
+  import { connectWebSocket, disconnectWebSocket } from "../services/websocketService";
   import { parseMarkdown } from "../utils/markdown";
   import { addToast } from "../stores/toastStore";
 
@@ -1432,6 +2193,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       showHistory: false,
       sidebarOpen: true,
       historyItems: [],
+      unreadCount: 0,
 
       async init() {
         if (this.form.output.content) {
@@ -1447,6 +2209,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
         this.form = reportStore.get();
         this.refreshHistory();
+        this.loadUnreadCount();
+
+        connectWebSocket();
 
         historyStore.subscribe((val) => {
           this.historyItems = val.items;
@@ -1462,7 +2227,20 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
           }, 800);
         });
 
+        window.addEventListener("ws:notification", () => {
+          this.loadUnreadCount();
+        });
+
+        window.addEventListener("report:loaded", async (e: any) => {
+          this.renderedHTML = e.detail.html;
+          this.form = reportStore.get();
+        });
+
         this.registerShortcuts();
+
+        window.addEventListener("beforeunload", () => {
+          disconnectWebSocket();
+        });
       },
 
       registerShortcuts() {
@@ -1470,6 +2248,30 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         window.addEventListener("shortcut:save", () => this.saveDraft());
         window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
         window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
+      },
+
+      async loadUnreadCount() {
+        const result = await getUnreadCount();
+        if (result.success) {
+          this.unreadCount = result.count;
+        }
+      },
+
+      toggleNotifications() {
+        window.dispatchEvent(new CustomEvent("toggle:notifications"));
+        this.loadUnreadCount();
+      },
+
+      openUserProfile() {
+        window.dispatchEvent(new CustomEvent("open:user-profile"));
+      },
+
+      openSearch() {
+        window.dispatchEvent(new CustomEvent("open:search"));
+      },
+
+      openShortcutsHelp() {
+        window.dispatchEvent(new CustomEvent("open:shortcuts-help"));
       },
 
       async generateLaporan() {
@@ -1603,6 +2405,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       },
 
       handleLogout() {
+        disconnectWebSocket();
         logout();
       },
       downloadTemplate() {
@@ -2461,6 +3264,193 @@ const { title } = Astro.props;
 
 ---
 
+## src/services/userService.ts
+
+```typescript
+import api from "../utils/api";
+
+export const fetchUserProfile = async () => {
+  try {
+    const response = await api.get("/users/me");
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal mengambil profil",
+    };
+  }
+};
+
+export const updateUserProfile = async (data: {
+  name?: string;
+  email?: string;
+}) => {
+  try {
+    const response = await api.patch("/users/me", data);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal update profil",
+    };
+  }
+};
+
+export const changePassword = async (
+  oldPassword: string,
+  newPassword: string,
+) => {
+  try {
+    await api.post("/auth/change-password", { oldPassword, newPassword });
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal mengubah password",
+    };
+  }
+};
+```
+
+---
+
+## src/services/reportService.ts
+
+```typescript
+import api from "../utils/api";
+import { reportStore } from "../stores/reportStore";
+import type { ReportDTO } from "../types/ReportTypes";
+
+export const fetchMyReports = async (page = 1, limit = 20) => {
+  try {
+    const response = await api.get(
+      `/reports/my-reports?page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data.data,
+      meta: response.data.meta,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal mengambil laporan",
+    };
+  }
+};
+
+export const fetchReportById = async (id: string) => {
+  try {
+    const response = await api.get(`/reports/${id}`);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal mengambil detail laporan",
+    };
+  }
+};
+
+export const updateReport = async (id: string, data: Partial<ReportDTO>) => {
+  try {
+    const response = await api.patch(`/reports/${id}`, data);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal update laporan",
+    };
+  }
+};
+
+export const submitReport = async (id: string) => {
+  try {
+    const response = await api.post(`/reports/${id}/submit`);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal submit laporan",
+    };
+  }
+};
+
+export const deleteReportById = async (id: string) => {
+  try {
+    await api.delete(`/reports/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal menghapus laporan",
+    };
+  }
+};
+
+export const exportReportToPDF = async (id: string) => {
+  try {
+    const response = await api.get(`/reports/${id}/export/pdf`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `laporan_${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal export PDF",
+    };
+  }
+};
+
+export const exportReportToDOCX = async (id: string) => {
+  try {
+    const response = await api.get(`/reports/${id}/export/docx`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `laporan_${id}.docx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal export DOCX",
+    };
+  }
+};
+```
+
+---
+
 ## src/services/excelService.ts
 
 ```typescript
@@ -2548,6 +3538,70 @@ export const importFromExcel = async (file: File) => {
 
 ---
 
+## src/services/websocketService.ts
+
+```typescript
+import { io, Socket } from "socket.io-client";
+import { getToken } from "./authService";
+
+let socket: Socket | null = null;
+
+export const connectWebSocket = () => {
+  const token = getToken();
+  if (!token) return null;
+
+  const BASE_URL =
+    import.meta.env.PUBLIC_API_URL?.replace("/api", "") ||
+    "http://localhost:3000";
+
+  socket = io(`${BASE_URL}/notifications`, {
+    auth: {
+      token: token,
+    },
+    transports: ["websocket"],
+  });
+
+  socket.on("connected", (data) => {
+    console.log("WebSocket connected:", data);
+  });
+
+  socket.on("notification", (notification) => {
+    window.dispatchEvent(
+      new CustomEvent("ws:notification", { detail: notification }),
+    );
+  });
+
+  socket.on("disconnect", () => {
+    console.log("WebSocket disconnected");
+  });
+
+  return socket;
+};
+
+export const disconnectWebSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};
+
+export const subscribeToChannel = (channel: string) => {
+  if (socket) {
+    socket.emit("subscribe", { channel });
+  }
+};
+
+export const unsubscribeFromChannel = (channel: string) => {
+  if (socket) {
+    socket.emit("unsubscribe", { channel });
+  }
+};
+
+export const getSocket = () => socket;
+```
+
+---
+
 ## src/services/fileService.ts
 
 ```typescript
@@ -2611,6 +3665,84 @@ export const uploadBase64 = async (
     return {
       success: false,
       error: error.response?.data?.message || "Upload failed",
+    };
+  }
+};
+```
+
+---
+
+## src/services/notificationService.ts
+
+```typescript
+import api from "../utils/api";
+
+export const fetchNotifications = async (page = 1, limit = 20) => {
+  try {
+    const response = await api.get(
+      `/notifications?page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data.data,
+      meta: response.data.meta,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal mengambil notifikasi",
+    };
+  }
+};
+
+export const getUnreadCount = async () => {
+  try {
+    const response = await api.get("/notifications/unread-count");
+    return {
+      success: true,
+      count: response.data.count,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      count: 0,
+    };
+  }
+};
+
+export const markAsRead = async (id: string) => {
+  try {
+    await api.patch(`/notifications/${id}/read`);
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal menandai sebagai dibaca",
+    };
+  }
+};
+
+export const markAllAsRead = async () => {
+  try {
+    await api.patch("/notifications/read-all");
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error:
+        error.response?.data?.message || "Gagal menandai semua sebagai dibaca",
+    };
+  }
+};
+
+export const deleteNotification = async (id: string) => {
+  try {
+    await api.delete(`/notifications/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.message || "Gagal menghapus notifikasi",
     };
   }
 };
@@ -2956,6 +4088,20 @@ export const fetchPegawaiProfile = async () => {
 export const savePegawaiProfile = async () => {
   const store = reportStore.get();
 
+  const formatDateToISO = (
+    dateString: string | undefined,
+  ): string | undefined => {
+    if (!dateString || dateString.trim() === "") return undefined;
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return undefined;
+      return date.toISOString();
+    } catch {
+      return undefined;
+    }
+  };
+
   const payload: PegawaiDTO = {
     nama: store.pegawai.nama,
     nip: store.pegawai.nip,
@@ -2968,7 +4114,7 @@ export const savePegawaiProfile = async () => {
     nuptk: store.pegawai.nuptk || undefined,
     nik: store.pegawai.nik || undefined,
     tempatLahir: store.pegawai.tempatLahir || undefined,
-    tanggalLahir: store.pegawai.tanggalLahir || undefined,
+    tanggalLahir: formatDateToISO(store.pegawai.tanggalLahir),
     alamat: store.pegawai.alamat || undefined,
     hp: store.pegawai.hp || undefined,
     email: store.pegawai.email || undefined,

@@ -12,7 +12,11 @@ import KeyboardShortcuts from "../components/ui/KeyboardShortcuts.astro";
 import ZoomControl from "../components/ui/ZoomControl.astro";
 import ProgressBar from "../components/ui/ProgressBar.astro";
 import DocumentStats from "../components/ui/DocumentStats.astro";
-import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } from "@lucide/astro";
+import NotificationPanel from "../components/ui/NotificationPanel.astro";
+import UserProfileModal from "../components/ui/UserProfileModal.astro";
+import SearchModal from "../components/ui/SearchModal.astro";
+import ShortcutsHelp from "../components/ui/ShortcutsHelp.astro";
+import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut, Bell, User, Search, HelpCircle } from "@lucide/astro";
 ---
 
 <Layout title="Generator Laporan Kinerja Pegawai AI">
@@ -22,6 +26,10 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   <ZoomControl />
   <ProgressBar />
   <DocumentStats />
+  <NotificationPanel />
+  <UserProfileModal />
+  <SearchModal />
+  <ShortcutsHelp />
 
   <main class="w-full min-h-screen flex flex-col bg-[#0f172a]" x-data="appCore">
     <header class="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur flex items-center justify-between px-6 fixed top-0 w-full z-40 no-print">
@@ -30,15 +38,22 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         <h1 class="text-sm font-bold text-white hidden md:block">E-KINERJA AI</h1>
       </div>
       <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <button @click="openSearch" class="btn-icon whitespace-nowrap" title="Cari (Ctrl+K)"><Search class="w-3.5 h-3.5" /> Cari</button>
         <button @click="downloadTemplate" class="btn-icon whitespace-nowrap"><Download class="w-3.5 h-3.5" /> Template</button>
         <label class="btn-icon cursor-pointer whitespace-nowrap">
           Import <input type="file" class="hidden" accept=".xlsx" @change="handleImportExcel" />
         </label>
         <button @click="exportPDF" class="btn-icon text-red-400 border-red-500/30 bg-red-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> PDF</button>
         <button @click="exportDOCX" class="btn-icon text-blue-400 border-blue-500/30 bg-blue-600/20 whitespace-nowrap"><FileText class="w-3.5 h-3.5" /> DOCX</button>
-        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft"><Save class="w-5 h-5" /></button>
+        <button @click="saveDraft" class="text-slate-400 hover:text-white p-2" title="Simpan Draft (Ctrl+S)"><Save class="w-5 h-5" /></button>
         <button @click="toggleHistory" class="text-slate-400 hover:text-white p-2" title="Riwayat"><History class="w-5 h-5" /></button>
+        <button @click="toggleNotifications" class="relative text-slate-400 hover:text-white p-2" title="Notifikasi">
+          <Bell class="w-5 h-5" />
+          <span x-show="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center" x-text="unreadCount"></span>
+        </button>
         <div class="w-px h-6 bg-white/10 mx-2"></div>
+        <button @click="openUserProfile" class="text-slate-400 hover:text-white p-2" title="Profil"><User class="w-5 h-5" /></button>
+        <button @click="openShortcutsHelp" class="text-slate-400 hover:text-white p-2" title="Bantuan (?)"><HelpCircle class="w-5 h-5" /></button>
         <button @click="handleLogout" class="text-red-400 hover:text-red-300 p-2" title="Logout"><LogOut class="w-5 h-5" /></button>
       </div>
     </header>
@@ -212,7 +227,6 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 </style>
 
 <script>
-
   import { reportStore, historyStore, validateBeforeGenerate } from "../stores/reportStore";
   import { generateLaporan } from "../services/aiService";
   import { importFromExcel, downloadTemplate } from "../services/excelService";
@@ -222,6 +236,8 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
   import { fetchPegawaiProfile, savePegawaiProfile } from "../services/pegawaiService";
   import { fetchActiveInstansi, updateInstansi } from "../services/instansiService";
   import { fetchHistory, loadReportDetail, deleteReport } from "../services/historyService";
+  import { getUnreadCount } from "../services/notificationService";
+  import { connectWebSocket, disconnectWebSocket } from "../services/websocketService";
   import { parseMarkdown } from "../utils/markdown";
   import { addToast } from "../stores/toastStore";
 
@@ -240,6 +256,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       showHistory: false,
       sidebarOpen: true,
       historyItems: [],
+      unreadCount: 0,
 
       async init() {
         if (this.form.output.content) {
@@ -255,6 +272,9 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
 
         this.form = reportStore.get();
         this.refreshHistory();
+        this.loadUnreadCount();
+
+        connectWebSocket();
 
         historyStore.subscribe((val) => {
           this.historyItems = val.items;
@@ -270,7 +290,20 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
           }, 800);
         });
 
+        window.addEventListener("ws:notification", () => {
+          this.loadUnreadCount();
+        });
+
+        window.addEventListener("report:loaded", async (e: any) => {
+          this.renderedHTML = e.detail.html;
+          this.form = reportStore.get();
+        });
+
         this.registerShortcuts();
+
+        window.addEventListener("beforeunload", () => {
+          disconnectWebSocket();
+        });
       },
 
       registerShortcuts() {
@@ -278,6 +311,30 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
         window.addEventListener("shortcut:save", () => this.saveDraft());
         window.addEventListener("shortcut:export-pdf", () => this.exportPDF());
         window.addEventListener("shortcut:export-docx", () => this.exportDOCX());
+      },
+
+      async loadUnreadCount() {
+        const result = await getUnreadCount();
+        if (result.success) {
+          this.unreadCount = result.count;
+        }
+      },
+
+      toggleNotifications() {
+        window.dispatchEvent(new CustomEvent("toggle:notifications"));
+        this.loadUnreadCount();
+      },
+
+      openUserProfile() {
+        window.dispatchEvent(new CustomEvent("open:user-profile"));
+      },
+
+      openSearch() {
+        window.dispatchEvent(new CustomEvent("open:search"));
+      },
+
+      openShortcutsHelp() {
+        window.dispatchEvent(new CustomEvent("open:shortcuts-help"));
       },
 
       async generateLaporan() {
@@ -411,6 +468,7 @@ import { Bot, Download, FileText, Save, History, Printer, RefreshCw, LogOut } fr
       },
 
       handleLogout() {
+        disconnectWebSocket();
         logout();
       },
       downloadTemplate() {

@@ -1,0 +1,226 @@
+<div
+  x-data="userProfileModal"
+  x-show="isOpen"
+  @click.self="close"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center no-print"
+  style="display: none;"
+>
+  <div
+    class="bg-slate-900 rounded-xl w-full max-w-md mx-4 border border-white/10 shadow-2xl"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+  >
+    <div class="p-6 border-b border-white/10">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold text-white">Profil Pengguna</h3>
+        <button @click="close" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <template x-if="activeView === 'profile'">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Nama</label>
+            <input
+              type="text"
+              x-model="profile.name"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <input
+              type="email"
+              x-model="profile.email"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Role</label>
+            <input
+              type="text"
+              :value="profile.role"
+              disabled
+              class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-2 text-slate-400 cursor-not-allowed"
+            />
+          </div>
+
+          <div class="flex gap-2 pt-4">
+            <button
+              @click="saveProfile"
+              :disabled="saving"
+              class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition disabled:opacity-50"
+            >
+              <span x-show="!saving">Simpan Perubahan</span>
+              <span x-show="saving">Menyimpan...</span>
+            </button>
+            <button
+              @click="activeView = 'password'"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition"
+            >
+              Ganti Password
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="activeView === 'password'">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Password Lama</label>
+            <input
+              type="password"
+              x-model="passwordForm.oldPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Password Baru</label>
+            <input
+              type="password"
+              x-model="passwordForm.newPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Konfirmasi Password Baru</label>
+            <input
+              type="password"
+              x-model="passwordForm.confirmPassword"
+              class="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div x-show="passwordError" class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm" x-text="passwordError"></div>
+
+          <div class="flex gap-2 pt-4">
+            <button
+              @click="activeView = 'profile'"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition"
+            >
+              Kembali
+            </button>
+            <button
+              @click="changePassword"
+              :disabled="saving"
+              class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition disabled:opacity-50"
+            >
+              <span x-show="!saving">Ganti Password</span>
+              <span x-show="saving">Mengubah...</span>
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fetchUserProfile, updateUserProfile, changePassword } from "../../services/userService";
+  import { addToast } from "../../stores/toastStore";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("userProfileModal", () => ({
+      isOpen: false,
+      activeView: "profile",
+      saving: false,
+      profile: {
+        name: "",
+        email: "",
+        role: "",
+      },
+      passwordForm: {
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      },
+      passwordError: "",
+
+      init() {
+        window.addEventListener("open:user-profile", () => {
+          this.open();
+        });
+      },
+
+      async open() {
+        this.isOpen = true;
+        this.activeView = "profile";
+        await this.loadProfile();
+      },
+
+      close() {
+        this.isOpen = false;
+        this.passwordForm = {
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        };
+        this.passwordError = "";
+      },
+
+      async loadProfile() {
+        const result = await fetchUserProfile();
+        if (result.success) {
+          this.profile = {
+            name: result.data.name,
+            email: result.data.email,
+            role: result.data.role,
+          };
+        }
+      },
+
+      async saveProfile() {
+        this.saving = true;
+        const result = await updateUserProfile({
+          name: this.profile.name,
+          email: this.profile.email,
+        });
+
+        if (result.success) {
+          addToast("Profil berhasil diupdate", "success");
+          this.close();
+        } else {
+          addToast(result.error, "error");
+        }
+        this.saving = false;
+      },
+
+      async changePassword() {
+        this.passwordError = "";
+
+        if (this.passwordForm.newPassword.length < 8) {
+          this.passwordError = "Password baru minimal 8 karakter";
+          return;
+        }
+
+        if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
+          this.passwordError = "Konfirmasi password tidak cocok";
+          return;
+        }
+
+        this.saving = true;
+        const result = await changePassword(
+          this.passwordForm.oldPassword,
+          this.passwordForm.newPassword
+        );
+
+        if (result.success) {
+          addToast("Password berhasil diubah", "success");
+          this.close();
+        } else {
+          this.passwordError = result.error;
+        }
+        this.saving = false;
+      },
+    }));
+  });
+</script>

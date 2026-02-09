@@ -8,7 +8,12 @@ import SelectGroup from "./SelectGroup.astro";
   <InputGroup label="Nama Lengkap" name="nama" model="form.pegawai.nama" />
   <div class="grid grid-cols-2 gap-3">
     <InputGroup label="NIP" name="nip" model="form.pegawai.nip" />
-    <InputGroup label="NUPTK / NIK" name="nuptk" model="form.pegawai.nuptk" />
+    <InputGroup label="NUPTK" name="nuptk" model="form.pegawai.nuptk" />
+  </div>
+  <InputGroup label="NIK" name="nik" model="form.pegawai.nik" />
+  <div class="grid grid-cols-2 gap-3">
+    <InputGroup label="Tempat Lahir" name="tempat_lahir" model="form.pegawai.tempatLahir" />
+    <InputGroup label="Tanggal Lahir" name="tanggal_lahir" model="form.pegawai.tanggalLahir" type="date" />
   </div>
   <div class="grid grid-cols-2 gap-3">
     <SelectGroup
@@ -19,6 +24,8 @@ import SelectGroup from "./SelectGroup.astro";
         { val: "PNS", label: "PNS" },
         { val: "PPPK", label: "PPPK" },
         { val: "HONORER", label: "HONORER" },
+        { val: "GTT", label: "GTT" },
+        { val: "PTT", label: "PTT" },
         { val: "GURU", label: "GURU" },
       ]}
     />
@@ -48,9 +55,24 @@ import SelectGroup from "./SelectGroup.astro";
   </div>
   <InputGroup label="Jabatan" name="jab" model="form.pegawai.jabatan" />
   <InputGroup label="Unit Kerja" name="unit" model="form.pegawai.unitKerja" />
+  <InputGroup label="Alamat" name="alamat" model="form.pegawai.alamat" />
+  <InputGroup label="No HP" name="hp" model="form.pegawai.hp" />
   <InputGroup label="Email" name="email" model="form.pegawai.email" type="email" />
+  <InputGroup label="Pendidikan" name="pendidikan" model="form.pegawai.pendidikan" />
   <div class="grid grid-cols-2 gap-3">
     <InputGroup label="Masa Kerja (Tahun)" name="mkt" model="form.pegawai.masaKerjaTahun" type="number" />
     <InputGroup label="Masa Kerja (Bulan)" name="mkb" model="form.pegawai.masaKerjaBulan" type="number" />
+  </div>
+  <div class="mt-4 p-3 bg-slate-800 rounded-lg">
+    <label class="text-xs text-slate-400 block mb-2">Foto Pegawai</label>
+    <div class="h-32 mb-3 flex items-center justify-center bg-slate-900 rounded border border-white/5">
+      <template x-if="form.pegawai.fotoPegawai">
+        <img :src="form.pegawai.fotoPegawai" class="h-full object-contain" />
+      </template>
+      <template x-if="!form.pegawai.fotoPegawai">
+        <span class="text-xs text-slate-600">Belum ada foto</span>
+      </template>
+    </div>
+    <input type="file" accept="image/*" @change="handleUpload($event, 'pegawai.fotoPegawai')" class="w-full text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
   </div>
 </div>

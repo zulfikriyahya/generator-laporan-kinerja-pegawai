@@ -16,17 +16,14 @@ EXCLUDE_PATHS=(
 
 EXCLUDE_NAMES=(
   "draft.md"
-  "generate.sh"
   "pnpm-lock.yaml"
   "package-lock.json"
   "yarn.lock"
   "bun.lock"
-  "README.md"
   "LICENSE"
   "tree.txt"
   ".gitignore"
   ".gitkeep"
-  "TODO.md"
   ".env.example"
   "maintenance.html"
   "*.spec.ts"

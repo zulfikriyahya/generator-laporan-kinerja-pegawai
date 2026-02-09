@@ -1,3 +1,130 @@
+# Project Files
+
+.
+├── draft.md
+├── generate.sh
+├── nest-cli.json
+├── package.json
+├── prisma
+│   ├── migrations
+│   │   ├── 20260209142657_new_data
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   ├── schema.prisma
+│   └── seed.ts
+├── src
+│   ├── app.module.ts
+│   ├── common
+│   │   ├── decorators
+│   │   ├── filters
+│   │   ├── guards
+│   │   ├── interceptors
+│   │   └── prisma
+│   │       ├── prisma.module.ts
+│   │       └── prisma.service.ts
+│   ├── config
+│   │   ├── database.config.ts
+│   │   ├── jwt.config.ts
+│   │   └── redis.config.ts
+│   ├── main.ts
+│   ├── modules
+│   │   ├── ai
+│   │   │   ├── ai.controller.ts
+│   │   │   ├── ai.module.ts
+│   │   │   ├── ai.service.ts
+│   │   │   ├── dto
+│   │   │   │   └── generate-report.dto.ts
+│   │   │   ├── interfaces
+│   │   │   │   └── ai-provider.interface.ts
+│   │   │   └── providers
+│   │   │       ├── claude.provider.ts
+│   │   │       ├── deepseek.provider.ts
+│   │   │       ├── gemini.provider.ts
+│   │   │       ├── groq.provider.ts
+│   │   │       ├── openai.provider.ts
+│   │   │       └── together.provider.ts
+│   │   ├── audit
+│   │   │   ├── audit.controller.ts
+│   │   │   ├── audit.module.ts
+│   │   │   ├── audit.service.ts
+│   │   │   └── interceptors
+│   │   │       └── audit.interceptor.ts
+│   │   ├── auth
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── decorators
+│   │   │   │   └── index.ts
+│   │   │   ├── dto
+│   │   │   │   └── index.ts
+│   │   │   ├── guards
+│   │   │   │   └── index.ts
+│   │   │   ├── interfaces
+│   │   │   │   └── index.ts
+│   │   │   └── strategies
+│   │   │       ├── jwt-refresh.strategy.ts
+│   │   │       ├── jwt.strategy.ts
+│   │   │       └── local.strategy.ts
+│   │   ├── files
+│   │   │   ├── dto
+│   │   │   ├── files.controller.ts
+│   │   │   ├── files.module.ts
+│   │   │   └── files.service.ts
+│   │   ├── health
+│   │   │   ├── health.controller.ts
+│   │   │   └── health.module.ts
+│   │   ├── instansi
+│   │   │   ├── dto
+│   │   │   │   ├── create-instansi.dto.ts
+│   │   │   │   └── update-instansi.dto.ts
+│   │   │   ├── instansi.controller.ts
+│   │   │   ├── instansi.module.ts
+│   │   │   └── instansi.service.ts
+│   │   ├── notifications
+│   │   │   ├── dto
+│   │   │   ├── notifications.controller.ts
+│   │   │   ├── notifications.gateway.ts
+│   │   │   ├── notifications.module.ts
+│   │   │   └── notifications.service.ts
+│   │   ├── pegawai
+│   │   │   ├── dto
+│   │   │   │   ├── create-pegawai.dto.ts
+│   │   │   │   └── update-pegawai.dto.ts
+│   │   │   ├── entities
+│   │   │   ├── pegawai.controller.ts
+│   │   │   ├── pegawai.module.ts
+│   │   │   └── pegawai.service.ts
+│   │   ├── reports
+│   │   │   ├── dto
+│   │   │   │   ├── create-report.dto.ts
+│   │   │   │   ├── generate-report.dto.ts
+│   │   │   │   └── update-report.dto.ts
+│   │   │   ├── processors
+│   │   │   │   └── report.processor.ts
+│   │   │   ├── queues
+│   │   │   │   └── report.queue.ts
+│   │   │   ├── reports.controller.ts
+│   │   │   ├── reports.module.ts
+│   │   │   ├── reports.service.spec.ts
+│   │   │   ├── reports.service.ts
+│   │   │   └── services
+│   │   │       ├── docx-export.service.ts
+│   │   │       └── pdf-export.service.ts
+│   │   └── users
+│   │       ├── dto
+│   │       ├── entities
+│   │       ├── users.controller.ts
+│   │       ├── users.module.ts
+│   │       └── users.service.ts
+│   └── utils
+│       ├── constants.ts
+│       ├── helpers.ts
+│       └── validators.ts
+├── tsconfig.json
+└── yarn.lock
+
+44 directories, 78 files
+
 # File Contents
 
 ## package.json
@@ -99,13 +226,19 @@
     "typescript": "^5.3.3"
   },
   "jest": {
-    "moduleFileExtensions": ["js", "json", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": ["**/*.(t|j)s"],
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
@@ -5918,7 +6051,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
 ## src/modules/ai/providers/gemini.provider.ts
 
-````typescript
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -5992,7 +6125,7 @@ export class GeminiProvider implements AIProviderInterface {
     return !!this.apiKey;
   }
 }
-````
+```
 
 ---
 
@@ -6627,6 +6760,7 @@ import { AppModule } from './app.module';
 import { AuditInterceptor } from './modules/audit/interceptors/audit.interceptor';
 import { Reflector } from '@nestjs/core';
 import { AuditService } from './modules/audit/audit.service';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   // Winston Logger
@@ -6656,6 +6790,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger,
   });
+
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   const auditService = app.get(AuditService);
   const reflector = app.get(Reflector);
@@ -6872,15 +7009,15 @@ model User {
   isActive     Boolean   @default(true)
   lastLogin    DateTime?
   refreshToken String?   @db.Text
-
+  
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-
+  
   // Relations
   pegawai      Pegawai?
   reports      Report[]
   auditLogs    AuditLog[]
-
+  
   @@index([email])
   @@map("users")
 }
@@ -6900,7 +7037,7 @@ model Pegawai {
   id              String   @id @default(uuid())
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  
   // Identitas
   nip             String   @unique
   nuptk           String?  @unique
@@ -6909,34 +7046,34 @@ model Pegawai {
   tempatLahir     String?
   tanggalLahir    DateTime?
   gender          Gender
-
+  
   // Kepegawaian
   jenisPegawai    JenisPegawai
   statusPegawai   StatusPegawai @default(AKTIF)
   golongan        String?
   jabatan         String
   unitKerja       String
-
+  
   // Kontak
   alamat          String?  @db.Text
   hp              String?
   email           String?
-
+  
   // Akademik
   pendidikan      String?
   masaKerjaTahun  Int      @default(0)
   masaKerjaBulan  Int      @default(0)
-
+  
   // Media
   fotoPegawai     String?  @db.Text
-
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
+  
   // Relations
   reports         Report[]
   akademik        AkademikData?
-
+  
   @@index([nip])
   @@index([nama])
   @@map("pegawai")
@@ -6971,7 +7108,7 @@ model AkademikData {
   id              String   @id @default(uuid())
   pegawaiId       String   @unique
   pegawai         Pegawai  @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
-
+  
   kurikulum       Kurikulum
   tahunPelajaran  String
   semester        Semester
@@ -6980,10 +7117,10 @@ model AkademikData {
   jamMengajar     Int
   jumlahSiswa     Int
   ekskul          String?  @db.Text
-
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
+  
   @@map("akademik_data")
 }
 
@@ -7004,7 +7141,7 @@ enum Semester {
 
 model Instansi {
   id          String   @id @default(uuid())
-
+  
   // Header Info
   header1     String
   header2     String
@@ -7013,27 +7150,27 @@ model Instansi {
   telepon     String?
   email       String?
   website     String?
-
+  
   // Logo
   logoUtama   String?  @db.Text
   logoInstansi String? @db.Text
-
+  
   // Pejabat
   namaKepala  String
   nipKepala   String
   pangkatKepala String
   ttdKepala   String?  @db.Text
-
+  
   titimangsa  String
-
+  
   isActive    Boolean  @default(true)
-
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
+  
   // Relations
   reports     Report[]
-
+  
   @@map("instansi")
 }
 
@@ -7043,49 +7180,49 @@ model Instansi {
 
 model Report {
   id              String      @id @default(uuid())
-
+  
   // Relations
   pegawaiId       String
   pegawai         Pegawai     @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
-
+  
   instansiId      String
   instansi        Instansi    @relation(fields: [instansiId], references: [id])
-
+  
   userId          String
   user            User        @relation(fields: [userId], references: [id])
-
+  
   // Periode
   bulan           Int
   tahun           Int
-
+  
   // Kinerja Data
   tugasPokok      String      @db.Text
   tugasTambahan   String?     @db.Text
   targetTahunan   String?     @db.Text
   hambatan        String?     @db.Text
   solusi          String?     @db.Text
-
+  
   // AI Generated Content
   content         String      @db.LongText
   modelAI         String
   tokensUsed      Int?
-
+  
   // TTE (Tanda Tangan Elektronik)
   nomorDokumen    String      @unique
   hashDokumen     String?
   qrCode          String?     @db.Text
   ttdTimestamp    DateTime?
-
+  
   // Status
   status          ReportStatus @default(DRAFT)
   publishedAt     DateTime?
-
+  
   // Metadata
   metadata        Json?
-
+  
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-
+  
   @@index([pegawaiId])
   @@index([userId])
   @@index([bulan, tahun])
@@ -7108,22 +7245,22 @@ enum ReportStatus {
 
 model FileUpload {
   id          String      @id @default(uuid())
-
+  
   filename    String
   originalName String
   mimetype    String
   size        Int
   path        String
   url         String?
-
+  
   uploadedBy  String
   category    FileCategory
-
+  
   metadata    Json?
-
+  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
+  
   @@index([uploadedBy])
   @@index([category])
   @@map("file_uploads")
@@ -7144,22 +7281,22 @@ enum FileCategory {
 
 model AuditLog {
   id          String      @id @default(uuid())
-
+  
   userId      String
   user        User        @relation(fields: [userId], references: [id])
-
+  
   action      String
   entity      String
   entityId    String?
-
+  
   oldData     Json?
   newData     Json?
-
+  
   ipAddress   String?
   userAgent   String?
-
+  
   createdAt   DateTime    @default(now())
-
+  
   @@index([userId])
   @@index([entity])
   @@index([createdAt])
@@ -7172,20 +7309,20 @@ model AuditLog {
 
 model Notification {
   id          String      @id @default(uuid())
-
+  
   userId      String
-
+  
   title       String
   message     String      @db.Text
   type        NotificationType
-
+  
   isRead      Boolean     @default(false)
   readAt      DateTime?
-
+  
   metadata    Json?
-
+  
   createdAt   DateTime    @default(now())
-
+  
   @@index([userId])
   @@index([isRead])
   @@map("notifications")
@@ -7207,17 +7344,17 @@ enum NotificationType {
 
 model Setting {
   id          String      @id @default(uuid())
-
+  
   key         String      @unique
   value       String      @db.Text
   category    String
   description String?
-
+  
   isPublic    Boolean     @default(false)
-
+  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
+  
   @@index([key])
   @@index([category])
   @@map("settings")
@@ -7398,7 +7535,7 @@ REDIS_DB=0
 QUEUE_PREFIX=ekinerja
 
 # AI Services
-GEMINI_API_KEY=AIzaSyB4_SruQBW1ODEZBzjcffMiEYOnG7vv14s
+GEMINI_API_KEY=AIzaSyCLG0nmci_by89reLDsqyxD4cUdImlKOk0
 CLAUDE_API_KEY=
 OPENAI_API_KEY=
 GROQ_API_KEY=
@@ -7516,3 +7653,4 @@ module.exports = {
 ```
 
 ---
+
